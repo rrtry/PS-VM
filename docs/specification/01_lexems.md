@@ -14,8 +14,6 @@
 | `for`      | Цикл со счётчиком |
 | `break`    | Прерывание цикла |
 | `continue` | Переход к следующей итерации цикла |
-| `true`     | Литерал истины (значение 1 типа `int`) |
-| `false`    | Литерал лжи (значение 0 типа `int`) |
 | `int`      | Объявление целочисленного типа |
 | `float`    | Объявление типа с плавающей точкой |
 | `str`      | Объявление строкового типа |
@@ -126,17 +124,17 @@ letter       = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" |
 whitespace = ? Unicode-символы пробела? ;
 
 (* Идентификаторы и ключевые слова *)
-identifier = letter , { letter | digit | "_" } ;
+identifier = (letter | "_"), { letter | digit | "_" } ;
 keyword    = "fn" | "let" | "return" | "if" | "else" | "while" | "for"
-        | "break" | "continue" | "true" | "false" | "int" | "float"
+        | "break" | "continue" | "int" | "float"
         | "str" | "unit" | "bool";
 
 (* Литералы *)
-bool_literal        = true | false;
+bool_literal        = "true" | "false";
 integer_literal     = decimal_literal | hexadecimal_literal | binary_literal ;
 decimal_literal     = digit , { digit } ;
-hexadecimal_literal = "0x" | "0X" , hex_digit , { hex_digit } ;
-binary_literal      = binary_digit , { binary_digit } ;
+hexadecimal_literal = ("0x" | "0X") , hex_digit , { hex_digit } ;
+binary_literal = ("0b" | "0B") , binary_digit , { binary_digit } ;
 
 float_literal   = digit , { digit } , "." , digit , { digit } ;
 string_literal  = '"' , { character | escape_sequence } , '"' ;
@@ -144,7 +142,7 @@ character       = ? любой Unicode-символ, кроме " и \ ? ;
 escape_sequence = "\\" , ( "n" | "t" | "\\" | "\"" ) ;
 
 (* Операторы и знаки пунктуации *)
-operator = "+" | "-" | "*" | "/" | "%" | "^" | "="
+operator = "+" | "-" | "*" | "/" | "%" | "**" | "="
          | "==" | "!=" | "<" | ">" | "<=" | ">="
          | "&&" | "||" | "!" ;
 punctuation = "," | ";" | ":" | "{" | "}" | "(" | ")" ;

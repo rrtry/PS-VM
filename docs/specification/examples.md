@@ -1,6 +1,102 @@
 # Примеры программ на языке
 
-## 1. GCD — наибольший общий делитель (алгоритм Евклида)
+## Общие примеры
+
+### Типы данных и преобразования
+```
+fn data_type_check() {
+    let x: int = 42;
+    let y: float = 3.14;
+    let sum = x + y;
+    
+    print(itos(123));
+    print(ftos(3.14159, 2));
+    printi(ftoi(3.9));
+    printi(stoi("456"));
+}
+```
+
+### Операторы
+```
+fn operators_check() {
+    let a = 10;
+    let b = 3;
+    
+    printi(a + b); 
+    printi(a - b); 
+    printi(a * b);
+    printi(a / b); 
+    printi(a % b); 
+    printi(2 ** 3);
+    printi(-a); 
+    printi(!true);
+}
+```
+
+### Цикл For и управление им
+```
+fn for_loop_check() {
+    let mut i = 0;
+    for (i = 1; i <= 5; i = i + 1) {
+        printi(i);
+    }
+    
+    let mut n = 1;
+    while (n < 100) {
+        if (n > 10) { break; }
+        n = n * 2;
+    }
+}
+```
+
+### Проверка области видимостей
+```
+let global = 100;
+
+fn scope_check() {
+    let local = 10;
+    {
+        let local = 20;
+        printi(local);
+    }
+    printi(local);
+    printi(global);
+}
+```
+
+### Операции над строками
+```
+fn string_check() {
+    let s = sconcat("Hello", " World");
+    let len = strlen(s);
+    let sub = substr(s, 0, 5);
+    
+    let esc = "Кавычки: \" и \\ и \n";
+}
+```
+
+### Проверка граничных случаев
+```
+fn boundary_check() {
+    safe_div(10, 0);
+    
+    let max = 9223372036854775807;
+    let empty = "";
+    let len = strlen(empty);
+}
+
+fn safe_div(a: int, b: int): unit {
+    if (b == 0) {
+        print("Деление на 0!\n");
+        return;
+    }
+    printi(a / b);
+}
+```
+
+## Явные примеры программ
+
+### 1. GCD — наибольший общий делитель (алгоритм Евклида)
 ```
 fn main() {
     let a = stoi(input());
@@ -89,15 +185,14 @@ fn main() {
 fn reverse(s: str): str {
     let len = strlen(s);
     let result = "";
+    let mut i = 0;
 
-    let i = len - 1;
-    while (i >= 0) {
+    for (i = len - 1; i >= 0; i = i - 1) {
         result = sconcat(result, substr(s, i, 1));
-        i = i - 1;
     }
 
     return result;
-}
+} 
 ```
 
 ### 4. CheckPalindrome — проверка, является ли строка палиндромом (с учётом регистра и пробелов)

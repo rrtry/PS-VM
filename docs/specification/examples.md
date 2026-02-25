@@ -2,7 +2,8 @@
 
 ## Общие примеры
 
-### Типы данных и преобразования
+### Типы данных и функции преобразования
+
 ```
 fn data_type_check() {
     let x: int = 42;
@@ -17,6 +18,7 @@ fn data_type_check() {
 ```
 
 ### Операторы
+
 ```
 fn operators_check() {
     let a = 10;
@@ -34,6 +36,7 @@ fn operators_check() {
 ```
 
 ### Цикл For и управление им
+
 ```
 fn for_loop_check() {
     let mut i = 0;
@@ -50,6 +53,7 @@ fn for_loop_check() {
 ```
 
 ### Проверка области видимостей
+
 ```
 let global = 100;
 
@@ -65,6 +69,7 @@ fn scope_check() {
 ```
 
 ### Операции над строками
+
 ```
 fn string_check() {
     let s = sconcat("Hello", " World");
@@ -76,6 +81,7 @@ fn string_check() {
 ```
 
 ### Проверка граничных случаев
+
 ```
 fn boundary_check() {
     safe_div(10, 0);
@@ -97,6 +103,7 @@ fn safe_div(a: int, b: int): unit {
 ## Явные примеры программ
 
 ### 1. GCD — наибольший общий делитель (алгоритм Евклида)
+
 ```
 fn main() {
     let a = stoi(input());
@@ -121,7 +128,8 @@ fn gcd(mut x: int, mut y: int): int {
 
 ---
 
-## 2. QuadraticEquation — решение квадратного уравнения ax² + bx + c = 0
+### 2. QuadraticEquation — решение квадратного уравнения ax² + bx + c = 0
+
 ```
 fn main() {
     let a = stof(input());
@@ -173,7 +181,8 @@ fn solve(a: float, b: float, c: float): unit {
 
 ---
 
-## 3. ReverseString — реверс строки
+### 3. ReverseString — реверс строки
+
 ```
 fn main() {
     let s = input();
@@ -196,6 +205,7 @@ fn reverse(s: str): str {
 ```
 
 ### 4. CheckPalindrome — проверка, является ли строка палиндромом (с учётом регистра и пробелов)
+
 ```
 fn main() {
     let line = input();
@@ -254,39 +264,6 @@ fn to_lower(ch: str): str {
     if (ch == "X") { return "x"; }
     if (ch == "Y") { return "y"; }
     if (ch == "Z") { return "z"; }    
-    if (ch == "А") { return "а"; }
-    if (ch == "Б") { return "б"; }
-    if (ch == "В") { return "в"; }
-    if (ch == "Г") { return "г"; }
-    if (ch == "Д") { return "д"; }
-    if (ch == "Е") { return "е"; }
-    if (ch == "Ё") { return "ё"; }
-    if (ch == "Ж") { return "ж"; }
-    if (ch == "З") { return "з"; }
-    if (ch == "И") { return "и"; }
-    if (ch == "Й") { return "й"; }
-    if (ch == "К") { return "к"; }
-    if (ch == "Л") { return "л"; }
-    if (ch == "М") { return "м"; }
-    if (ch == "Н") { return "н"; }
-    if (ch == "О") { return "о"; }
-    if (ch == "П") { return "п"; }
-    if (ch == "Р") { return "р"; }
-    if (ch == "С") { return "с"; }
-    if (ch == "Т") { return "т"; }
-    if (ch == "У") { return "у"; }
-    if (ch == "Ф") { return "ф"; }
-    if (ch == "Х") { return "х"; }
-    if (ch == "Ц") { return "ц"; }
-    if (ch == "Ч") { return "ч"; }
-    if (ch == "Ш") { return "ш"; }
-    if (ch == "Щ") { return "щ"; }
-    if (ch == "Ъ") { return "ъ"; }
-    if (ch == "Ы") { return "ы"; }
-    if (ch == "Ь") { return "ь"; }
-    if (ch == "Э") { return "э"; }
-    if (ch == "Ю") { return "ю"; }
-    if (ch == "Я") { return "я"; }
     
     return ch;
 }
@@ -309,6 +286,7 @@ fn is_palindrome(s: str): bool {
 ```
 
 ### 5. Программа IsPrime - Вычисление простого числа
+
 ```
 fn main() 
 {

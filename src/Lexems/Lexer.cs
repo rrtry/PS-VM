@@ -240,10 +240,10 @@ public class Lexer
     /// <summary>
     ///  Распознаёт идентификаторы и ключевые слова.
     ///  Идентификаторы обрабатываются по правилам:
-    ///     identifier = [letter | '_' ], { letter | digit | '_' } ;
-    ///     letter = "a" | "b" | .. | "z" | unicode_letter ;
-    ///     digit = "0" | "1" | .. | "9" ;
-    ///     unicode_letter — любая буква Unicode.
+    /// identifier = (letter | "_"), { letter | digit | "_" } ;
+    /// keyword    = "fn" | "let" | "return" | "if" | "else" | "while" | "for"
+    /// | "break" | "continue" | "int" | "float"
+    /// | "str" | "unit" | "bool";
     /// </summary>
     private Token ParseIdentifierOrKeyword()
     {
@@ -268,9 +268,11 @@ public class Lexer
 
     /// <summary>
     ///  Распознаёт литерал числа по правилам:
-    ///     number = digits_sequence, [ ".", digits_sequence ] ;
-    ///     digits_sequence = digit { digit } ;
-    ///     digit = "0" | "1" | ... | "9" ;.
+    /// integer_literal     = decimal_literal | hexadecimal_literal | binary_literal ;
+    /// decimal_literal     = digit , { digit } ;
+    /// hexadecimal_literal = ("0x" | "0X") , hex_digit , { hex_digit } ;
+    /// binary_literal      = ("0b" | "0B") , binary_digit , { binary_digit } ;
+    /// float_literal       = digit , { digit } , "." , digit , { digit } ;
     /// </summary>
     private Token ParseNumericLiteral(int octal)
     {
@@ -363,11 +365,10 @@ public class Lexer
     }
 
     /// <summary>
-    ///  Распознаёт литерал числа по правилам:
-    ///     string = quote, { string_element }, quote ;
-    ///     quote = "'" ;
-    ///     string_element = char | escape_sequence ;
-    ///     char = ^"'".
+    ///  Распознаёт литерал строки по правилам:
+    /// string_literal  = '"' , { character | escape_sequence } , '"' ;
+    /// character       = ? любой Unicode-символ, кроме " и \ ? ;
+    /// escape_sequence = "\\" , ( "n" | "t" | "\\" | "\"" ) ;
     /// </summary>
     private Token ParseStringLiteral()
     {
@@ -401,7 +402,7 @@ public class Lexer
 
     /// <summary>
     ///  Распознаёт escape-последовательности по правилам:
-    ///     escape_sequence = "\", "\" | "\", "'" ;
+    ///  escape_sequence = "\\" , ( "n" | "t" | "\\" | "\"" ) ;
     ///  Возвращает null при появлении неизвестных escape-последовательностей.
     /// </summary>
     private bool TryParseStringLiteralEscapeSequence(out char unescaped)

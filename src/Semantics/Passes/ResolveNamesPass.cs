@@ -44,7 +44,7 @@ public sealed class ResolveNamesPass : AbstractPass
 
     public override void Visit(FunctionDeclaration d)
     {
-        d.ResultType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType : symbols.GetTypeDeclaration("void").ResultType;
+        d.ResultType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType : symbols.GetTypeDeclaration("unit").ResultType;
         d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
 
         symbols.DeclareFunction(d);

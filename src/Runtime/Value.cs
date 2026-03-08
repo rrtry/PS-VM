@@ -7,7 +7,7 @@ using System.Globalization;
 /// int    - целое число (int64_t).
 /// float  - вещественное число (double).
 /// str    - UTF-8 строка.
-/// void   - отсуствие возвращаемого типа у функции.
+/// unit   - отсуствие возвращаемого типа у функции.
 /// </summary>
 public class Value : IEquatable<Value>
 {

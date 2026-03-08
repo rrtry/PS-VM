@@ -258,7 +258,6 @@ public class AstEvaluator : IAstVisitor
     public void Visit(FunctionDeclaration d)
     {
         values.Push(Value.Unit);
-        context.DefineFunction(d);
     }
 
     public void Visit(BreakLoopStatement s)

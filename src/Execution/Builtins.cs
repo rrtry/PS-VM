@@ -196,7 +196,7 @@ public class Builtins
             new("int", ValueType.Int),
             new("float", ValueType.Float),
             new("str", ValueType.String),
-            new("void", ValueType.Unit)
+            new("unit", ValueType.Unit)
         ];
     }
 

@@ -1,6 +1,6 @@
-using System.Text;
-
 namespace Lexems;
+
+using System.Text;
 
 public class Token
 {

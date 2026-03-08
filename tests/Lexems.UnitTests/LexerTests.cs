@@ -18,19 +18,6 @@ public class LexerTests
         Assert.Equal(expected, actual);
     }
 
-    private static List<Token> Tokenize(string code)
-    {
-        List<Token> results = [];
-        Lexer lexer = new(code);
-
-        for (Token t = lexer.ParseToken(); t.Type != TokenType.Eof; t = lexer.ParseToken())
-        {
-            results.Add(t);
-        }
-
-        return results;
-    }
-
     public static TheoryData<string, List<Token>> GetTokenizeConstructions()
     {
         return new TheoryData<string, List<Token>>
@@ -392,5 +379,18 @@ public class LexerTests
                 }
             },
         };
+    }
+
+    private static List<Token> Tokenize(string code)
+    {
+        List<Token> results = [];
+        Lexer lexer = new(code);
+
+        for (Token t = lexer.ParseToken(); t.Type != TokenType.Eof; t = lexer.ParseToken())
+        {
+            results.Add(t);
+        }
+
+        return results;
     }
 }

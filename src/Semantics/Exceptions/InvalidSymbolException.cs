@@ -1,0 +1,15 @@
+namespace Semantics.Exceptions;
+
+#pragma warning disable RCS1194
+
+/// <summary>
+/// Исключение из-за некорректного использования символа (функции, переменной, типа).
+/// </summary>
+public class InvalidSymbolException : Exception
+{
+    public InvalidSymbolException(string name, string expectedCategory, string actualCategory)
+        : base($"Name {name} should refer to a {expectedCategory}, got {actualCategory}")
+    {
+    }
+}
+#pragma warning restore RCS1194

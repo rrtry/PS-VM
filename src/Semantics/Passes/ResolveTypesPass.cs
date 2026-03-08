@@ -1,8 +1,5 @@
 using Ast.Declarations;
 using Ast.Expressions;
-using Ast.Statements;
-
-using Runtime;
 using Semantics.Exceptions;
 using Semantics.Helpers;
 
@@ -90,7 +87,7 @@ public sealed class ResolveTypesPass : AbstractPass
     public override void Visit(AssignmentExpression e)
     {
         base.Visit(e);
-        e.ResultType = ValueType.Void;
+        e.ResultType = ValueType.Unit;
     }
 
     public override void Visit(ForLoopIteratorDeclaration d)

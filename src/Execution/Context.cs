@@ -151,7 +151,7 @@ public class Context
                 new(
                     "printf",
                     [ new NativeFunctionParameter("f", ValueType.Float), new NativeFunctionParameter("p", ValueType.Int),],
-                    ValueType.Void,
+                    ValueType.Unit,
                     arguments =>
                     {
                         environment.Print(arguments[0].AsDouble().ToString($"F{arguments[1]}"));
@@ -164,7 +164,7 @@ public class Context
                 new(
                     "print",
                     [ new NativeFunctionParameter("s", ValueType.String),],
-                    ValueType.Void,
+                    ValueType.Unit,
                     arguments =>
                     {
                         environment.Print(arguments[0].AsString());
@@ -177,7 +177,7 @@ public class Context
                 new(
                     "printi",
                     [ new NativeFunctionParameter("n", ValueType.Int),],
-                    ValueType.Void,
+                    ValueType.Unit,
                     arguments =>
                     {
                         if (arguments[0].IsDouble())

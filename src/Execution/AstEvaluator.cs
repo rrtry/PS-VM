@@ -305,7 +305,7 @@ public class AstEvaluator : IAstVisitor
     {
         bool hasReturn = false;
         bool hasReturnType = function.DeclaredType != null &&
-                             function.DeclaredType.ResultType != ValueType.Void;
+                             function.DeclaredType.ResultType != ValueType.Unit;
 
         Value returnValue = Value.Unit;
         context.PushScope(new Scope());

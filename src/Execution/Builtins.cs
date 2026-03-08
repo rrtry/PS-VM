@@ -112,7 +112,7 @@ public class Builtins
             new(
                 "printf",
                 [ new NativeFunctionParameter("f", ValueType.Float), new NativeFunctionParameter("p", ValueType.Int),],
-                ValueType.Void,
+                ValueType.Unit,
                 arguments =>
                 {
                     environment.Print(arguments[0].AsDouble().ToString($"F{arguments[1]}"));
@@ -122,7 +122,7 @@ public class Builtins
             new(
                 "print",
                 [ new NativeFunctionParameter("s", ValueType.String),],
-                ValueType.Void,
+                ValueType.Unit,
                 arguments =>
                 {
                     environment.Print(arguments[0].AsString());
@@ -132,7 +132,7 @@ public class Builtins
             new(
                 "printi",
                 [ new NativeFunctionParameter("n", ValueType.Int),],
-                ValueType.Void,
+                ValueType.Unit,
                 arguments =>
                 {
                     environment.Print(arguments[0].AsLong().ToString());
@@ -196,7 +196,7 @@ public class Builtins
             new("int", ValueType.Int),
             new("float", ValueType.Float),
             new("str", ValueType.String),
-            new("void", ValueType.Void)
+            new("void", ValueType.Unit)
         ];
     }
 

@@ -34,7 +34,7 @@ public class CheckTypesPass : AbstractPass
         base.Visit(d);
 
         if (d.DeclaredType != null &&
-            d.DeclaredType.ResultType != ValueType.Void)
+            d.DeclaredType.ResultType != ValueType.Unit)
         {
             if (!GuaranteesReturn(d.Body))
             {
@@ -71,7 +71,7 @@ public class CheckTypesPass : AbstractPass
         base.Visit(d);
 
         ValueType inferredType = d.InitialValue.ResultType;
-        if (inferredType == ValueType.Void)
+        if (inferredType == ValueType.Unit)
         {
             throw new TypeErrorException("Cannot initialize variable from expression without value");
         }

@@ -2,7 +2,6 @@ namespace Semantics;
 
 using Ast;
 using Ast.Declarations;
-using Ast.Expressions;
 using Semantics.Passes;
 using Semantics.Symbols;
 

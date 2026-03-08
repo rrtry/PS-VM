@@ -7,7 +7,7 @@ public class ValueType
     /// <summary>
     /// Значение отсутствует.
     /// </summary>
-    public static readonly ValueType Void = new("void");
+    public static readonly ValueType Unit = new("unit");
 
     /// <summary>
     /// Целочисленное значение.

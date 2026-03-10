@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Lexems\Lexems.csproj" />
+    <ProjectReference Include="..\VirtualMachine\VirtualMachine.csproj" />
     <ProjectReference Include="..\Ast\Ast.csproj" />
   </ItemGroup>
 

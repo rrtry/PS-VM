@@ -1,47 +1,50 @@
 namespace Interpreter;
 
-using Execution;
+using Ast;
 using Parser;
+using Runtime;
 using Semantics;
+
+using VirtualMachine;
+using VirtualMachine.Instructions;
+using VirtualMachineCodegen;
 
 public class Interpreter
 {
-    private readonly Context context;
     private readonly IEnvironment environment;
-    private readonly Builtins builtins;
 
-    public Interpreter()
-    {
-        environment = new ConsoleEnvironment();
-        context = new Context(environment);
-        builtins = new Builtins(environment);
-    }
+    private int _exitCode = 0;
 
-    public Interpreter(Context cxt, IEnvironment env)
+    public Interpreter(IEnvironment env)
     {
-        context = cxt;
         environment = env;
-        builtins = new Builtins(environment);
     }
 
     /// <summary>
     /// Выполнение программы.
     /// </summary>
     /// <param name="sourceCode">Исходный код программы.</param>
-    public void Execute(string sourceCode)
+    public Value Execute(string sourceCode)
     {
         if (string.IsNullOrEmpty(sourceCode))
         {
             throw new ArgumentException("Source code cannot be null or empty", nameof(sourceCode));
         }
 
-        Parser parser = new(context, environment, sourceCode);
+        Parser parser = new(sourceCode);
         BlockStatement program = parser.Parse();
 
-        SemanticsChecker semanticsChecker = new(builtins.Functions, builtins.Types);
+        SemanticsChecker semanticsChecker = new(Builtins.Functions, Builtins.Types);
         semanticsChecker.Check(program);
 
-        AstEvaluator evaluator = new AstEvaluator(context);
-        evaluator.Evaluate(program);
+        PsVmCodegen codegen = new();
+        List<Instruction> instructions = codegen.GenerateCode(program);
+
+        // 4. Исполнение программы на виртуальной машине.
+        PsVm vm = new(environment, instructions);
+        Value result = vm.RunProgram();
+        _exitCode = vm.ExitCode;
+
+        return result;
     }
 }

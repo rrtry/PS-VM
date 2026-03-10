@@ -1,5 +1,5 @@
-﻿using Execution;
-using Semantics.Exceptions;
+﻿using Semantics.Exceptions;
+using Tests.TestLibrary.TestDoubles;
 using Xunit.Sdk;
 
 namespace Interpreter.Specs;
@@ -15,11 +15,13 @@ public class InterpreterTests
         List<string> expectedOutput = tuple.Item2;
 
         FakeEnvironment environment = new FakeEnvironment();
-        Context context = new Context(environment);
-        environment.SetProgramInput(programInput);
+        foreach (string input in programInput)
+        {
+            environment.AddInput(input);
+        }
 
-        List<string> evaluated = environment.GetEvaluated();
-        Interpreter interpreter = new Interpreter(context, environment);
+        List<string> evaluated = environment.Evaluated;
+        Interpreter interpreter = new Interpreter(environment);
         interpreter.Execute(source);
 
         Assert.Equal(expectedOutput.Count, evaluated.Count);
@@ -35,16 +37,17 @@ public class InterpreterTests
     public List<string> RunProgram(string source, List<string>? input = null)
     {
         FakeEnvironment environment = new FakeEnvironment();
-        Context context = new Context(environment);
-
         if (input != null)
         {
-            environment.SetProgramInput(input);
+            foreach (string line in input)
+            {
+                environment.AddInput(line);
+            }
         }
 
-        Interpreter interpreter = new Interpreter(context, environment);
+        Interpreter interpreter = new Interpreter(environment);
         interpreter.Execute(source);
-        return environment.GetEvaluated();
+        return environment.Evaluated;
     }
 
     [Fact]

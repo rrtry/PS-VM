@@ -110,7 +110,7 @@ public class Value : IEquatable<Value>
         return value switch
         {
             long i => i,
-            _ => throw new InvalidOperationException($"Value {value} is not numeric"),
+            _ => throw new InvalidOperationException($"Value {value} is not numeric, {value.GetType()}"),
         };
     }
 
@@ -146,6 +146,34 @@ public class Value : IEquatable<Value>
             double d => Math.Abs(other.AsDouble() - d) < Tolerance,
             UnitValue => true,
             _ => throw new NotImplementedException(),
+        };
+    }
+
+    /// <summary>
+    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
+    /// </summary>
+    public bool LessThan(Value other)
+    {
+        return value switch
+        {
+            long i => other.IsLong() ? other.AsLong() > i : other.AsDouble() > i,
+            string s => string.CompareOrdinal(s, other.AsString()) < 0,
+            double d => other.AsDouble() > d,
+            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
+        };
+    }
+
+    /// <summary>
+    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
+    /// </summary>
+    public bool LessThanOrEqual(Value other)
+    {
+        return value switch
+        {
+            long i => other.IsDouble() ? Math.Abs(other.AsDouble() - i) < Tolerance || i < other.AsDouble() : i <= other.AsLong(),
+            string s => string.CompareOrdinal(s, other.AsString()) <= 0,
+            double d => Math.Abs(other.AsDouble() - d) < Tolerance || d < other.AsDouble(),
+            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
         };
     }
 

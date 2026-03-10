@@ -1,7 +1,7 @@
 ﻿namespace Parser.UnitTests;
 
-using Execution;
 using Interpreter;
+using Tests.TestLibrary.TestDoubles;
 using Xunit.Sdk;
 
 public class ParserTests
@@ -15,10 +15,9 @@ public class ParserTests
     {
         List<string> expectedOutput = expected;
         FakeEnvironment environment = new FakeEnvironment();
-        Context context = new Context(environment);
 
-        List<string> evaluated = environment.GetEvaluated();
-        Interpreter interpreter = new Interpreter(context, environment);
+        List<string> evaluated = environment.Evaluated;
+        Interpreter interpreter = new Interpreter(environment);
         interpreter.Execute(source);
 
         Assert.Equal(expectedOutput.Count, evaluated.Count);

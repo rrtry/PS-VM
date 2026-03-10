@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Interpreter\Interpreter.csproj" />
+    <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 
 </Project>

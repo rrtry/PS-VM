@@ -5,7 +5,6 @@ using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
-using Execution;
 using Lexems;
 using Runtime;
 
@@ -16,35 +15,22 @@ public class Parser
 {
     private readonly TokenStream tokens;
 
-    private readonly Context context;
-    private readonly IEnvironment environment;
-    private readonly AstEvaluator evaluator;
-
     public Parser(string source)
     {
         tokens = new TokenStream(source);
-        environment = new FakeEnvironment();
-        context = new Context(environment);
-        evaluator = new AstEvaluator(context);
-    }
-
-    public Parser(Context context, IEnvironment environment, string source)
-    {
-        tokens = new TokenStream(source);
-        this.context = context;
-        this.environment = environment;
-        this.evaluator = new AstEvaluator(context);
     }
 
     public List<string> Eval()
     {
+        return [];
+        /*
         while (tokens.Peek().Type != TokenType.Eof)
         {
             AstNode node = ParseStatement();
-            evaluator.Evaluate(node);
+            // evaluator.Evaluate(node);
         }
 
-        return environment.GetEvaluated();
+        return environment.GetEvaluated(); */
     }
 
     public BlockStatement Parse()
@@ -422,7 +408,7 @@ public class Parser
             Expression right = ParseMultiplicative();
             left = new BinaryOperationExpression(
                 left,
-                op.Type == TokenType.Plus ? BinaryOperation.Add : BinaryOperation.Substract,
+                op.Type == TokenType.Plus ? BinaryOperation.Add : BinaryOperation.Subtract,
                 right
             );
         }

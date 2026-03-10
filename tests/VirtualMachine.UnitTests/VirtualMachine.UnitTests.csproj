@@ -19,8 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Parser\Parser.csproj" />
-    <ProjectReference Include="..\..\src\Interpreter\Interpreter.csproj" />
+    <ProjectReference Include="..\..\src\VirtualMachine\VirtualMachine.csproj" />
     <ProjectReference Include="..\TestLibrary\TestLibrary.csproj" />
   </ItemGroup>
 

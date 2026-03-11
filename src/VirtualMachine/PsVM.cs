@@ -245,7 +245,38 @@ public class PsVm
                 case InstructionCode.Negate:
                     {
                         Value operand = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(-operand.AsLong()));
+                        _evaluationStack.Push(new Value(
+                            operand.IsLong() ? -operand.AsLong() : -operand.AsDouble()
+                        ));
+                    }
+
+                    break;
+
+                case InstructionCode.Jump:
+                    {
+                        _instructionPointer = (int)instruction.Operand.AsLong();
+                    }
+
+                    break;
+
+                case InstructionCode.JumpIfTrue:
+                    {
+                        Value condition = _evaluationStack.Pop();
+                        if (condition.AsLong() != 0)
+                        {
+                            _instructionPointer = (int)instruction.Operand.AsLong();
+                        }
+                    }
+
+                    break;
+
+                case InstructionCode.JumpIfFalse:
+                    {
+                        Value condition = _evaluationStack.Pop();
+                        if (condition.AsLong() == 0)
+                        {
+                            _instructionPointer = (int)instruction.Operand.AsLong();
+                        }
                     }
 
                     break;
@@ -351,6 +382,7 @@ public class PsVm
                     Value s = _evaluationStack.Pop();
                     _evaluationStack.Push(_builtinFunctions.Substr(s, from, to));
                 }
+
                 break;
 
             case BuiltinFunctionCode.StoI:
@@ -364,40 +396,6 @@ public class PsVm
             case BuiltinFunctionCode.Input:
                 _evaluationStack.Push(_builtinFunctions.Input());
                 break;
-
-            /*
-            case BuiltinFunctionCode.Abs:
-                _evaluationStack.Push(_builtinFunctions.Abs(_evaluationStack.Pop()));
-                break;
-
-            case BuiltinFunctionCode.Sqrt:
-                _evaluationStack.Push(_builtinFunctions.Sqrt(_evaluationStack.Pop()));
-                break;
-
-            case BuiltinFunctionCode.Pow:
-                {
-                    Value y = _evaluationStack.Pop();
-                    Value x = _evaluationStack.Pop();
-                    _evaluationStack.Push(_builtinFunctions.Pow(x, y));
-                }
-                break;
-
-            case BuiltinFunctionCode.Min:
-                {
-                    Value y = _evaluationStack.Pop();
-                    Value x = _evaluationStack.Pop();
-                    _evaluationStack.Push(_builtinFunctions.Min(x, y));
-                }
-                break;
-
-            case BuiltinFunctionCode.Max:
-                {
-                    Value y = _evaluationStack.Pop();
-                    Value x = _evaluationStack.Pop();
-                    _evaluationStack.Push(_builtinFunctions.Max(x, y));
-                }
-                break;
-            */
 
             default:
                 throw new ArgumentException($"Unknown builtin function: {code}");
@@ -416,18 +414,6 @@ public class PsVm
         {
             throw new InvalidOperationException($"Last instruction must be {InstructionCode.Halt},");
         }
-
-        /*
-        InstructionCode lastInstructionCode = instructions[^1].Code;
-        if (lastInstructionCode != InstructionCode.Halt
-            && lastInstructionCode != InstructionCode.Return
-            && lastInstructionCode != InstructionCode.Jump)
-        {
-            throw new InvalidOperationException(
-                $"Last instruction must be {InstructionCode.Halt}," +
-                $" {InstructionCode.Return} or {InstructionCode.Jump}, got {lastInstructionCode}"
-            );
-        } */
     }
 
     private record struct ReturnContext(

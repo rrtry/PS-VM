@@ -47,11 +47,13 @@ public class FakeEnvironment : IEnvironment
     public void PrintInt(int value)
     {
         _outputBuffer.Append(value.ToString(CultureInfo.InvariantCulture));
+        Evaluated.Add(value.ToString(CultureInfo.InvariantCulture));
     }
 
     public void PrintFloat(double value, int precision)
     {
         _outputBuffer.Append(string.Format("{0:F2}", value));
+        Evaluated.Add(string.Format("{0:F2}", value));
     }
 
     public void Flush()

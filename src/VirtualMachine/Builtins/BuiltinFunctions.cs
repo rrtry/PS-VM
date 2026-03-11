@@ -50,7 +50,9 @@ public class BuiltinFunctions
     public Value Substr(Value s, Value from, Value to)
     {
         string str = s.AsString();
-        return new Value(str.Substring((int)from.AsLong(), (int)to.AsLong()));
+        return new Value(str.Substring(
+            (int)from.AsLong(), (int)to.AsLong()
+        ));
     }
 
     public Value Stoi(Value value)

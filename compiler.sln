@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualMachine.UnitTests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLibrary", "tests\TestLibrary\TestLibrary.csproj", "{E1CF7B34-07BC-4530-929B-635F97DE6758}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interpreter.IntegrationTests", "tests\Interpreter.IntegrationTests\Interpreter.IntegrationTests.csproj", "{5490F8AD-666A-45A9-9D2A-53A938EABED9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -241,6 +243,18 @@ Global
 		{E1CF7B34-07BC-4530-929B-635F97DE6758}.Release|x64.Build.0 = Release|Any CPU
 		{E1CF7B34-07BC-4530-929B-635F97DE6758}.Release|x86.ActiveCfg = Release|Any CPU
 		{E1CF7B34-07BC-4530-929B-635F97DE6758}.Release|x86.Build.0 = Release|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Debug|x64.Build.0 = Debug|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Debug|x86.Build.0 = Debug|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Release|x64.ActiveCfg = Release|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Release|x64.Build.0 = Release|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Release|x86.ActiveCfg = Release|Any CPU
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -262,5 +276,6 @@ Global
 		{CF9D4082-7E7A-4036-BD1D-0F966904A07B} = {B4C68BC1-722B-4069-9E4D-7E7FB04FA20A}
 		{450A9A0B-3678-4A16-B1E4-92D9DDFA501C} = {CE774A12-53F2-4F94-ADFA-96E36863AED4}
 		{E1CF7B34-07BC-4530-929B-635F97DE6758} = {CE774A12-53F2-4F94-ADFA-96E36863AED4}
+		{5490F8AD-666A-45A9-9D2A-53A938EABED9} = {CE774A12-53F2-4F94-ADFA-96E36863AED4}
 	EndGlobalSection
 EndGlobal

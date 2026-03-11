@@ -13,12 +13,12 @@ public class Interpreter
 {
     private readonly IEnvironment environment;
 
-    private int _exitCode = 0;
-
     public Interpreter(IEnvironment env)
     {
         environment = env;
     }
+
+    public int ExitCode { get; set; }
 
     /// <summary>
     /// Выполнение программы.
@@ -43,7 +43,7 @@ public class Interpreter
         // 4. Исполнение программы на виртуальной машине.
         PsVm vm = new(environment, instructions);
         Value result = vm.RunProgram();
-        _exitCode = vm.ExitCode;
+        ExitCode = vm.ExitCode;
 
         return result;
     }

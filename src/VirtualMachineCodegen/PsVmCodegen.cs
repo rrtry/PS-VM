@@ -15,7 +15,6 @@ namespace VirtualMachineCodegen;
 /// </summary>
 public class PsVmCodegen : IAstVisitor
 {
-
     private static readonly IReadOnlyDictionary<string, BuiltinFunctionCode> BuiltinFunctionsMap =
         new Dictionary<string, BuiltinFunctionCode>
         {
@@ -55,6 +54,9 @@ public class PsVmCodegen : IAstVisitor
             {
                 Builtins.StrLen, BuiltinFunctionCode.StrLen
             },
+            {
+                Builtins.Input, BuiltinFunctionCode.Input
+            },
         };
 
     private readonly InstructionsBuilder _builder = new();
@@ -71,7 +73,8 @@ public class PsVmCodegen : IAstVisitor
         program.Accept(this);
 
         AstNode last = program.Statements.Last();
-        if (last is Expression && ((Expression)last).ResultType != ValueType.Unit)
+        if (last is Expression &&
+            ((Expression)last).ResultType != ValueType.Unit)
         {
             _builder.Append(new Instruction(InstructionCode.StoreResult));
         }
@@ -91,6 +94,12 @@ public class PsVmCodegen : IAstVisitor
     {
         switch (e.Operation)
         {
+            case BinaryOperation.And:
+                GenerateLogicalAndCode(e);
+                break;
+            case BinaryOperation.Or:
+                GenerateLogicalOrCode(e);
+                break;
             case BinaryOperation.Add:
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Add);
                 break;
@@ -122,11 +131,9 @@ public class PsVmCodegen : IAstVisitor
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.LessOrEqual);
                 break;
             case BinaryOperation.GreaterThan:
-                // Меняем операнды местами, потому что у нашей виртуальной машины нет инструкции Greater.
                 GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.Less);
                 break;
             case BinaryOperation.GreaterThanOrEqual:
-                // Меняем операнды местами, потому что у нашей виртуальной машины нет инструкции GreaterOrEqual.
                 GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.LessOrEqual);
                 break;
             default:
@@ -164,7 +171,7 @@ public class PsVmCodegen : IAstVisitor
             case NativeFunction native:
                 Instruction instruction = native.Name switch
                 {
-                    // Builtins.Exit => new Instruction(InstructionCode.Halt),
+                    // TOOD: добавить exit() в Builtins: Builtins.Exit => new Instruction(InstructionCode.Halt),
                     _ => new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name)),
                 };
                 _builder.Append(instruction);
@@ -262,13 +269,6 @@ public class PsVmCodegen : IAstVisitor
             {
                 _builder.Append(new Instruction(InstructionCode.Pop));
             }
-
-            /*
-            // Отбрасываем результат всех выражений, кроме последнего.
-            if (i != iMax && expression.ResultType != ValueType.Unit)
-            {
-                _builder.Append(new Instruction(InstructionCode.Pop));
-            } */
         }
     }
 
@@ -277,6 +277,62 @@ public class PsVmCodegen : IAstVisitor
         left.Accept(this);
         right.Accept(this);
         _builder.Append(new Instruction(code));
+    }
+
+    private void GenerateLogicalAndCode(BinaryOperationExpression e)
+    {
+        // Логическое "И" вычисляется по короткой схеме: если первый операнд обращается в "ЛОЖЬ",
+        //  то второй операнд не вычисляется.
+        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        // Вычисляем первый операнд.
+        e.Left.Accept(this);
+
+        // Переходим к короткой схеме, если первый операнд обращается в "ЛОЖЬ".
+        _builder.AppendJump(InstructionCode.JumpIfFalse, shortCircuitBlock);
+
+        // Иначе вычисляем второй операнд.
+        // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
+        e.Right.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.NotEqual));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        // Выполняем короткую схему вычислений: левый операнд обратился в "ЛОЖЬ", и результат будет "ЛОЖЬ".
+        _builder.InsertPoint = shortCircuitBlock;
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = finalBlock;
+    }
+
+    private void GenerateLogicalOrCode(BinaryOperationExpression e)
+    {
+        // Логическое "ИЛИ" вычисляется по короткой схеме: если первый операнд обращается в "ИСТИНУ",
+        //  то второй операнд не вычисляется.
+        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        // Вычисляем первый операнд.
+        e.Left.Accept(this);
+
+        // Переходим к короткой схеме, если первый операнд в "ИСТИНУ".
+        _builder.AppendJump(InstructionCode.JumpIfTrue, shortCircuitBlock);
+
+        // Иначе вычисляем второй операнд.
+        // Затем используем операцию "X <> 0", чтобы привести "X" к булеву значению (1 или 0).
+        e.Right.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.NotEqual));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        // Выполняем короткую схему вычислений: левый операнд обратился в "ИСТИНУ", и результат будет "ИСТИНА".
+        _builder.InsertPoint = shortCircuitBlock;
+        _builder.Append(new Instruction(InstructionCode.Push, 1));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = finalBlock;
     }
 
     /// <summary>

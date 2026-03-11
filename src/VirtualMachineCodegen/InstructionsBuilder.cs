@@ -104,17 +104,14 @@ public class InstructionsBuilder
     /// </summary>
     private bool IsJump(InstructionCode code)
     {
-        return false;
-        /*
         return code switch
         {
             InstructionCode.Call => true,
             InstructionCode.Jump => true,
             InstructionCode.JumpIfFalse => true,
             InstructionCode.JumpIfTrue => true,
-
             _ => false,
-        }; */
+        };
     }
 
     /// <summary>

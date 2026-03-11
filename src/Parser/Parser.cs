@@ -20,19 +20,6 @@ public class Parser
         tokens = new TokenStream(source);
     }
 
-    public List<string> Eval()
-    {
-        return [];
-        /*
-        while (tokens.Peek().Type != TokenType.Eof)
-        {
-            AstNode node = ParseStatement();
-            // evaluator.Evaluate(node);
-        }
-
-        return environment.GetEvaluated(); */
-    }
-
     public BlockStatement Parse()
     {
         List<AstNode> nodes = new();
@@ -535,8 +522,10 @@ public class Parser
             case TokenType.LeftParen:
             case TokenType.AndAnd:
             case TokenType.OrOr:
+
                 tokens.Advance();
                 Expression expr = ParseExpression();
+
                 if (token.Type == TokenType.LeftParen)
                 {
                     Match(TokenType.RightParen);

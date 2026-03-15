@@ -37,7 +37,7 @@ public class ExpressionsTest
                 "3.14 * 2;", new Value(3.14 * 2)
             },
             {
-                // Модуль и унарный минус
+                // Степень и унарный минус
                 "-5 ** 2;", new Value(25)
             },
             {

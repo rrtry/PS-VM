@@ -39,16 +39,14 @@ public class Instruction
     /// </summary>
     public override string ToString()
     {
-        return "";
-        /*
         StringBuilder sb = new();
         sb.Append(Code);
-        if (!Operand.IsVoid())
+        if (!Operand.IsUnit())
         {
             sb.Append(' ');
             sb.Append(Operand);
         }
 
-        return sb.ToString(); */
+        return sb.ToString();
     }
 }

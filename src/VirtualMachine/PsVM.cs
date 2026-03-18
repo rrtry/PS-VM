@@ -25,16 +25,6 @@ public class PsVm
     private readonly Stack<Value> _evaluationStack;
 
     /// <summary>
-    /// Текущая таблица переменных.
-    /// </summary>
-    private VariablesTable? _variables;
-
-    /// <summary>
-    /// Стек с номерами инструкций, сохранённых перед вызовами незавершённых функций.
-    /// </summary>
-    private readonly Stack<ReturnContext> _returnStack;
-
-    /// <summary>
     /// Результат работы программы (произвольное значение либо отсутствие значения).
     /// </summary>
     private Value _result;
@@ -48,8 +38,6 @@ public class PsVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _variables = new VariablesTable();
-        _returnStack = [];
         _result = Value.Unit;
     }
 
@@ -68,33 +56,6 @@ public class PsVm
 
                 case InstructionCode.Pop:
                     _evaluationStack.Pop();
-                    break;
-
-                case InstructionCode.StoreVar:
-                    {
-                        Value value = _evaluationStack.Pop();
-                        string variableName = instruction.Operand.AsString();
-                        _variables!.AssignVariable(variableName, value);
-                    }
-
-                    break;
-
-                case InstructionCode.DefineVar:
-                    {
-                        Value value = _evaluationStack.Pop();
-                        string variableName = instruction.Operand.AsString();
-                        _variables!.DefineVariable(variableName, value);
-                    }
-
-                    break;
-
-                case InstructionCode.LoadVar:
-                    {
-                        string variableName = instruction.Operand.AsString();
-                        Value value = _variables!.GetVariable(variableName);
-                        _evaluationStack.Push(value);
-                    }
-
                     break;
 
                 case InstructionCode.Add:
@@ -286,30 +247,12 @@ public class PsVm
                     break;
 
                 case InstructionCode.StoreResult:
-                    // Сохраняем результат работы всей программы.
                     _result = _evaluationStack.Pop();
                     break;
 
                 case InstructionCode.Halt:
-                    // Получаем код возврата программы.
                     _exitCode = (int)_evaluationStack.Pop().AsLong();
                     return _result;
-
-                case InstructionCode.PushVars:
-                    {
-                        // Выполняем поиск родительской таблицы переменных.
-                        int variableTableDepth = (int)instruction.Operand.AsLong();
-                        VariablesTable? parentTable = (variableTableDepth != 0)
-                            ? _variables!.GetAncestor(variableTableDepth)
-                            : null;
-                        _variables = new VariablesTable(parentTable);
-                    }
-
-                    break;
-
-                case InstructionCode.PopVars:
-                    _variables = _variables!.Parent;
-                    break;
 
                 default:
                     throw new NotImplementedException($"Unsupported instruction code: {instruction.Code}");
@@ -415,9 +358,4 @@ public class PsVm
             throw new InvalidOperationException($"Last instruction must be {InstructionCode.Halt},");
         }
     }
-
-    private record struct ReturnContext(
-        int InstructionPointer,
-        VariablesTable? Variables
-    );
 }

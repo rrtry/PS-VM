@@ -59,13 +59,6 @@ public class PsVmCodegen : IAstVisitor
         };
 
     private readonly InstructionsBuilder _builder = new();
-    private CodegenSymbolsTable? _symbolsTable;
-
-    /// <summary>
-    /// Стек со ссылками на блоки после текущих циклов (while и for).
-    /// Используется для генерации прерывания цикла (break).
-    /// </summary>
-    private readonly Stack<BasicBlock> _currentLoopFinalBlockStack = new();
 
     public List<Instruction> GenerateCode(BlockStatement program)
     {
@@ -170,7 +163,6 @@ public class PsVmCodegen : IAstVisitor
             case NativeFunction native:
                 Instruction instruction = native.Name switch
                 {
-                    // TOOD: добавить exit() в Builtins: Builtins.Exit => new Instruction(InstructionCode.Halt),
                     _ => new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name)),
                 };
                 _builder.Append(instruction);
@@ -181,29 +173,19 @@ public class PsVmCodegen : IAstVisitor
         }
     }
 
-    public void Visit(VariableExpression e)
-    {
-        _builder.Append(new Instruction(InstructionCode.LoadVar, e.Variable.Name));
-    }
-
     public void Visit(AssignmentExpression e)
     {
-        e.Right.Accept(this);
-        switch (e.Left)
-        {
-            case VariableExpression variableAccess:
-                _builder.Append(new Instruction(InstructionCode.StoreVar, variableAccess.Variable.Name));
-                break;
+        throw new NotImplementedException();
+    }
 
-            default:
-                throw new NotImplementedException();
-        }
+    public void Visit(VariableExpression e)
+    {
+        throw new NotImplementedException();
     }
 
     public void Visit(VariableDeclaration d)
     {
-        d.InitialValue.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.DefineVar, d.Name));
+        throw new NotImplementedException();
     }
 
     public void Visit(BlockStatement s)
@@ -287,25 +269,6 @@ public class PsVmCodegen : IAstVisitor
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = finalBlock;
-    }
-
-    /// <summary>
-    /// Добавляет лексическую область видимости в стек.
-    /// </summary>
-    private void PushLexicalScope()
-    {
-        int parentScopeDepth = _symbolsTable?.Depth ?? 0;
-        _symbolsTable = new CodegenSymbolsTable(_symbolsTable);
-        _builder.Append(new Instruction(InstructionCode.PushVars, parentScopeDepth));
-    }
-
-    /// <summary>
-    /// Убирает лексическую область видимости из стека.
-    /// </summary>
-    private void PopLexicalScope()
-    {
-        _builder.Append(new Instruction(InstructionCode.PopVars));
-        _symbolsTable = _symbolsTable!.Parent;
     }
 
     private static int GetBuiltinFunctionCode(string name)

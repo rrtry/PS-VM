@@ -114,6 +114,15 @@ public class Value : IEquatable<Value>
         };
     }
 
+    public bool IsUnit()
+    {
+        return value switch
+        {
+            UnitValue v => true,
+            _ => false,
+        };
+    }
+
     /// <summary>
     /// Печатает значение для отладки.
     /// </summary>

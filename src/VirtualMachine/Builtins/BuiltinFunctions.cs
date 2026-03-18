@@ -1,11 +1,10 @@
 using Runtime;
-using VirtualMachine.Exceptions;
 
 namespace VirtualMachine.Builtins;
 
 public class BuiltinFunctions
 {
-    private IEnvironment environment;
+    private readonly IEnvironment environment;
 
     public BuiltinFunctions(IEnvironment environment)
     {
@@ -91,35 +90,5 @@ public class BuiltinFunctions
     {
         environment.Print(value.AsLong().ToString());
         return Value.Unit;
-    }
-
-    public Value Abs(Value value)
-    {
-        long l = Math.Abs(value.AsLong());
-        return new Value(l);
-    }
-
-    public Value Sqrt(Value value)
-    {
-        double r = Math.Sqrt(value.AsDouble());
-        return new Value(r);
-    }
-
-    public Value Pow(Value x, Value y)
-    {
-        long l = (long)Math.Pow(x.AsLong(), y.AsLong());
-        return new Value(l);
-    }
-
-    public Value Min(Value x, Value y)
-    {
-        long l = Math.Min(x.AsLong(), y.AsLong());
-        return new Value(l);
-    }
-
-    public Value Max(Value x, Value y)
-    {
-        long l = Math.Max(x.AsLong(), y.AsLong());
-        return new Value(l);
     }
 }

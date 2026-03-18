@@ -3,7 +3,6 @@ namespace Parser;
 using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
-using Ast.Statements;
 
 using Lexems;
 using Runtime;
@@ -55,39 +54,6 @@ public class Parser
                 Match(TokenType.Semicolon);
                 break;
 
-            case TokenType.Break:
-                tokens.Advance();
-                evaluated = new BreakLoopStatement();
-                Match(TokenType.Semicolon);
-                break;
-
-            case TokenType.Continue:
-                tokens.Advance();
-                evaluated = new ContinueLoopStatement();
-                Match(TokenType.Semicolon);
-                break;
-
-            case TokenType.Return:
-                evaluated = ParseReturnStatement();
-                Match(TokenType.Semicolon);
-                break;
-
-            case TokenType.If:
-                evaluated = ParseIfStatement();
-                break;
-
-            case TokenType.While:
-                evaluated = ParseWhileLoopStatement();
-                break;
-
-            case TokenType.For:
-                evaluated = ParseForLoopStatement();
-                break;
-
-            case TokenType.Fn:
-                evaluated = ParseFunctionDefinition();
-                break;
-
             default:
                 evaluated = ParseExpression();
                 Match(TokenType.Semicolon);
@@ -95,99 +61,6 @@ public class Parser
         }
 
         return evaluated;
-    }
-
-    /// <summary>
-    /// return_statement = "return", [ expression ] ;.
-    /// </summary>
-    private ReturnStatement ParseReturnStatement()
-    {
-        tokens.Advance();
-        Expression returnExpression = ParseExpression();
-        return new ReturnStatement(returnExpression);
-    }
-
-    /// <summary>
-    /// function_definition = "fn" , identifier , "(" , [ parameter_list ] , ")" , ":" , type , block ;.
-    /// </summary>
-    private FunctionDeclaration ParseFunctionDefinition()
-    {
-        tokens.Advance();
-
-        Token functionNameToken = Match(TokenType.Identifier);
-        string functionName = functionNameToken.Value!.ToString();
-
-        Match(TokenType.LeftParen);
-        List<ParameterDeclaration> parameters = [];
-        if (tokens.Peek().Type != TokenType.RightParen)
-        {
-            parameters = ParseParameterDeclarationList();
-        }
-
-        Match(TokenType.RightParen);
-
-        string? returnType = null;
-        if (tokens.Peek().Type == TokenType.Colon)
-        {
-            tokens.Advance();
-            returnType = Match(TokenType.Identifier).Value!.ToString();
-        }
-
-        BlockStatement body = ParseBlockStatement();
-        return new FunctionDeclaration(functionName, parameters, returnType, body);
-    }
-
-    /// <summary>
-    /// parameter_list = parameter , { "," , parameter } ;.
-    /// </summary>
-    private List<ParameterDeclaration> ParseParameterDeclarationList()
-    {
-        List<ParameterDeclaration> declarations =
-        [
-            ParseParameterDeclaration(),
-        ];
-
-        while (tokens.Peek().Type == TokenType.Comma)
-        {
-            tokens.Advance();
-            declarations.Add(ParseParameterDeclaration());
-        }
-
-        return declarations;
-    }
-
-    /// <summary>
-    /// parameter = identifier , ":" , type ;.
-    /// </summary>
-    private ParameterDeclaration ParseParameterDeclaration()
-    {
-        string name = Match(TokenType.Identifier).Value!.ToString();
-        Match(TokenType.Colon);
-        string typeName = Match(TokenType.Identifier).Value!.ToString();
-
-        return new ParameterDeclaration(name, typeName);
-    }
-
-    /// <summary>
-    /// if_statement = "if" , "(" , expression , ")" , block , [ "else" , block ] ;.
-    /// </summary>
-    private IfElseStatement ParseIfStatement()
-    {
-        Match(TokenType.If);
-
-        Match(TokenType.LeftParen);
-        Expression condition = ParseExpression();
-        Match(TokenType.RightParen);
-
-        BlockStatement thenBlock = ParseBlockStatement();
-        BlockStatement? elseBlock = null;
-
-        if (MatchOptional(TokenType.Else))
-        {
-            elseBlock = ParseBlockStatement();
-        }
-
-        return new IfElseStatement(condition, thenBlock, elseBlock);
     }
 
     /// <summary>
@@ -207,50 +80,6 @@ public class Parser
 
         Match(TokenType.RightBrace);
         return new BlockStatement(statements);
-    }
-
-    /// <summary>
-    /// while_statement = "while" , "(" , expression , ")" , block ;.
-    /// </summary>
-    private WhileLoopStatement ParseWhileLoopStatement()
-    {
-        Match(TokenType.While);
-
-        Match(TokenType.LeftParen);
-        Expression condition = ParseExpression();
-        Match(TokenType.RightParen);
-
-        BlockStatement body = ParseBlockStatement();
-        return new WhileLoopStatement(condition, body);
-    }
-
-    /// <summary>
-    /// for_statement =
-    /// "for" , "(" , init , ";" , expression , ";" , update , ")" , block ;
-    /// init   = variable_declaration | assignment ;
-    /// update = assignment.
-    /// </summary>
-    private ForLoopStatement ParseForLoopStatement()
-    {
-        Match(TokenType.For);
-        Match(TokenType.LeftParen);
-        AstNode initialization = ParseStatement();
-
-        string name = initialization switch
-        {
-            VariableDeclaration varDecl => varDecl.Name,
-            AssignmentExpression assignExpr => ((VariableExpression)assignExpr.Left).Name,
-            _ => throw new Exception("Invalid for loop initialization"),
-        };
-
-        Expression condition = ParseExpression();
-        Match(TokenType.Semicolon);
-
-        Expression increment = ParseExpression();
-        Match(TokenType.RightParen);
-
-        BlockStatement body = ParseBlockStatement();
-        return new ForLoopStatement(name, initialization, condition, increment, body);
     }
 
     /// <summary>

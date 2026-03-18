@@ -43,68 +43,16 @@ public abstract class AbstractPass : IAstVisitor
         e.Right.Accept(this);
     }
 
-    public virtual void Visit(IfElseStatement e)
-    {
-        e.Condition.Accept(this);
-        e.ThenBranch.Accept(this);
-        e.ElseBranch?.Accept(this);
-    }
-
-    public virtual void Visit(WhileLoopStatement e)
-    {
-        e.Condition.Accept(this);
-        e.LoopBody.Accept(this);
-    }
-
-    public virtual void Visit(ForLoopStatement e)
-    {
-        e.StartValue.Accept(this);
-        e.EndCondition.Accept(this);
-        e.UpdateExpr?.Accept(this);
-        e.Body.Accept(this);
-    }
-
     public virtual void Visit(VariableDeclaration d)
     {
         d.InitialValue.Accept(this);
-    }
-
-    public virtual void Visit(FunctionDeclaration d)
-    {
-        foreach (AbstractParameterDeclaration declaration in d.Parameters)
-        {
-            declaration.Accept(this);
-        }
-
-        d.Body.Accept(this);
-    }
-
-    public virtual void Visit(ReturnStatement s)
-    {
-        s.ReturnValue.Accept(this);
     }
 
     public virtual void Visit(LiteralExpression e)
     {
     }
 
-    public virtual void Visit(ContinueLoopStatement s)
-    {
-    }
-
-    public virtual void Visit(ParameterDeclaration d)
-    {
-    }
-
-    public virtual void Visit(BreakLoopStatement e)
-    {
-    }
-
     public virtual void Visit(VariableExpression e)
-    {
-    }
-
-    public virtual void Visit(ForLoopIteratorDeclaration d)
     {
     }
 }

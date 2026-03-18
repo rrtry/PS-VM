@@ -66,12 +66,6 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = e.Function.ResultType;
     }
 
-    public override void Visit(ParameterDeclaration d)
-    {
-        base.Visit(d);
-        d.ResultType = d.Type.ResultType;
-    }
-
     public override void Visit(VariableExpression e)
     {
         base.Visit(e);
@@ -88,12 +82,6 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(e);
         e.ResultType = ValueType.Unit;
-    }
-
-    public override void Visit(ForLoopIteratorDeclaration d)
-    {
-        base.Visit(d);
-        d.ResultType = ValueType.Int;
     }
 
     /// <summary>

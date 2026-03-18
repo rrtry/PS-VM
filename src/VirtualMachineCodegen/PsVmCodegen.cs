@@ -1,7 +1,6 @@
 ﻿using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
-using Ast.Statements;
 
 using VirtualMachine.Builtins;
 using VirtualMachine.Instructions;
@@ -210,51 +209,6 @@ public class PsVmCodegen : IAstVisitor
     public void Visit(BlockStatement s)
     {
         GenerateBlockStatementCode(s.Statements);
-    }
-
-    public void Visit(WhileLoopStatement e)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(FunctionDeclaration d)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(ParameterDeclaration d)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(ForLoopIteratorDeclaration d)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(IfElseStatement s)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(ForLoopStatement s)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(BreakLoopStatement s)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(ContinueLoopStatement s)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(ReturnStatement s)
-    {
-        throw new NotImplementedException();
     }
 
     private void GenerateBlockStatementCode(IReadOnlyList<AstNode> sequence)

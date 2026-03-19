@@ -359,7 +359,7 @@ public class LexerTests
                 }
             },
             {
-                "fn let return if else while for break continue true false",
+                "fn let return if else while for break continue true false str bool int float unit",
                 new List<Token>
                 {
                     new(TokenType.Fn),
@@ -373,6 +373,11 @@ public class LexerTests
                     new(TokenType.Continue),
                     new(TokenType.True),
                     new(TokenType.False),
+                    new(TokenType.Str),
+                    new(TokenType.Bool),
+                    new(TokenType.Int),
+                    new(TokenType.Float),
+                    new(TokenType.Unit),
                 }
             },
         };

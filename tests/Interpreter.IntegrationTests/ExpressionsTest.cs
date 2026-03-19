@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-
-using Interpreter;
-using Parser;
-using Runtime;
+﻿using Parser;
 using Tests.TestLibrary.TestDoubles;
 
 namespace Interpreter.IntegrationTests;
@@ -11,12 +7,12 @@ public class ExpressionsTest
 {
     [Theory]
     [MemberData(nameof(GetEvaluateExpressionsData))]
-    public void Can_evaluate_expressions(string code, Value expected)
+    public void Can_evaluate_expressions(string code, string expected)
     {
         FakeEnvironment environment = new();
         Interpreter interpreter = new(environment);
-        Value result = interpreter.Execute(code);
-        Assert.Equal(expected, result, EqualityComparer<Value>.Default);
+        interpreter.Execute(code);
+        Assert.Equal(expected, environment.BufferedOutput);
     }
 
     [Theory]
@@ -28,125 +24,125 @@ public class ExpressionsTest
         Assert.Throws<UnexpectedLexemeException>(() => interpreter.Execute(code));
     }
 
-    public static TheoryData<string, Value> GetEvaluateExpressionsData()
+    public static TheoryData<string, string> GetEvaluateExpressionsData()
     {
-        return new TheoryData<string, Value>
+        return new TheoryData<string, string>
         {
             {
                 // Вещественное число
-                "fn main() { 3.14 * 2; }", new Value(3.14 * 2)
+                "fn main(): int { printf(3.14 * 2, 2); return 0; }", "6.28"
             },
             {
                 // Степень и унарный минус
-                "fn main() { -5 ** 2; }", new Value(25)
+                "fn main(): int { printi(-5 ** 2); return 0; }", "25"
             },
             {
                 // Модуль и возведение в степень
-                "fn main() { 4 % 2 ** 2; }", new Value(0)
+                "fn main(): int { printi(4 % 2 ** 2); return 0; }", "0"
             },
             {
                 // Разбор арифметических выражений с учётом приоритета
-                "fn main() { 1 + 2 * 8 / 3 - 1; }", new Value(5)
+                "fn main(): int { printi(1 + 2 * 8 / 3 - 1); return 0; }", "5"
             },
             {
                 // Разбор арифметических выражений с учётом скобок
-                "fn main() { (1 + 2) * (8 / (3 - 1)); }", new Value(12)
+                "fn main(): int { printi((1 + 2) * (8 / (3 - 1))); return 0; }", "12"
             },
 
             // Проверка правоассоциативности арифметических операций
             {
-                "fn main() { 2 ** 3 ** 2; }", new Value(512)
+                "fn main(): int { printi(2 ** 3 ** 2); return 0; }", "512"
             },
 
             // Проверка левоассоциативности арифметических операций
             {
-                "fn main() { 10 - 3 - 2; }", new Value(5)
+                "fn main(): int { printi(10 - 3 - 2); return 0; }", "5"
             },
             {
-                "fn main() { 10 / 3 / 2; }", new Value(1)
+                "fn main(): int { printi(10 / 3 / 2); return 0; }", "1"
             },
             {
-                "fn main() { 10 - 3 + 2; }", new Value(9)
+                "fn main(): int { printi(10 - 3 + 2); return 0; }", "9"
             },
             {
-                "fn main() { 10 / 3 * 2; }", new Value(6)
+                "fn main(): int { printi(10 / 3 * 2); return 0; }", "6"
             },
 
             // Разбор унарного минуса
             {
-                "fn main() { -4; }", new Value(-4)
+                "fn main(): int { printi(-4); return 0; }", "-4"
             },
             {
-                "fn main() { 2 * 2 * -5; }", new Value(-20)
+                "fn main(): int { printi(2 * 2 * -5); return 0; }", "-20"
             },
 
             // Разбор операторов сравнения
             {
-                "fn main() { 1 + 2 < 5; }", new Value(1)
+                "fn main(): int { printi(1 + 2 < 5); return 0; }", "1"
             },
             {
-                "fn main() { 2 * 2 > 5; }", new Value(0)
+                "fn main(): int { printi(2 * 2 > 5); return 0; }", "0"
             },
             {
-                "fn main() { 2 * 2 == 5; }", new Value(0)
+                "fn main(): int { printi(2 * 2 == 5); return 0; }", "0"
             },
             {
-                "fn main() { 2 / 2 != 4; }", new Value(1)
+                "fn main(): int { printi(2 / 2 != 4); return 0; }", "1"
             },
             {
-                "fn main() { 2 * 2 >= 4; }", new Value(1)
+                "fn main(): int { printi(2 * 2 >= 4); return 0; }", "1"
             },
             {
-                "fn main() { 2 - 1 <= 1; }", new Value(1)
+                "fn main(): int { printi(2 - 1 <= 1); return 0; }", "1"
             },
             {
-                "fn main() { 1 == (2 == 3); }", new Value(0)
+                "fn main(): int { printi(1 == (2 == 3)); return 0; }", "0"
             },
 
             // Разбор операций сравнения строк
             {
                 """
-                fn main() { "Hello" == "Hello!"; }
+                fn main(): int { printi("Hello" == "Hello!"); return 0; }
                 """,
-                new Value(0)
+                "0"
             },
             {
                 """
-                fn main() { "Hello" != "Hello!"; }
+                fn main(): int { printi("Hello" != "Hello!"); return 0; }
                 """,
-                new Value(1)
+                "1"
             },
             {
                 """
-                fn main() { "Bob" > "Alice"; }
+                fn main(): int { printi("Bob" > "Alice"); return 0; }
                 """,
-                new Value(1)
+                "1"
             },
             {
                 """
-                fn main() { "Bob" < "Alice"; }
+                fn main(): int { printi("Bob" < "Alice"); return 0; }
                 """,
-                new Value(0)
+                "0"
             },
             {
                 """
-                fn main() { "Bob" >= "Alice"; }
+                fn main(): int { printi("Bob" >= "Alice"); return 0; }
                 """,
-                new Value(1)
+                "1"
             },
             {
                 """
-                fn main() { "Bob" <= "Alice"; }
+                fn main(): int { printi("Bob" <= "Alice"); return 0; }
                 """,
-                new Value(0)
+                "0"
             },
 
             // Разбор логических операторов
             {
-                "fn main() { 1 && 0; }", new Value(0)
+                "fn main(): int { printi(1 && 0); return 0; }", "0"
             },
             {
-                "fn main() { 1 || 0; }", new Value(1)
+                "fn main(): int { printi(1 || 0); return 0; }", "1"
             },
         };
     }
@@ -155,8 +151,8 @@ public class ExpressionsTest
     {
         return
         [
-            "fn main() { 1 < 2 < 3; }",
-            "fn main() { 1 == 2 == 3; }",
+            "fn main(): int { 1 < 2 < 3; return 0; }",
+            "fn main(): int { 1 == 2 == 3; return 0;}",
         ];
     }
 }

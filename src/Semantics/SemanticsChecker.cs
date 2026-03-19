@@ -38,7 +38,7 @@ public class SemanticsChecker
         ];
     }
 
-    public void Check(AstNode program)
+    public void Check(EntryPointNode program)
     {
         foreach (AbstractPass pass in passes)
         {

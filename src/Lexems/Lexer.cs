@@ -51,6 +51,11 @@ public class Lexer
         { "continue", TokenType.Continue },
         { "true",     TokenType.True },
         { "false",    TokenType.False },
+        { "str",      TokenType.Str },
+        { "bool",     TokenType.Bool },
+        { "int",      TokenType.Int },
+        { "float",    TokenType.Float },
+        { "unit",     TokenType.Unit },
     };
 
     private readonly TextScanner scanner;

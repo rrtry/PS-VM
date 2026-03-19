@@ -206,9 +206,9 @@ public class PsVm
                 case InstructionCode.Negate:
                     {
                         Value operand = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(
-                            operand.IsLong() ? -operand.AsLong() : -operand.AsDouble()
-                        ));
+                        _evaluationStack.Push(
+                            operand.IsLong() ? new Value(-operand.AsLong()) : new Value(-operand.AsDouble())
+                        );
                     }
 
                     break;

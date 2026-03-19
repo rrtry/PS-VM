@@ -1,6 +1,7 @@
 ﻿using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
+using Ast.Statements;
 
 using VirtualMachine.Builtins;
 using VirtualMachine.Instructions;
@@ -60,20 +61,10 @@ public class PsVmCodegen : IAstVisitor
 
     private readonly InstructionsBuilder _builder = new();
 
-    public List<Instruction> GenerateCode(BlockStatement program)
+    public List<Instruction> GenerateCode(EntryPointNode program)
     {
-        program.Accept(this);
-
-        AstNode last = program.Statements.Last();
-        if (last is Expression &&
-            ((Expression)last).ResultType != ValueType.Unit)
-        {
-            _builder.Append(new Instruction(InstructionCode.StoreResult));
-        }
-
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        program.Main.Accept(this);
         _builder.Append(new Instruction(InstructionCode.Halt));
-
         return _builder.Finish();
     }
 
@@ -143,7 +134,6 @@ public class PsVmCodegen : IAstVisitor
                 break;
 
             case UnaryOperation.Plus:
-                _builder.Append(new Instruction(InstructionCode.Push));
                 break;
 
             default:
@@ -173,24 +163,29 @@ public class PsVmCodegen : IAstVisitor
         }
     }
 
-    public void Visit(AssignmentExpression e)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(VariableExpression e)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Visit(VariableDeclaration d)
-    {
-        throw new NotImplementedException();
-    }
-
     public void Visit(BlockStatement s)
     {
         GenerateBlockStatementCode(s.Statements);
+    }
+
+    public void Visit(EntryPointNode n)
+    {
+        n.Main.Accept(this);
+    }
+
+    public void Visit(FunctionDeclaration d)
+    {
+        d.Body.Accept(this);
+    }
+
+    public void Visit(ReturnStatement s)
+    {
+        s.ReturnValue.Accept(this);
+    }
+
+    public void Visit(ParameterDeclaration d)
+    {
+        throw new NotImplementedException();
     }
 
     private void GenerateBlockStatementCode(IReadOnlyList<AstNode> sequence)

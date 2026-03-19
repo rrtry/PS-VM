@@ -1,7 +1,6 @@
 using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
-
 using Semantics.Exceptions;
 
 namespace Semantics.Passes;
@@ -21,14 +20,46 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     public CheckContextSensitiveRulesPass()
     {
         expressionContextStack = [];
-        expressionContextStack.Push(ExpressionContext.Default);
+        expressionContextStack.Push(ExpressionContext.TopLevel);
     }
 
     private enum ExpressionContext
     {
-        Default,
-        InsideLoop,
+        TopLevel,
         InsideFunction,
+    }
+
+    public override void Visit(FunctionDeclaration d)
+    {
+        if (d.Name != "main")
+        {
+            throw new InvalidDeclarationException("Currently only 'main' entry point function is supported");
+        }
+
+        if (d.ResultType != Runtime.ValueType.Int)
+        {
+            throw new InvalidDeclarationException("'main' function signature: fn main(): int");
+        }
+
+        expressionContextStack.Push(ExpressionContext.InsideFunction);
+        try
+        {
+            base.Visit(d);
+        }
+        finally
+        {
+            expressionContextStack.Pop();
+        }
+    }
+
+    public override void Visit(ReturnStatement e)
+    {
+        if (expressionContextStack.Peek() != ExpressionContext.InsideFunction)
+        {
+            throw new InvalidStatementException("'return' statement is allowed only within function");
+        }
+
+        base.Visit(e);
     }
 
     /// <summary>
@@ -37,36 +68,19 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     /// <exception cref="InvalidFunctionCallException">Бросается при неправильном вызове функций.</exception>
     public override void Visit(FunctionCallExpression e)
     {
-        base.Visit(e);
-
-        if (e.Arguments.Count != e.Function.Parameters.Count)
+        if (expressionContextStack.Peek() != ExpressionContext.TopLevel)
         {
-            throw new InvalidFunctionCallException(
-                $"Function {e.Name} requires {e.Function.Parameters.Count} arguments, got {e.Arguments.Count}"
-            );
+            base.Visit(e);
+            if (e.Arguments.Count != e.Function.Parameters.Count)
+            {
+                throw new InvalidFunctionCallException(
+                    $"Function {e.Name} requires {e.Function.Parameters.Count} arguments, got {e.Arguments.Count}"
+                );
+            }
         }
-    }
-
-    public override void Visit(AssignmentExpression e)
-    {
-        base.Visit(e);
-        if (!IsLvalue(e.Left))
+        else
         {
-            throw new InvalidAssignmentException("Left side of assignment must be a lvalue");
+            throw new InvalidExpressionException("Top-level expressions are not allowed");
         }
-    }
-
-    /// <summary>
-    /// Проверяет, является ли выражение lvalue-выражением.
-    /// Термин lvalue означает «значение слева от присваивания».
-    /// </summary>
-    private static bool IsLvalue(Expression e)
-    {
-        if (e is VariableExpression)
-        {
-            return true;
-        }
-
-        return false;
     }
 }

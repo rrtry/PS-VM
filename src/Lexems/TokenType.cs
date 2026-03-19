@@ -5,6 +5,21 @@ namespace Lexems;
 /// </summary>
 public enum TokenType
 {
+    /// <summary>Тип str.</summary>
+    Str,
+
+    /// <summary>Тип bool.</summary>
+    Bool,
+
+    /// <summary>Тип int.</summary>
+    Int,
+
+    /// <summary>Тип float.</summary>
+    Float,
+
+    /// <summary>Тип unit.</summary>
+    Unit,
+
     /// <summary>Определение типа (`:`).</summary>
     Colon,
 

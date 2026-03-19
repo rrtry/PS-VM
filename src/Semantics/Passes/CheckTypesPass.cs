@@ -5,7 +5,7 @@ using Ast.Statements;
 using Semantics.Exceptions;
 using Semantics.Helpers;
 
-using ValueType = Runtime.ValueType;
+using Runtime;
 
 namespace Semantics.Passes;
 
@@ -15,7 +15,7 @@ namespace Semantics.Passes;
 /// <exception cref="TypeErrorException">Бросается при несоответствии типов данных в процессе проверки.</exception>
 public class CheckTypesPass : AbstractPass
 {
-    private readonly HashSet<Statement> visitedStatements = new();
+    private FunctionDeclaration? currentFunction;
 
     /// <summary>
     /// Проверяет соответствие типов параметров функции и аргументов при вызове этой функции.
@@ -26,35 +26,62 @@ public class CheckTypesPass : AbstractPass
         CheckFunctionArgumentTypes(e, e.Function);
     }
 
-    /// <summary>
-    /// Проверяет тип переменной и тип выражения, которым она инициализируется.
-    /// </summary>
-    public override void Visit(VariableDeclaration d)
+    public override void Visit(FunctionDeclaration d)
     {
+        currentFunction = d;
         base.Visit(d);
 
-        ValueType inferredType = d.InitialValue.ResultType;
-        if (inferredType == ValueType.Unit)
+        if (d.DeclaredType != null &&
+            d.DeclaredType.ResultType != Runtime.ValueType.Unit)
         {
-            throw new TypeErrorException("Cannot initialize variable from expression without value");
+            if (!GuaranteesReturn(d.Body))
+            {
+                throw new TypeErrorException(
+                    $"Function '{d.Name}' with return type must guarantee a return statement on all execution paths."
+                );
+            }
         }
 
-        if (d.DeclaredType != null && !ValueTypeUtil.AreExactTypes(d.DeclaredType.ResultType, inferredType))
+        currentFunction = null;
+    }
+
+    public override void Visit(ReturnStatement s)
+    {
+        base.Visit(s);
+        if (currentFunction != null && currentFunction.DeclaredType != null)
         {
-            throw new TypeErrorException(
-                $"Cannot initialize variable of type {d.DeclaredTypeName} with value of type {inferredType}"
-            );
+            if (s.ReturnValue == null)
+            {
+                throw new TypeErrorException(
+                    $"Function '{currentFunction.Name}' must return a value of type {currentFunction.DeclaredType.ResultType}"
+                );
+            }
+
+            CheckAreSameTypes("return value", s.ReturnValue, currentFunction.DeclaredType.ResultType);
         }
     }
 
-    public override void Visit(AssignmentExpression e)
+    /// <summary>
+    /// Проверяет гаранитию наличия return в теле функции. Упрощенная версия, так как пока не поддерживаются конструкции.
+    /// </summary>
+    private bool GuaranteesReturn(BlockStatement block)
     {
-        base.Visit(e);
-        if (!ValueTypeUtil.AreExactTypes(e.Left.ResultType, e.Right.ResultType))
+        foreach (Statement stmt in block.Statements.OfType<Statement>())
         {
-            throw new TypeErrorException(
-                $"Cannot assign value of type {e.Right.ResultType} to variable of type {e.Left.ResultType}"
-            );
+            if (stmt is ReturnStatement)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static void CheckAreSameTypes(string category, Expression expression, Runtime.ValueType expectedType)
+    {
+        if (!ValueTypeUtil.AreExactTypes(expression.ResultType, expectedType))
+        {
+            throw new TypeErrorException(category, expectedType, expression.ResultType);
         }
     }
 
@@ -67,6 +94,7 @@ public class CheckTypesPass : AbstractPass
         {
             Expression argument = e.Arguments[i];
             AbstractParameterDeclaration parameter = function.Parameters[i];
+
             if (!ValueTypeUtil.AreExactTypes(parameter.ResultType, argument.ResultType))
             {
                 throw new TypeErrorException(

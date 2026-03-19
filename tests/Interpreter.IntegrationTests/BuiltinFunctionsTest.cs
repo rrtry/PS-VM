@@ -8,50 +8,51 @@ public class BuiltinFunctionsTest
 {
     [Theory]
     [MemberData(nameof(GetEvaluateBuiltinFunctionsData))]
-    public void Can_evaluate_builtin_functions(string code, Value expected)
+    public void Can_evaluate_builtin_functions(string code, string expected)
     {
         FakeEnvironment environment = new();
         Interpreter interpreter = new(environment);
-        Value result = interpreter.Execute(code);
-        Assert.Equal(expected, result, EqualityComparer<Value>.Default);
+
+        interpreter.Execute(code);
+        Assert.Equal(expected, environment.BufferedOutput);
     }
 
-    public static TheoryData<string, Value> GetEvaluateBuiltinFunctionsData()
+    public static TheoryData<string, string> GetEvaluateBuiltinFunctionsData()
     {
-        return new TheoryData<string, Value>
+        return new TheoryData<string, string>
         {
             // Функции преобразования типов
             {
-                "fn main() { stoi(\"5\"); }", new Value(5)
+                "fn main(): int { printi(stoi(\"5\")); return 1; }", "5"
             },
             {
-                "fn main() { itos(5); }", new Value("5")
+                "fn main(): int { print(itos(5)); return 0; }", "5"
             },
             {
-                "fn main() { itof(49); }", new Value(49.0)
+                "fn main(): int { printf(itof(49), 1); return 0; }", "49.0"
             },
             {
-                "fn main() { ftoi(49.0); }", new Value(49)
+                "fn main(): int { printi(ftoi(49.0)); return 0; }", "49"
             },
             {
-                @"fn main() { stof(""49.0""); }", new Value(49.0)
+                @"fn main(): int { printf(stof(""49.0""), 1); return 0; }", "49.0"
             },
             {
-                "fn main() { ftos(49.14, 2); }", new Value("49.14")
+                "fn main(): int { print(ftos(49.14, 2)); return 0; }", "49.14"
             },
 
             // Функции работы со строками
             {
-                "fn main() { strlen(\"Hello!\"); }", new Value(6)
+                "fn main(): int { printi(strlen(\"Hello!\")); return 0; }", "6"
             },
             {
-                "fn main() { substr(\"Hello!\", 2, 2); }", new Value("ll")
+                "fn main(): int { print(substr(\"Hello!\", 2, 2)); return 0; }", "ll"
             },
             {
-                "fn main() { substr(\"Hello!\", 2, 4); }", new Value("llo!")
+                "fn main(): int { print(substr(\"Hello!\", 2, 4)); return 0; }", "llo!"
             },
             {
-                "fn main() { sconcat(\"Ali\", \"ce\"); }", new Value("Alice")
+                "fn main(): int { print(sconcat(\"Ali\", \"ce\")); return 0; }", "Alice"
             },
         };
     }
@@ -60,36 +61,34 @@ public class BuiltinFunctionsTest
     [MemberData(nameof(GetEvaluateOutputFunctionsData))]
     public void Can_evaluate_output_functions(
         string code,
-        Value expectedResult,
-        string expectedBufferedOutput,
-        string expectedFlushedOutput
+        int expectedResult,
+        string expectedBufferedOutput
     )
     {
         FakeEnvironment environment = new();
         Interpreter interpreter = new(environment);
-        Value result = interpreter.Execute(code);
+        interpreter.Execute(code);
 
-        Assert.Equal(expectedResult, result);
+        Assert.Equal(expectedResult, interpreter.ExitCode);
         Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
-        Assert.Equal(expectedFlushedOutput, environment.FlushedOutput);
     }
 
-    public static TheoryData<string, Value, string, string> GetEvaluateOutputFunctionsData()
+    public static TheoryData<string, int, string> GetEvaluateOutputFunctionsData()
     {
-        return new TheoryData<string, Value, string, string>
+        return new TheoryData<string, int, string>
         {
             // Функции вывода
             {
-                "fn main() { print(\"Hello!\"); }", Value.Unit, "Hello!", ""
+                "fn main(): int { print(\"Hello!\"); return 0; }", 0, "Hello!"
             },
             {
-                "fn main() { printi(2 + 7); }", Value.Unit, "9", ""
+                "fn main(): int { printi(2 + 7); return 0; }", 0, "9"
             },
             {
-                "fn main() { printi(2 + 7); print(\"\\n\"); printi(2 - 7); print(\"\\n\"); }", Value.Unit, "9\n-5\n", ""
+                "fn main(): int { printi(2 + 7); print(\"\\n\"); printi(2 - 7); print(\"\\n\"); return 0; }", 0, "9\n-5\n"
             },
             {
-                "fn main() { printi(7); print(\"\\n\"); printi(4); }", Value.Unit, "7\n4", ""
+                "fn main(): int { printi(7); print(\"\\n\"); printi(4); return 0; }", 0, "7\n4"
             },
         };
     }
@@ -102,9 +101,8 @@ public class BuiltinFunctionsTest
         environment.AddInput(input);
 
         Interpreter interpreter = new(environment);
-        Value result = interpreter.Execute(code);
+        interpreter.Execute(code);
 
-        Assert.Equal(result, Value.Unit);
         Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
     }
 
@@ -113,7 +111,7 @@ public class BuiltinFunctionsTest
         return new TheoryData<string, string, string>
         {
             {
-                "fn main() { print(input()); }", "x", "x"
+                "fn main(): int { print(input()); return 0; }", "x", "x"
             },
         };
     }
@@ -134,29 +132,29 @@ public class BuiltinFunctionsTest
         {
             // Нельзя вызвать неизвестную функцию
             {
-                "fn main() { length(\"Hello!\"); }", typeof(UnknownSymbolException)
+                "fn main(): int { length(\"Hello!\"); return 0; }", typeof(UnknownSymbolException)
             },
 
             // Нельзя вызвать встроенную функцию с неправильными типами аргументов
             {
-                "fn main() { strlen(10); }", typeof(TypeErrorException)
+                "fn main(): int { strlen(10); return 0; }", typeof(TypeErrorException)
             },
 
             // Нельзя вызвать встроенную функцию с неправильным числом аргументов
             {
-                "fn main() { strlen(\"Hello!\", \"World\"); }", typeof(InvalidFunctionCallException)
+                "fn main(): int { strlen(\"Hello!\", \"World\"); return 0; }", typeof(InvalidFunctionCallException)
             },
             {
-                "fn main() { strlen(); }", typeof(InvalidFunctionCallException)
+                "fn main(): int { strlen(); return 0; }", typeof(InvalidFunctionCallException)
             },
             {
-                "fn main() { sconcat(); }", typeof(InvalidFunctionCallException)
+                "fn main(): int { sconcat(); return 0; }", typeof(InvalidFunctionCallException)
             },
             {
-                "fn main() { sconcat(\"a\"); }", typeof(InvalidFunctionCallException)
+                "fn main(): int { sconcat(\"a\"); return 0; }", typeof(InvalidFunctionCallException)
             },
             {
-                "fn main() { sconcat(\"a\", \"b\", \"c\"); }", typeof(InvalidFunctionCallException)
+                "fn main(): int { sconcat(\"a\", \"b\", \"c\"); return 0; }", typeof(InvalidFunctionCallException)
             },
         };
     }

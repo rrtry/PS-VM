@@ -19,22 +19,28 @@ public sealed class ResolveNamesPass : AbstractPass
         symbols = globalSymbols;
     }
 
+    public override void Visit(FunctionDeclaration d)
+    {
+        d.ResultType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType :
+                       symbols.GetTypeDeclaration("unit").ResultType;
+        d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
+
+        symbols.DeclareFunction(d);
+        symbols = new SymbolsTable(symbols);
+
+        try
+        {
+            base.Visit(d);
+        }
+        finally
+        {
+            symbols = symbols.Parent!;
+        }
+    }
+
     public override void Visit(FunctionCallExpression e)
     {
         base.Visit(e);
         e.Function = symbols.GetFunctionDeclaration(e.Name);
-    }
-
-    public override void Visit(VariableExpression e)
-    {
-        base.Visit(e);
-        e.Variable = symbols.GetVariableDeclaration(e.Name);
-    }
-
-    public override void Visit(VariableDeclaration d)
-    {
-        base.Visit(d);
-        d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
-        symbols.DeclareVariable(d);
     }
 }

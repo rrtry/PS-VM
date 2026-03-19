@@ -34,130 +34,129 @@ public class ExpressionsTest
         {
             {
                 // Вещественное число
-                "3.14 * 2;", new Value(3.14 * 2)
+                "fn main() { 3.14 * 2; }", new Value(3.14 * 2)
             },
             {
                 // Степень и унарный минус
-                "-5 ** 2;", new Value(25)
+                "fn main() { -5 ** 2; }", new Value(25)
             },
             {
                 // Модуль и возведение в степень
-                "4 % 2 ** 2;", new Value(0)
+                "fn main() { 4 % 2 ** 2; }", new Value(0)
             },
             {
                 // Разбор арифметических выражений с учётом приоритета
-                "1 + 2 * 8 / 3 - 1;", new Value(5)
+                "fn main() { 1 + 2 * 8 / 3 - 1; }", new Value(5)
             },
             {
                 // Разбор арифметических выражений с учётом скобок
-                "(1 + 2) * (8 / (3 - 1));", new Value(12)
+                "fn main() { (1 + 2) * (8 / (3 - 1)); }", new Value(12)
             },
 
             // Проверка правоассоциативности арифметических операций
             {
-                "2 ** 3 ** 2;", new Value(512)
+                "fn main() { 2 ** 3 ** 2; }", new Value(512)
             },
 
             // Проверка левоассоциативности арифметических операций
             {
-                "10 - 3 - 2;", new Value(5)
+                "fn main() { 10 - 3 - 2; }", new Value(5)
             },
             {
-                "10 / 3 / 2;", new Value(1)
+                "fn main() { 10 / 3 / 2; }", new Value(1)
             },
             {
-                "10 - 3 + 2;", new Value(9)
+                "fn main() { 10 - 3 + 2; }", new Value(9)
             },
             {
-                "10 / 3 * 2;", new Value(6)
+                "fn main() { 10 / 3 * 2; }", new Value(6)
             },
 
             // Разбор унарного минуса
             {
-                "-4;", new Value(-4)
+                "fn main() { -4; }", new Value(-4)
             },
             {
-                "2 * 2 * -5;", new Value(-20)
+                "fn main() { 2 * 2 * -5; }", new Value(-20)
             },
 
             // Разбор операторов сравнения
             {
-                "1 + 2 < 5;", new Value(1)
+                "fn main() { 1 + 2 < 5; }", new Value(1)
             },
             {
-                "2 * 2 > 5;", new Value(0)
+                "fn main() { 2 * 2 > 5; }", new Value(0)
             },
             {
-                "2 * 2 == 5;", new Value(0)
+                "fn main() { 2 * 2 == 5; }", new Value(0)
             },
             {
-                "2 / 2 != 4;", new Value(1)
+                "fn main() { 2 / 2 != 4; }", new Value(1)
             },
             {
-                "2 * 2 >= 4;", new Value(1)
+                "fn main() { 2 * 2 >= 4; }", new Value(1)
             },
             {
-                "2 - 1 <= 1;", new Value(1)
+                "fn main() { 2 - 1 <= 1; }", new Value(1)
             },
             {
-                "1 == (2 == 3);", new Value(0)
+                "fn main() { 1 == (2 == 3); }", new Value(0)
             },
 
             // Разбор операций сравнения строк
             {
                 """
-                "Hello" == "Hello!";
+                fn main() { "Hello" == "Hello!"; }
                 """,
                 new Value(0)
             },
             {
                 """
-                "Hello" != "Hello!";
+                fn main() { "Hello" != "Hello!"; }
                 """,
                 new Value(1)
             },
             {
                 """
-                "Bob" > "Alice";
+                fn main() { "Bob" > "Alice"; }
                 """,
                 new Value(1)
             },
             {
                 """
-                "Bob" < "Alice";
+                fn main() { "Bob" < "Alice"; }
                 """,
                 new Value(0)
             },
             {
                 """
-                "Bob" >= "Alice";
+                fn main() { "Bob" >= "Alice"; }
                 """,
                 new Value(1)
             },
             {
                 """
-                "Bob" <= "Alice";
+                fn main() { "Bob" <= "Alice"; }
                 """,
                 new Value(0)
             },
 
             // Разбор логических операторов
             {
-                "1 && 0;", new Value(0)
+                "fn main() { 1 && 0; }", new Value(0)
             },
             {
-                "1 || 0;", new Value(1)
+                "fn main() { 1 || 0; }", new Value(1)
             },
         };
     }
 
     public static TheoryData<string> GetInvalidExpressionsData()
     {
-        // Проверка отсутствия ассоциативности сравнений
         return
         [
-            "1 < 2 < 3;",
-            "1 == 2 == 3;",
+            "fn main() { 1 < 2 < 3; }",
+            "fn main() { 1 == 2 == 3; }",
         ];
     }
 }

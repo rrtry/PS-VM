@@ -22,36 +22,36 @@ public class BuiltinFunctionsTest
         {
             // Функции преобразования типов
             {
-                "stoi(\"5\");", new Value(5)
+                "fn main() { stoi(\"5\"); }", new Value(5)
             },
             {
-                "itos(5);", new Value("5")
+                "fn main() { itos(5); }", new Value("5")
             },
             {
-                "itof(49);", new Value(49.0)
+                "fn main() { itof(49); }", new Value(49.0)
             },
             {
-                "ftoi(49.0);", new Value(49)
+                "fn main() { ftoi(49.0); }", new Value(49)
             },
             {
-                @"stof(""49.0"");", new Value(49.0)
+                @"fn main() { stof(""49.0""); }", new Value(49.0)
             },
             {
-                "ftos(49.14, 2);", new Value("49.14")
+                "fn main() { ftos(49.14, 2); }", new Value("49.14")
             },
 
             // Функции работы со строками
             {
-                "strlen(\"Hello!\");", new Value(6)
+                "fn main() { strlen(\"Hello!\"); }", new Value(6)
             },
             {
-                "substr(\"Hello!\", 2, 2);", new Value("ll")
+                "fn main() { substr(\"Hello!\", 2, 2); }", new Value("ll")
             },
             {
-                "substr(\"Hello!\", 2, 4);", new Value("llo!")
+                "fn main() { substr(\"Hello!\", 2, 4); }", new Value("llo!")
             },
             {
-                "sconcat(\"Ali\", \"ce\");", new Value("Alice")
+                "fn main() { sconcat(\"Ali\", \"ce\"); }", new Value("Alice")
             },
         };
     }
@@ -80,16 +80,16 @@ public class BuiltinFunctionsTest
         {
             // Функции вывода
             {
-                "print(\"Hello!\");", Value.Unit, "Hello!", ""
+                "fn main() { print(\"Hello!\"); }", Value.Unit, "Hello!", ""
             },
             {
-                "printi(2 + 7);", Value.Unit, "9", ""
+                "fn main() { printi(2 + 7); }", Value.Unit, "9", ""
             },
             {
-                "printi(2 + 7); print(\"\\n\"); printi(2 - 7); print(\"\\n\");", Value.Unit, "9\n-5\n", ""
+                "fn main() { printi(2 + 7); print(\"\\n\"); printi(2 - 7); print(\"\\n\"); }", Value.Unit, "9\n-5\n", ""
             },
             {
-                "printi(7); print(\"\\n\"); printi(4);", Value.Unit, "7\n4", ""
+                "fn main() { printi(7); print(\"\\n\"); printi(4); }", Value.Unit, "7\n4", ""
             },
         };
     }
@@ -113,7 +113,7 @@ public class BuiltinFunctionsTest
         return new TheoryData<string, string, string>
         {
             {
-                "print(input());", "x", "x"
+                "fn main() { print(input()); }", "x", "x"
             },
         };
     }
@@ -134,29 +134,29 @@ public class BuiltinFunctionsTest
         {
             // Нельзя вызвать неизвестную функцию
             {
-                "length(\"Hello!\");", typeof(UnknownSymbolException)
+                "fn main() { length(\"Hello!\"); }", typeof(UnknownSymbolException)
             },
 
             // Нельзя вызвать встроенную функцию с неправильными типами аргументов
             {
-                "strlen(10);", typeof(TypeErrorException)
+                "fn main() { strlen(10); }", typeof(TypeErrorException)
             },
 
             // Нельзя вызвать встроенную функцию с неправильным числом аргументов
             {
-                "strlen(\"Hello!\", \"World\");", typeof(InvalidFunctionCallException)
+                "fn main() { strlen(\"Hello!\", \"World\"); }", typeof(InvalidFunctionCallException)
             },
             {
-                "strlen();", typeof(InvalidFunctionCallException)
+                "fn main() { strlen(); }", typeof(InvalidFunctionCallException)
             },
             {
-                "sconcat();", typeof(InvalidFunctionCallException)
+                "fn main() { sconcat(); }", typeof(InvalidFunctionCallException)
             },
             {
-                "sconcat(\"a\");", typeof(InvalidFunctionCallException)
+                "fn main() { sconcat(\"a\"); }", typeof(InvalidFunctionCallException)
             },
             {
-                "sconcat(\"a\", \"b\", \"c\");", typeof(InvalidFunctionCallException)
+                "fn main() { sconcat(\"a\", \"b\", \"c\"); }", typeof(InvalidFunctionCallException)
             },
         };
     }

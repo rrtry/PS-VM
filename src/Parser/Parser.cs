@@ -21,13 +21,29 @@ public class Parser
 
     public BlockStatement Parse()
     {
-        List<AstNode> nodes = new();
-        while (tokens.Peek().Type != TokenType.Eof)
+        return ParseEntryPoint();
+    }
+
+    public BlockStatement ParseEntryPoint()
+    {
+        Match(TokenType.Fn);
+
+        Token token = tokens.Peek();
+        if (token.Type != TokenType.Identifier)
         {
-            nodes.Add(ParseStatement());
+            throw new UnexpectedLexemeException(TokenType.Identifier, token);
         }
 
-        return new BlockStatement(nodes);
+        if (token.Value!.ToString() != "main")
+        {
+            throw new UnexpectedLexemeException("main", token);
+        }
+
+        tokens.Advance();
+        Match(TokenType.LeftParen);
+        Match(TokenType.RightParen);
+
+        return ParseBlockStatement();
     }
 
     /// <summary>

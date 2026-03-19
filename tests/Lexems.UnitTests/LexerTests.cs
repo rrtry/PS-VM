@@ -359,7 +359,7 @@ public class LexerTests
                 }
             },
             {
-                "fn let return if else while for break continue true false input print import",
+                "fn let return if else while for break continue true false",
                 new List<Token>
                 {
                     new(TokenType.Fn),
@@ -373,9 +373,6 @@ public class LexerTests
                     new(TokenType.Continue),
                     new(TokenType.True),
                     new(TokenType.False),
-                    new(TokenType.Input),
-                    new(TokenType.Print),
-                    new(TokenType.Import),
                 }
             },
         };

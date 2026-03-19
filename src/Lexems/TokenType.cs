@@ -41,15 +41,6 @@ public enum TokenType
     /// <summary>Логическое значение "ложь" (`false`).</summary>
     False,
 
-    /// <summary>Встроенная функция вывода (`input`).</summary>
-    Input,
-
-    /// <summary>Встроенная функция вывода (`print`).</summary>
-    Print,
-
-    /// <summary>Подключение внешнего модуля (`import`).</summary>
-    Import,
-
     /// <summary>Идентификатор (имя переменной, функции и т.п.).</summary>
     Identifier,
 

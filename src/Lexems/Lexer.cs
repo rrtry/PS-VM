@@ -51,9 +51,6 @@ public class Lexer
         { "continue", TokenType.Continue },
         { "true",     TokenType.True },
         { "false",    TokenType.False },
-        { "input",    TokenType.Input },
-        { "print",    TokenType.Print },
-        { "import",   TokenType.Import },
     };
 
     private readonly TextScanner scanner;

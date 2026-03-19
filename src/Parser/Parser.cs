@@ -325,22 +325,9 @@ public class Parser
                 tokens.Advance();
                 return new LiteralExpression(ValueType.String, new Value(token.Value!.ToString()));
 
-            case TokenType.Input:
-            case TokenType.Print:
-
-                tokens.Advance();
-                string name = token.Type == TokenType.Print ? "print" : "input";
-
-                if (tokens.Peek().Type == TokenType.LeftParen)
-                {
-                    return ParseFunctionCall(name);
-                }
-
-                return new VariableExpression(name);
-
             case TokenType.Identifier:
 
-                name = tokens.Advance().Value!.ToString();
+                string name = tokens.Advance().Value!.ToString();
                 if (tokens.Peek().Type == TokenType.LeftParen)
                 {
                     return ParseFunctionCall(name);

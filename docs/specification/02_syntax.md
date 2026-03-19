@@ -4,9 +4,10 @@
 
 Программа представляет собой последовательность объявлений функций. Порядок объявлений не важен — все функции видны во всей программе.
 
-fn main() {
+fn main(): int {
     let x: int = 42;
     print(x);
+    return 0;
 }
 
 fn foo(a: int, b: int): int {
@@ -20,8 +21,8 @@ fn <идентификатор>(<параметры>): <тип> {
     <инструкции>
 }
 
-Функция `main` является точкой входа и не указывает возвращаемый тип:
-fn main() {
+Функция `main` является точкой входа и должна иметь тип `int`:
+fn main(): int {
     <инструкции>
 }
 
@@ -114,7 +115,6 @@ program = { function_declaration } ;
 (* Объявления функций *)
 function_declaration = "fn" , identifier , "(" , [ parameter_list ] , ")"
                      , [ ":" , type ] , block ;
-main_function = "fn" , "main" , "(" , ")" , block ;  (* специальный случай *)
 
 parameter_list = parameter , { "," , parameter } ;
 parameter      = identifier , ":" , type ;

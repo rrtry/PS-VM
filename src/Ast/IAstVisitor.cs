@@ -12,31 +12,15 @@ public interface IAstVisitor
 
     public void Visit(LiteralExpression e);
 
-    public void Visit(VariableExpression e);
-
     public void Visit(FunctionCallExpression e);
-
-    public void Visit(AssignmentExpression e);
-
-    public void Visit(WhileLoopStatement e);
-
-    public void Visit(VariableDeclaration d);
 
     public void Visit(FunctionDeclaration d);
 
     public void Visit(ParameterDeclaration d);
 
-    public void Visit(ForLoopIteratorDeclaration d);
-
-    public void Visit(IfElseStatement s);
+    public void Visit(EntryPointNode n);
 
     public void Visit(BlockStatement s);
-
-    public void Visit(ForLoopStatement s);
-
-    public void Visit(BreakLoopStatement s);
-
-    public void Visit(ContinueLoopStatement s);
 
     public void Visit(ReturnStatement s);
 }

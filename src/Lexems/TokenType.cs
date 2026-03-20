@@ -5,6 +5,21 @@ namespace Lexems;
 /// </summary>
 public enum TokenType
 {
+    /// <summary>Тип str.</summary>
+    Str,
+
+    /// <summary>Тип bool.</summary>
+    Bool,
+
+    /// <summary>Тип int.</summary>
+    Int,
+
+    /// <summary>Тип float.</summary>
+    Float,
+
+    /// <summary>Тип unit.</summary>
+    Unit,
+
     /// <summary>Определение типа (`:`).</summary>
     Colon,
 
@@ -40,15 +55,6 @@ public enum TokenType
 
     /// <summary>Логическое значение "ложь" (`false`).</summary>
     False,
-
-    /// <summary>Встроенная функция вывода (`input`).</summary>
-    Input,
-
-    /// <summary>Встроенная функция вывода (`print`).</summary>
-    Print,
-
-    /// <summary>Подключение внешнего модуля (`import`).</summary>
-    Import,
 
     /// <summary>Идентификатор (имя переменной, функции и т.п.).</summary>
     Identifier,

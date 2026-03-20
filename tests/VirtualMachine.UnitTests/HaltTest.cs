@@ -19,8 +19,7 @@ public class HaltTest
 
         Assert.Equal(exitCode, vm.ExitCode);
         Assert.Equal(Value.Unit, result);
-        Assert.Empty(environment.BufferedOutput);
-        Assert.Empty(environment.FlushedOutput);
+        Assert.Empty(environment.OutputBuffer);
     }
 
     public static TheoryData<int> GetHaltVmData()

@@ -1,7 +1,6 @@
 using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
-
 using Semantics.Exceptions;
 
 namespace Semantics.Passes;
@@ -21,46 +20,25 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     public CheckContextSensitiveRulesPass()
     {
         expressionContextStack = [];
-        expressionContextStack.Push(ExpressionContext.Default);
+        expressionContextStack.Push(ExpressionContext.TopLevel);
     }
 
     private enum ExpressionContext
     {
-        Default,
-        InsideLoop,
+        TopLevel,
         InsideFunction,
-    }
-
-    /// <summary>
-    /// Проверяет корректность программы с точки зрения использования функций.
-    /// </summary>
-    /// <exception cref="InvalidFunctionCallException">Бросается при неправильном вызове функций.</exception>
-    public override void Visit(FunctionCallExpression e)
-    {
-        base.Visit(e);
-
-        if (e.Arguments.Count != e.Function.Parameters.Count)
-        {
-            throw new InvalidFunctionCallException(
-                $"Function {e.Name} requires {e.Function.Parameters.Count} arguments, got {e.Arguments.Count}"
-            );
-        }
-    }
-
-    public override void Visit(AssignmentExpression e)
-    {
-        base.Visit(e);
-        if (!IsLvalue(e.Left))
-        {
-            throw new InvalidAssignmentException("Left side of assignment must be a lvalue");
-        }
     }
 
     public override void Visit(FunctionDeclaration d)
     {
-        if (expressionContextStack.Peek() != ExpressionContext.Default)
+        if (d.Name != "main")
         {
-            throw new InvalidExpressionException("Function declaration is only allowed on the top level");
+            throw new InvalidDeclarationException("Currently only 'main' entry point function is supported");
+        }
+
+        if (d.ResultType != Runtime.ValueType.Int)
+        {
+            throw new InvalidDeclarationException("'main' function signature: fn main(): int");
         }
 
         expressionContextStack.Push(ExpressionContext.InsideFunction);
@@ -74,85 +52,35 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         }
     }
 
-    public override void Visit(WhileLoopStatement e)
-    {
-        expressionContextStack.Push(ExpressionContext.InsideLoop);
-        try
-        {
-            base.Visit(e);
-        }
-        finally
-        {
-            expressionContextStack.Pop();
-        }
-    }
-
-    public override void Visit(ForLoopStatement e)
-    {
-        expressionContextStack.Push(ExpressionContext.InsideLoop);
-        try
-        {
-            base.Visit(e);
-        }
-        finally
-        {
-            expressionContextStack.Pop();
-        }
-    }
-
-    public override void Visit(ContinueLoopStatement e)
-    {
-        base.Visit(e);
-        if (expressionContextStack.Peek() != ExpressionContext.InsideLoop)
-        {
-            throw new InvalidExpressionException("The \"continue\" expression is allowed only inside the loop");
-        }
-    }
-
-    public override void Visit(BreakLoopStatement e)
-    {
-        base.Visit(e);
-        if (expressionContextStack.Peek() != ExpressionContext.InsideLoop)
-        {
-            throw new InvalidExpressionException("The \"break\" expression is allowed only inside the loop");
-        }
-    }
-
     public override void Visit(ReturnStatement e)
     {
-        base.Visit(e);
         if (expressionContextStack.Peek() != ExpressionContext.InsideFunction)
         {
-            List<ExpressionContext> contextList = expressionContextStack.ToList();
-            ExpressionContext outerContext = ExpressionContext.Default;
-
-            foreach (ExpressionContext context in contextList)
-            {
-                if (context is not ExpressionContext.InsideLoop)
-                {
-                    outerContext = context;
-                    break;
-                }
-            }
-
-            if (outerContext is not ExpressionContext.InsideFunction)
-            {
-                throw new InvalidExpressionException("The \"return\" expression is allowed only inside the function");
-            }
+            throw new InvalidStatementException("'return' statement is allowed only within function");
         }
+
+        base.Visit(e);
     }
 
     /// <summary>
-    /// Проверяет, является ли выражение lvalue-выражением.
-    /// Термин lvalue означает «значение слева от присваивания».
+    /// Проверяет корректность программы с точки зрения использования функций.
     /// </summary>
-    private static bool IsLvalue(Expression e)
+    /// <exception cref="InvalidFunctionCallException">Бросается при неправильном вызове функций.</exception>
+    public override void Visit(FunctionCallExpression e)
     {
-        if (e is VariableExpression)
+        if (expressionContextStack.Peek() != ExpressionContext.TopLevel)
         {
-            return true;
+            base.Visit(e);
+            if (e.Arguments.Count != e.Function.Parameters.Count)
+            {
+                throw new InvalidFunctionCallException(
+                    $"Function {e.Name} requires {e.Function.Parameters.Count} arguments, got {e.Arguments.Count}"
+                );
+            }
         }
-
-        return false;
+        else
+        {
+            throw new InvalidExpressionException("Top-level expressions are not allowed");
+        }
     }
 }

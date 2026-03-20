@@ -1,7 +1,5 @@
 using Ast.Attributes;
 
-using ValueType = Runtime.ValueType;
-
 namespace Ast.Declarations;
 
 /// <summary>

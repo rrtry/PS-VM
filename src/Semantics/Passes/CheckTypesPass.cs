@@ -5,8 +5,6 @@ using Ast.Statements;
 using Semantics.Exceptions;
 using Semantics.Helpers;
 
-using ValueType = Runtime.ValueType;
-
 namespace Semantics.Passes;
 
 /// <summary>
@@ -15,7 +13,6 @@ namespace Semantics.Passes;
 /// <exception cref="TypeErrorException">Бросается при несоответствии типов данных в процессе проверки.</exception>
 public class CheckTypesPass : AbstractPass
 {
-    private readonly HashSet<Statement> visitedStatements = new();
     private FunctionDeclaration? currentFunction;
 
     /// <summary>
@@ -30,11 +27,10 @@ public class CheckTypesPass : AbstractPass
     public override void Visit(FunctionDeclaration d)
     {
         currentFunction = d;
-        visitedStatements.Clear();
         base.Visit(d);
 
         if (d.DeclaredType != null &&
-            d.DeclaredType.ResultType != ValueType.Unit)
+            d.DeclaredType.ResultType != Runtime.ValueType.Unit)
         {
             if (!GuaranteesReturn(d.Body))
             {
@@ -50,7 +46,8 @@ public class CheckTypesPass : AbstractPass
     public override void Visit(ReturnStatement s)
     {
         base.Visit(s);
-        if (currentFunction != null && currentFunction.DeclaredType != null)
+        if (currentFunction != null &&
+            currentFunction.DeclaredType != null)
         {
             if (s.ReturnValue == null)
             {
@@ -63,65 +60,28 @@ public class CheckTypesPass : AbstractPass
         }
     }
 
+    private static void CheckAreSameTypes(string category, Expression expression, Runtime.ValueType expectedType)
+    {
+        if (!ValueTypeUtil.AreExactTypes(expression.ResultType, expectedType))
+        {
+            throw new TypeErrorException(category, expectedType, expression.ResultType);
+        }
+    }
+
     /// <summary>
-    /// Проверяет тип переменной и тип выражения, которым она инициализируется.
+    /// Проверяет гаранитию наличия return в теле функции. Упрощенная версия, так как пока не поддерживаются конструкции.
     /// </summary>
-    public override void Visit(VariableDeclaration d)
+    private bool GuaranteesReturn(BlockStatement block)
     {
-        base.Visit(d);
-
-        ValueType inferredType = d.InitialValue.ResultType;
-        if (inferredType == ValueType.Unit)
+        foreach (Statement stmt in block.Statements.OfType<Statement>())
         {
-            throw new TypeErrorException("Cannot initialize variable from expression without value");
+            if (stmt is ReturnStatement)
+            {
+                return true;
+            }
         }
 
-        if (d.DeclaredType != null && !ValueTypeUtil.AreExactTypes(d.DeclaredType.ResultType, inferredType))
-        {
-            throw new TypeErrorException(
-                $"Cannot initialize variable of type {d.DeclaredTypeName} with value of type {inferredType}"
-            );
-        }
-    }
-
-    public override void Visit(AssignmentExpression e)
-    {
-        base.Visit(e);
-        if (!ValueTypeUtil.AreExactTypes(e.Left.ResultType, e.Right.ResultType))
-        {
-            throw new TypeErrorException(
-                $"Cannot assign value of type {e.Right.ResultType} to variable of type {e.Left.ResultType}"
-            );
-        }
-    }
-
-    public override void Visit(IfElseStatement e)
-    {
-        base.Visit(e);
-        CheckAreSameTypes("if-else condition", e.Condition, ValueType.Int);
-    }
-
-    public override void Visit(WhileLoopStatement e)
-    {
-        base.Visit(e);
-        CheckAreSameTypes("while loop condition", e.Condition, ValueType.Int);
-    }
-
-    public override void Visit(ForLoopStatement e)
-    {
-        base.Visit(e);
-        if (e.StartValue is AssignmentExpression)
-        {
-            CheckAreSameTypes("for loop start value", (AssignmentExpression)e.StartValue, ValueType.Int);
-        }
-        else if (e.StartValue is VariableDeclaration)
-        {
-            CheckAreSameTypes("for loop start value", (VariableDeclaration)e.StartValue, ValueType.Int);
-        }
-        else
-        {
-            throw new TypeErrorException($"The only allowed type for for-loop iterator is int");
-        }
+        return false;
     }
 
     /// <summary>
@@ -133,6 +93,7 @@ public class CheckTypesPass : AbstractPass
         {
             Expression argument = e.Arguments[i];
             AbstractParameterDeclaration parameter = function.Parameters[i];
+
             if (!ValueTypeUtil.AreExactTypes(parameter.ResultType, argument.ResultType))
             {
                 throw new TypeErrorException(
@@ -140,62 +101,5 @@ public class CheckTypesPass : AbstractPass
                 );
             }
         }
-    }
-
-    private static void CheckAreSameTypes(string category, Declaration declaration, ValueType expectedType)
-    {
-        if (!ValueTypeUtil.AreExactTypes(declaration.ResultType, expectedType))
-        {
-            throw new TypeErrorException(category, expectedType, declaration.ResultType);
-        }
-    }
-
-    private static void CheckAreSameTypes(string category, Expression expression, ValueType expectedType)
-    {
-        if (!ValueTypeUtil.AreExactTypes(expression.ResultType, expectedType))
-        {
-            throw new TypeErrorException(category, expectedType, expression.ResultType);
-        }
-    }
-
-    private bool GuaranteesReturn(Statement statement)
-    {
-        if (visitedStatements.Contains(statement))
-        {
-            return false;
-        }
-
-        visitedStatements.Add(statement);
-        return statement switch
-        {
-            BlockStatement block => GuaranteesReturn(block),
-            IfElseStatement ifElse => GuaranteesReturn(ifElse),
-            ReturnStatement => true,
-            _ => false,
-        };
-    }
-
-    private bool GuaranteesReturn(IfElseStatement ifElse)
-    {
-        if (ifElse.ElseBranch != null)
-        {
-            return GuaranteesReturn(ifElse.ThenBranch) &&
-                   GuaranteesReturn(ifElse.ElseBranch);
-        }
-
-        return false;
-    }
-
-    private bool GuaranteesReturn(BlockStatement block)
-    {
-        foreach (Statement stmt in block.Statements.OfType<Statement>())
-        {
-            if (GuaranteesReturn(stmt))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

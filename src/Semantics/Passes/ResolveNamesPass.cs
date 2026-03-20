@@ -1,9 +1,5 @@
 using Ast.Declarations;
 using Ast.Expressions;
-using Ast.Statements;
-
-using Runtime;
-
 using Semantics.Symbols;
 
 namespace Semantics.Passes;
@@ -23,28 +19,10 @@ public sealed class ResolveNamesPass : AbstractPass
         symbols = globalSymbols;
     }
 
-    public override void Visit(FunctionCallExpression e)
-    {
-        base.Visit(e);
-        e.Function = symbols.GetFunctionDeclaration(e.Name);
-    }
-
-    public override void Visit(VariableExpression e)
-    {
-        base.Visit(e);
-        e.Variable = symbols.GetVariableDeclaration(e.Name);
-    }
-
-    public override void Visit(VariableDeclaration d)
-    {
-        base.Visit(d);
-        d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
-        symbols.DeclareVariable(d);
-    }
-
     public override void Visit(FunctionDeclaration d)
     {
-        d.ResultType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType : symbols.GetTypeDeclaration("unit").ResultType;
+        d.ResultType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType :
+                       symbols.GetTypeDeclaration("unit").ResultType;
         d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
 
         symbols.DeclareFunction(d);
@@ -60,42 +38,9 @@ public sealed class ResolveNamesPass : AbstractPass
         }
     }
 
-    public override void Visit(ParameterDeclaration d)
+    public override void Visit(FunctionCallExpression e)
     {
-        base.Visit(d);
-        d.Type = symbols.GetTypeDeclaration(d.TypeName);
-        symbols.DeclareVariable(d);
-    }
-
-    public override void Visit(IfElseStatement e)
-    {
-        symbols = new SymbolsTable(symbols);
-        try
-        {
-            base.Visit(e);
-        }
-        finally
-        {
-            symbols = symbols.Parent!;
-        }
-    }
-
-    public override void Visit(ForLoopStatement e)
-    {
-        symbols = new SymbolsTable(symbols);
-        try
-        {
-            base.Visit(e);
-        }
-        finally
-        {
-            symbols = symbols.Parent!;
-        }
-    }
-
-    public override void Visit(ForLoopIteratorDeclaration d)
-    {
-        base.Visit(d);
-        symbols.DeclareVariable(d);
+        base.Visit(e);
+        e.Function = symbols.GetFunctionDeclaration(e.Name);
     }
 }

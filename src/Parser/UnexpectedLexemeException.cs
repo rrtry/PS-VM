@@ -10,6 +10,11 @@ public class UnexpectedLexemeException : Exception
     {
     }
 
+    public UnexpectedLexemeException(string expected, Token actual)
+        : base($"Unexpected identifier {actual} where expected {expected}")
+    {
+    }
+
     public UnexpectedLexemeException(List<TokenType> expected, Token actual)
         : base($"Unexpected lexeme {actual} where expected {expected}")
     {

@@ -1,4 +1,3 @@
-using Ast.Declarations;
 using Ast.Expressions;
 using Semantics.Exceptions;
 using Semantics.Helpers;
@@ -64,36 +63,6 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(e);
         e.ResultType = e.Function.ResultType;
-    }
-
-    public override void Visit(ParameterDeclaration d)
-    {
-        base.Visit(d);
-        d.ResultType = d.Type.ResultType;
-    }
-
-    public override void Visit(VariableExpression e)
-    {
-        base.Visit(e);
-        e.ResultType = e.Variable.ResultType;
-    }
-
-    public override void Visit(VariableDeclaration d)
-    {
-        base.Visit(d);
-        d.ResultType = d.InitialValue.ResultType;
-    }
-
-    public override void Visit(AssignmentExpression e)
-    {
-        base.Visit(e);
-        e.ResultType = ValueType.Unit;
-    }
-
-    public override void Visit(ForLoopIteratorDeclaration d)
-    {
-        base.Visit(d);
-        d.ResultType = ValueType.Int;
     }
 
     /// <summary>

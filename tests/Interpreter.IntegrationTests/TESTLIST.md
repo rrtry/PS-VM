@@ -1,3 +1,22 @@
+# Тесты EntryPointTest
+
+### Can_exec_main - Проверка наличия main и возвращаемого exitCode
+| Тест-кейс | Код | Ожидаемый результат |
+|-----------|-----|---------------------|
+| exitCode 0 | `fn main(): int { print("Program exited with code 0"); return 0; }` | `"Program exited with code 0", 0` |
+| exitCode 1 | `fn main(): int { print("Program exited with code 1"); return 1; }` | `"Program exited with code 1", 1` |
+
+### Throws_on_invalid_entry_point_declaration - Ошибки при неверном объявлении main
+
+| Тест-кейс | Код | Ожидаемый результат |
+|-----------|-----|---------------------|
+| Без точки входа | `printi(1);` | `UnexpectedLexemeException` |
+| Тип unit вместо int | `fn main(): unit { printi(0); }` | `UnexpectedLexemeException` |
+| Тип str вместо int | `fn main(): int { printi(0); return ""; }` | `TypeErrorException` |
+| Тип float вместо int | `fn main(): int { printi(0); return 0.0; }` | `TypeErrorException ` |
+| Тип unit вместо int | `fn main(): int { printi(0); return; }` | `TypeErrorException ` |
+| Отсутствие return | `fn main(): int { printi(0); }` | `TypeErrorException` |
+
 # Тесты BuiltinFunctionsTest
 
 ### Can_evaluate_builtin_functions - Функции преобразования типов

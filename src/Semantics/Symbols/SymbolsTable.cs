@@ -24,18 +24,6 @@ public sealed class SymbolsTable
 
     public SymbolsTable? Parent => parent;
 
-    public AbstractVariableDeclaration GetVariableDeclaration(string name)
-    {
-        Declaration? declaration = FindDeclaration(table => table.variablesAndFunctions, name);
-        return declaration switch
-        {
-            AbstractVariableDeclaration variable => variable,
-            AbstractFunctionDeclaration _ => throw new InvalidSymbolException(name, "function", "variable"),
-            null => throw UnknownSymbolException.UndefinedVariableOrFunction(name),
-            _ => throw new UnreachableException(),
-        };
-    }
-
     public AbstractFunctionDeclaration GetFunctionDeclaration(string name)
     {
         Declaration? declaration = FindDeclaration(table => table.variablesAndFunctions, name);
@@ -57,14 +45,6 @@ public sealed class SymbolsTable
         }
 
         return (AbstractTypeDeclaration)declaration;
-    }
-
-    public void DeclareVariable(AbstractVariableDeclaration symbol)
-    {
-        if (!variablesAndFunctions.TryAdd(symbol.Name, symbol))
-        {
-            throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
-        }
     }
 
     public void DeclareFunction(AbstractFunctionDeclaration symbol)

@@ -8,9 +8,6 @@ using Ast.Statements;
 using Lexems;
 using Runtime;
 
-/// <summary>
-/// Грамматика описана в файле `docs/specification/expressions-grammar.md`.
-/// </summary>
 public class Parser
 {
     private readonly TokenStream tokens;
@@ -20,28 +17,60 @@ public class Parser
         tokens = new TokenStream(source);
     }
 
-    public BlockStatement Parse()
+    public EntryPointNode Parse()
     {
-        List<AstNode> nodes = new();
-        while (tokens.Peek().Type != TokenType.Eof)
-        {
-            nodes.Add(ParseStatement());
-        }
-
-        return new BlockStatement(nodes);
+        return ParseEntryPoint();
     }
 
     /// <summary>
-    /// statement =
-    /// | variable_declaration , ";"
-    /// | function_declaration, ";"
+    /// return_statement = "return" , [ expression ] ; (* expression обязателен, если тип функции != unit *)
+    /// </summary>
+    private ReturnStatement ParseReturnStatement()
+    {
+        tokens.Advance();
+        if (tokens.Peek().Type == TokenType.Semicolon)
+        {
+            return new ReturnStatement();
+        }
+
+        Expression returnExpression = ParseExpression();
+        return new ReturnStatement(returnExpression);
+    }
+
+    /// <summary>
+    /// main_function = "fn" , "main" , "(" , "): int" , block ;.
+    /// </summary>
+    private EntryPointNode ParseEntryPoint()
+    {
+        Match(TokenType.Fn);
+        Token fnNameToken = Match(TokenType.Identifier);
+        string fnName = fnNameToken.Value!.ToString();
+
+        if (fnName != "main")
+        {
+            throw new UnexpectedLexemeException("main", fnNameToken);
+        }
+
+        Match(TokenType.LeftParen);
+        Match(TokenType.RightParen);
+        Match(TokenType.Colon);
+        Match(TokenType.Int);
+
+        BlockStatement body = ParseBlockStatement();
+        FunctionDeclaration main = new FunctionDeclaration(fnName, [], "int", body);
+        return new EntryPointNode(main);
+    }
+
+    /// <summary>
+    /// statement = variable_declaration , ";"
+    /// | assignment , ";"
     /// | function_call , ";"
     /// | return_statement , ";"
     /// | if_statement
     /// | while_statement
     /// | for_statement
     /// | "break" , ";"
-    /// | "continue" , ";".
+    /// | "continue" , ";" ;
     /// </summary>
     private AstNode ParseStatement()
     {
@@ -50,42 +79,9 @@ public class Parser
 
         switch (token.Type)
         {
-            case TokenType.Let:
-                evaluated = ParseVariableDeclaration();
-                Match(TokenType.Semicolon);
-                break;
-
-            case TokenType.Break:
-                tokens.Advance();
-                evaluated = new BreakLoopStatement();
-                Match(TokenType.Semicolon);
-                break;
-
-            case TokenType.Continue:
-                tokens.Advance();
-                evaluated = new ContinueLoopStatement();
-                Match(TokenType.Semicolon);
-                break;
-
             case TokenType.Return:
                 evaluated = ParseReturnStatement();
                 Match(TokenType.Semicolon);
-                break;
-
-            case TokenType.If:
-                evaluated = ParseIfStatement();
-                break;
-
-            case TokenType.While:
-                evaluated = ParseWhileLoopStatement();
-                break;
-
-            case TokenType.For:
-                evaluated = ParseForLoopStatement();
-                break;
-
-            case TokenType.Fn:
-                evaluated = ParseFunctionDefinition();
                 break;
 
             default:
@@ -95,99 +91,6 @@ public class Parser
         }
 
         return evaluated;
-    }
-
-    /// <summary>
-    /// return_statement = "return", [ expression ] ;.
-    /// </summary>
-    private ReturnStatement ParseReturnStatement()
-    {
-        tokens.Advance();
-        Expression returnExpression = ParseExpression();
-        return new ReturnStatement(returnExpression);
-    }
-
-    /// <summary>
-    /// function_definition = "fn" , identifier , "(" , [ parameter_list ] , ")" , ":" , type , block ;.
-    /// </summary>
-    private FunctionDeclaration ParseFunctionDefinition()
-    {
-        tokens.Advance();
-
-        Token functionNameToken = Match(TokenType.Identifier);
-        string functionName = functionNameToken.Value!.ToString();
-
-        Match(TokenType.LeftParen);
-        List<ParameterDeclaration> parameters = [];
-        if (tokens.Peek().Type != TokenType.RightParen)
-        {
-            parameters = ParseParameterDeclarationList();
-        }
-
-        Match(TokenType.RightParen);
-
-        string? returnType = null;
-        if (tokens.Peek().Type == TokenType.Colon)
-        {
-            tokens.Advance();
-            returnType = Match(TokenType.Identifier).Value!.ToString();
-        }
-
-        BlockStatement body = ParseBlockStatement();
-        return new FunctionDeclaration(functionName, parameters, returnType, body);
-    }
-
-    /// <summary>
-    /// parameter_list = parameter , { "," , parameter } ;.
-    /// </summary>
-    private List<ParameterDeclaration> ParseParameterDeclarationList()
-    {
-        List<ParameterDeclaration> declarations =
-        [
-            ParseParameterDeclaration(),
-        ];
-
-        while (tokens.Peek().Type == TokenType.Comma)
-        {
-            tokens.Advance();
-            declarations.Add(ParseParameterDeclaration());
-        }
-
-        return declarations;
-    }
-
-    /// <summary>
-    /// parameter = identifier , ":" , type ;.
-    /// </summary>
-    private ParameterDeclaration ParseParameterDeclaration()
-    {
-        string name = Match(TokenType.Identifier).Value!.ToString();
-        Match(TokenType.Colon);
-        string typeName = Match(TokenType.Identifier).Value!.ToString();
-
-        return new ParameterDeclaration(name, typeName);
-    }
-
-    /// <summary>
-    /// if_statement = "if" , "(" , expression , ")" , block , [ "else" , block ] ;.
-    /// </summary>
-    private IfElseStatement ParseIfStatement()
-    {
-        Match(TokenType.If);
-
-        Match(TokenType.LeftParen);
-        Expression condition = ParseExpression();
-        Match(TokenType.RightParen);
-
-        BlockStatement thenBlock = ParseBlockStatement();
-        BlockStatement? elseBlock = null;
-
-        if (MatchOptional(TokenType.Else))
-        {
-            elseBlock = ParseBlockStatement();
-        }
-
-        return new IfElseStatement(condition, thenBlock, elseBlock);
     }
 
     /// <summary>
@@ -210,65 +113,10 @@ public class Parser
     }
 
     /// <summary>
-    /// while_statement = "while" , "(" , expression , ")" , block ;.
+    /// expression = assignment; // 3-ая итерация
+    /// expression = logical_or
     /// </summary>
-    private WhileLoopStatement ParseWhileLoopStatement()
-    {
-        Match(TokenType.While);
-
-        Match(TokenType.LeftParen);
-        Expression condition = ParseExpression();
-        Match(TokenType.RightParen);
-
-        BlockStatement body = ParseBlockStatement();
-        return new WhileLoopStatement(condition, body);
-    }
-
-    /// <summary>
-    /// for_statement =
-    /// "for" , "(" , init , ";" , expression , ";" , update , ")" , block ;
-    /// init   = variable_declaration | assignment ;
-    /// update = assignment.
-    /// </summary>
-    private ForLoopStatement ParseForLoopStatement()
-    {
-        Match(TokenType.For);
-        Match(TokenType.LeftParen);
-        AstNode initialization = ParseStatement();
-
-        string name = initialization switch
-        {
-            VariableDeclaration varDecl => varDecl.Name,
-            AssignmentExpression assignExpr => ((VariableExpression)assignExpr.Left).Name,
-            _ => throw new Exception("Invalid for loop initialization"),
-        };
-
-        Expression condition = ParseExpression();
-        Match(TokenType.Semicolon);
-
-        Expression increment = ParseExpression();
-        Match(TokenType.RightParen);
-
-        BlockStatement body = ParseBlockStatement();
-        return new ForLoopStatement(name, initialization, condition, increment, body);
-    }
-
-    /// <summary>
-    /// expression = assignment;.
-    /// </summary>
-    private Expression ParseExpression() => ParseAssignment();
-
-    private Expression ParseAssignment()
-    {
-        Expression expr = ParseLogicalOr();
-        while (tokens.Peek().Type == TokenType.Assign)
-        {
-            tokens.Advance();
-            expr = new AssignmentExpression(expr, ParseLogicalOr());
-        }
-
-        return expr;
-    }
+    private Expression ParseExpression() => ParseLogicalOr();
 
     /// <summary>
     /// logical_or = logical_and , { "||" , logical_and } ;.
@@ -287,7 +135,7 @@ public class Parser
     }
 
     /// <summary>
-    /// logical_and = equality, { "&&", equality } ;.
+    /// logical_and = equality , { "&&" , equality } ;
     /// </summary>
     private Expression ParseLogicalAnd()
     {
@@ -303,7 +151,7 @@ public class Parser
     }
 
     /// <summary>
-    /// equality = relational, { ("==" | "!="), relational } ;.
+    /// equality = relational , { ( "==" | "!=" ) , relational } ;
     /// </summary>
     private Expression ParseEquality()
     {
@@ -324,8 +172,7 @@ public class Parser
     }
 
     /// <summary>
-    /// (* Сравнение *)
-    /// additive, { ("<" | ">" | "<=" | ">="), additive }.
+    /// relational = additive , { ( "<" | ">" | "<=" | ">=" ) , additive } ;
     /// </summary>
     private Expression ParseRelational()
     {
@@ -358,31 +205,7 @@ public class Parser
     }
 
     /// <summary>
-    /// variable_declaration =
-    /// "let", identifier,[ ":", type ], "=", expression, ";".
-    /// </summary>
-    private VariableDeclaration ParseVariableDeclaration()
-    {
-        tokens.Advance();
-
-        Token identifier = Match(TokenType.Identifier);
-        string name = identifier.Value!.ToString();
-
-        string? declaredType = null;
-        if (tokens.Peek().Type == TokenType.Colon)
-        {
-            tokens.Advance();
-            declaredType = tokens.Peek().Value?.ToString();
-            tokens.Advance();
-        }
-
-        Match(TokenType.Assign);
-        Expression value = ParseExpression();
-        return new VariableDeclaration(name, declaredType, value);
-    }
-
-    /// <summary>
-    /// additive = multiplicative, { ("+" | "-"), multiplicative } ;.
+    /// additive = multiplicative , { ( "+" | "-" ) , multiplicative } ;
     /// </summary>
     private Expression ParseAdditive()
     {
@@ -404,7 +227,7 @@ public class Parser
     }
 
     /// <summary>
-    /// multiplicative  = power, { ("*" | "/" | "%"), power } ;.
+    /// multiplicative = unary , { ( "*" | "/" | "%" ) , unary } ;
     /// </summary>
     private Expression ParseMultiplicative()
     {
@@ -430,7 +253,7 @@ public class Parser
     }
 
     /// <summary>
-    /// power = unary, [ ("^", "**"), power ] ;.
+    /// power = primary , [ "**" , power ] ;.
     /// </summary>
     private Expression ParsePower()
     {
@@ -473,11 +296,13 @@ public class Parser
     }
 
     /// <summary>
-    /// primary = number_literal
-    ///       | string_literal
-    ///       | identifier
-    ///       | function_call
-    ///       | "(" , expression , ")" ;.
+    /// primary = integer_literal
+    /// | float_literal
+    /// | string_literal
+    /// | bool_literal
+    /// | identifier
+    /// | function_call
+    /// | "(" , expression , ")" ;
     /// </summary>
     private Expression ParsePrimary()
     {
@@ -496,28 +321,15 @@ public class Parser
                 tokens.Advance();
                 return new LiteralExpression(ValueType.String, new Value(token.Value!.ToString()));
 
-            case TokenType.Input:
-            case TokenType.Print:
-
-                tokens.Advance();
-                string name = token.Type == TokenType.Print ? "print" : "input";
-
-                if (tokens.Peek().Type == TokenType.LeftParen)
-                {
-                    return ParseFunctionCall(name);
-                }
-
-                return new VariableExpression(name);
-
             case TokenType.Identifier:
 
-                name = tokens.Advance().Value!.ToString();
+                string name = tokens.Advance().Value!.ToString();
                 if (tokens.Peek().Type == TokenType.LeftParen)
                 {
                     return ParseFunctionCall(name);
                 }
 
-                return new VariableExpression(name);
+                throw new NotImplementedException("Variable expression are not yet implemented");
 
             case TokenType.LeftParen:
             case TokenType.AndAnd:
@@ -540,7 +352,7 @@ public class Parser
 
     /// <summary>
     /// function_call = identifier , "(" , [ argument_list ] , ")" ;
-    /// argument_list = expression , { "," , expression } ;.
+    /// argument_list = expression , { "," , expression } ;
     /// </summary>
     private FunctionCallExpression ParseFunctionCall(string name)
     {

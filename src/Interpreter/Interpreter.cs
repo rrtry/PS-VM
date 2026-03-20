@@ -32,7 +32,7 @@ public class Interpreter
         }
 
         Parser parser = new(sourceCode);
-        BlockStatement program = parser.Parse();
+        EntryPointNode program = parser.Parse();
 
         SemanticsChecker semanticsChecker = new(Builtins.Functions, Builtins.Types);
         semanticsChecker.Check(program);
@@ -40,7 +40,6 @@ public class Interpreter
         PsVmCodegen codegen = new();
         List<Instruction> instructions = codegen.GenerateCode(program);
 
-        // 4. Исполнение программы на виртуальной машине.
         PsVm vm = new(environment, instructions);
         Value result = vm.RunProgram();
         ExitCode = vm.ExitCode;

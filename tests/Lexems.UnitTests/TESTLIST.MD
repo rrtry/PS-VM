@@ -6,7 +6,7 @@
 `x y z123 _underscore`
 
 ### 1.2 Все ключевые слова
-`fn let return if else while for break continue true false input print import`
+`fn let return if else while for break continue true false str bool int float unit`
 
 ## 2. Литералы
 ### 2.1 Числовые литералы (разные системы счисления)

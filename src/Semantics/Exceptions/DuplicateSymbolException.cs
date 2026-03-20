@@ -1,5 +1,3 @@
-using Semantics.Symbols;
-
 namespace Semantics.Exceptions;
 
 #pragma warning disable RCS1194

@@ -16,8 +16,7 @@ public class EvaluationTest
 
         Assert.Equal(0, vm.ExitCode);
         Assert.Equal(expected, result);
-        Assert.Empty(environment.BufferedOutput);
-        Assert.Empty(environment.FlushedOutput);
+        Assert.Empty(environment.OutputBuffer);
     }
 
     public static TheoryData<List<Instruction>, Value> GetEvaluateExpressionData()

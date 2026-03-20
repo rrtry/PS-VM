@@ -20,8 +20,7 @@ public class JumpTest
 
         Assert.Equal(0, vm.ExitCode);
         Assert.Equal(Value.Unit, result);
-        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
-        Assert.Equal(string.Empty, environment.FlushedOutput);
+        Assert.Equal(expectedBufferedOutput, environment.OutputBuffer);
     }
 
     public static TheoryData<List<Instruction>, string> GetJumpOverInstructionsData()

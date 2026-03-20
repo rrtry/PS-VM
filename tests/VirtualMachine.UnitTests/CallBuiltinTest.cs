@@ -12,8 +12,7 @@ public class CallBuiltinTest
     public void Can_use_input_and_output(
         List<Instruction> program,
         string input,
-        string expectedBufferedOutput,
-        string expectedFlushedOutput
+        string expectedBufferedOutput
     )
     {
         FakeEnvironment environment = new();
@@ -24,8 +23,7 @@ public class CallBuiltinTest
 
         Assert.Equal(0, vm.ExitCode);
         Assert.Equal(Value.Unit, result);
-        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
-        Assert.Equal(expectedFlushedOutput, environment.FlushedOutput);
+        Assert.Equal(expectedBufferedOutput, environment.OutputBuffer);
     }
 
     [Theory]
@@ -41,8 +39,7 @@ public class CallBuiltinTest
 
         Assert.Equal(0, vm.ExitCode);
         Assert.Equal(Value.Unit, result);
-        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
-        Assert.Equal(string.Empty, environment.FlushedOutput);
+        Assert.Equal(expectedBufferedOutput, environment.OutputBuffer);
     }
 
     public static TheoryData<List<Instruction>, string> GetCallBuiltinFunctionsData()
@@ -90,9 +87,9 @@ public class CallBuiltinTest
         };
     }
 
-    public static TheoryData<List<Instruction>, string, string, string> GetUseInputAndOutputData()
+    public static TheoryData<List<Instruction>, string, string> GetUseInputAndOutputData()
     {
-        return new TheoryData<List<Instruction>, string, string, string>()
+        return new TheoryData<List<Instruction>, string, string>()
         {
             // Функция printf
             {
@@ -103,7 +100,7 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
-                string.Empty, "3.14", string.Empty
+                string.Empty, "3.14"
             },
 
             // Функция printi
@@ -114,7 +111,7 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
-                string.Empty, "2147483647", string.Empty
+                string.Empty, "2147483647"
             },
 
             // Функция print
@@ -125,7 +122,7 @@ public class CallBuiltinTest
                     new Instruction(InstructionCode.Push, 0),
                     new Instruction(InstructionCode.Halt),
                 ],
-                string.Empty, "Hello, world!", string.Empty
+                string.Empty, "Hello, world!"
             },
         };
     }

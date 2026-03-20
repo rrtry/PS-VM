@@ -105,7 +105,7 @@ fn safe_div(a: int, b: int): unit {
 ### 1. GCD — наибольший общий делитель (алгоритм Евклида)
 
 ```
-fn main() {
+fn main() : int {
     let a = stoi(input());
     let b = stoi(input());
 
@@ -131,7 +131,7 @@ fn gcd(mut x: int, mut y: int): int {
 ### 2. QuadraticEquation — решение квадратного уравнения ax² + bx + c = 0
 
 ```
-fn main() {
+fn main() : int {
     let a = stof(input());
     let b = stof(input());
     let c = stof(input());
@@ -184,7 +184,7 @@ fn solve(a: float, b: float, c: float): unit {
 ### 3. ReverseString — реверс строки
 
 ```
-fn main() {
+fn main() : int {
     let s = input();
     let rev = reverse(s);
     print(rev);
@@ -207,7 +207,7 @@ fn reverse(s: str): str {
 ### 4. CheckPalindrome — проверка, является ли строка палиндромом (с учётом регистра и пробелов)
 
 ```
-fn main() {
+fn main() : int {
     let line = input();
     let cleaned = normalize(line);
 
@@ -288,13 +288,13 @@ fn is_palindrome(s: str): bool {
 ### 5. Программа IsPrime - Вычисление простого числа
 
 ```
-fn main() 
+fn main() : int
 {
     let result = is_prime(5);
     printi(result);
 }
 
-fn is_prime(n): int
+fn is_prime(n : int): int
 {
     if (n < 2) 
     {
@@ -305,7 +305,7 @@ fn is_prime(n): int
         return 1;
     }
 
-    let limit = sqrt(n);
+    let limit = n**0.5;
     let i = 3;
 
     while (i <= limit) 

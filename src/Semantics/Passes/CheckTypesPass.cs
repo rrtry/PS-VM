@@ -5,8 +5,6 @@ using Ast.Statements;
 using Semantics.Exceptions;
 using Semantics.Helpers;
 
-using Runtime;
-
 namespace Semantics.Passes;
 
 /// <summary>
@@ -48,7 +46,8 @@ public class CheckTypesPass : AbstractPass
     public override void Visit(ReturnStatement s)
     {
         base.Visit(s);
-        if (currentFunction != null && currentFunction.DeclaredType != null)
+        if (currentFunction != null &&
+            currentFunction.DeclaredType != null)
         {
             if (s.ReturnValue == null)
             {
@@ -58,6 +57,14 @@ public class CheckTypesPass : AbstractPass
             }
 
             CheckAreSameTypes("return value", s.ReturnValue, currentFunction.DeclaredType.ResultType);
+        }
+    }
+
+    private static void CheckAreSameTypes(string category, Expression expression, Runtime.ValueType expectedType)
+    {
+        if (!ValueTypeUtil.AreExactTypes(expression.ResultType, expectedType))
+        {
+            throw new TypeErrorException(category, expectedType, expression.ResultType);
         }
     }
 
@@ -75,14 +82,6 @@ public class CheckTypesPass : AbstractPass
         }
 
         return false;
-    }
-
-    private static void CheckAreSameTypes(string category, Expression expression, Runtime.ValueType expectedType)
-    {
-        if (!ValueTypeUtil.AreExactTypes(expression.ResultType, expectedType))
-        {
-            throw new TypeErrorException(category, expectedType, expression.ResultType);
-        }
     }
 
     /// <summary>

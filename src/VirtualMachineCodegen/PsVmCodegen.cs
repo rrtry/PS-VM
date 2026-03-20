@@ -3,6 +3,8 @@ using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
+using Runtime;
+
 using VirtualMachine.Builtins;
 using VirtualMachine.Instructions;
 
@@ -180,7 +182,14 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(ReturnStatement s)
     {
-        s.ReturnValue.Accept(this);
+        if (s.ReturnValue == null)
+        {
+            _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
+        }
+        else
+        {
+            s.ReturnValue?.Accept(this);
+        }
     }
 
     public void Visit(ParameterDeclaration d)

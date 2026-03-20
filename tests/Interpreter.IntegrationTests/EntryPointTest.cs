@@ -56,8 +56,11 @@ public class EntryPointTest
             // main содержит return неверного типа
             { """fn main(): int { printi(0); return ""; }""", typeof(TypeErrorException) },
 
-             // main содержит return неверного типа
+            // main содержит return неверного типа
             { "fn main(): int { printi(0); return 0.0; }", typeof(TypeErrorException) },
+
+            // main содержит return неверного типа
+            { "fn main(): int { printi(0); return; }", typeof(TypeErrorException) },
         };
     }
 }

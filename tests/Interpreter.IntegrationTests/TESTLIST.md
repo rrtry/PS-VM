@@ -14,6 +14,7 @@
 | Тип unit вместо int | `fn main(): unit { printi(0); }` | `UnexpectedLexemeException` |
 | Тип str вместо int | `fn main(): int { printi(0); return ""; }` | `TypeErrorException` |
 | Тип float вместо int | `fn main(): int { printi(0); return 0.0; }` | `TypeErrorException ` |
+| Тип unit вместо int | `fn main(): int { printi(0); return; }` | `TypeErrorException ` |
 | Отсутствие return | `fn main(): int { printi(0); }` | `TypeErrorException` |
 
 # Тесты BuiltinFunctionsTest

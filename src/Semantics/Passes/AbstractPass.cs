@@ -49,7 +49,7 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(ReturnStatement s)
     {
-        s.ReturnValue.Accept(this);
+        s.ReturnValue?.Accept(this);
     }
 
     public void Visit(EntryPointNode n)

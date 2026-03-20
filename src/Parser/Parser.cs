@@ -27,9 +27,12 @@ public class Parser
     /// </summary>
     private ReturnStatement ParseReturnStatement()
     {
-        // TODO: сделать возвращаемое значение опциональным для unit функций.
-        // Пока expression является обязательным, так как main требует return exitCode;
         tokens.Advance();
+        if (tokens.Peek().Type == TokenType.Semicolon)
+        {
+            return new ReturnStatement();
+        }
+
         Expression returnExpression = ParseExpression();
         return new ReturnStatement(returnExpression);
     }

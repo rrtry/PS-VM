@@ -1,4 +1,3 @@
-using Runtime;
 using Semantics.Exceptions;
 using Tests.TestLibrary.TestDoubles;
 
@@ -14,7 +13,7 @@ public class BuiltinFunctionsTest
         Interpreter interpreter = new(environment);
 
         interpreter.Execute(code);
-        Assert.Equal(expected, environment.BufferedOutput);
+        Assert.Equal(expected, environment.OutputBuffer);
     }
 
     public static TheoryData<string, string> GetEvaluateBuiltinFunctionsData()
@@ -70,7 +69,7 @@ public class BuiltinFunctionsTest
         interpreter.Execute(code);
 
         Assert.Equal(expectedResult, interpreter.ExitCode);
-        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+        Assert.Equal(expectedBufferedOutput, environment.OutputBuffer);
     }
 
     public static TheoryData<string, int, string> GetEvaluateOutputFunctionsData()
@@ -103,7 +102,7 @@ public class BuiltinFunctionsTest
         Interpreter interpreter = new(environment);
         interpreter.Execute(code);
 
-        Assert.Equal(expectedBufferedOutput, environment.BufferedOutput);
+        Assert.Equal(expectedBufferedOutput, environment.OutputBuffer);
     }
 
     public static TheoryData<string, string, string> GetEvaluateInputFunctionsData()

@@ -109,12 +109,12 @@ continue;
 
 ```ebnf
 (* Программа *)
-program = { function_declaration } ;
+program = main_function , { function_declaration } ;
 
 (* Объявления функций *)
 function_declaration = "fn" , identifier , "(" , [ parameter_list ] , ")"
                      , [ ":" , type ] , block ;
-main_function = "fn" , "main" , "(" , ")" , block ;  (* специальный случай *)
+main_function = "fn" , "main" , "(" , "): int" , block ;  (* специальный случай *)
 
 parameter_list = parameter , { "," , parameter } ;
 parameter      = identifier , ":" , type ;

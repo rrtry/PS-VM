@@ -12,7 +12,7 @@ public class ExpressionsTest
         FakeEnvironment environment = new();
         Interpreter interpreter = new(environment);
         interpreter.Execute(code);
-        Assert.Equal(expected, environment.BufferedOutput);
+        Assert.Equal(expected, environment.OutputBuffer);
     }
 
     [Theory]

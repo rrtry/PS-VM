@@ -12,13 +12,10 @@ public class FakeEnvironment : IEnvironment
 {
     private readonly Queue<string> _input = new();
     private readonly StringBuilder _outputBuffer = new();
-    private readonly StringBuilder _flushedOutput = new();
 
     public List<string> Evaluated { get; } = new();
 
-    public string BufferedOutput => _outputBuffer.ToString();
-
-    public string FlushedOutput => _flushedOutput.ToString();
+    public string OutputBuffer => _outputBuffer.ToString();
 
     public void AddInput(string text)
     {
@@ -27,12 +24,12 @@ public class FakeEnvironment : IEnvironment
 
     public string Input()
     {
-        string? text = null;
+        string? text;
         _input.TryDequeue(out text);
 
         if (text == null)
         {
-            throw new EndOfStreamException("stdin is empty");
+            throw new EndOfStreamException("EOF reached");
         }
 
         return text;
@@ -54,11 +51,5 @@ public class FakeEnvironment : IEnvironment
     {
         _outputBuffer.Append(string.Format("{0:F2}", value));
         Evaluated.Add(string.Format("{0:F2}", value));
-    }
-
-    public void Flush()
-    {
-        _flushedOutput.Append(_outputBuffer.ToString());
-        _outputBuffer.Clear();
     }
 }

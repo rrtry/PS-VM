@@ -8,9 +8,6 @@ using Ast.Statements;
 using Lexems;
 using Runtime;
 
-/// <summary>
-/// Грамматика описана в файле `docs/specification/expressions-grammar.md`.
-/// </summary>
 public class Parser
 {
     private readonly TokenStream tokens;
@@ -26,17 +23,19 @@ public class Parser
     }
 
     /// <summary>
-    /// return_statement = "return", [ expression ] ;.
+    /// return_statement = "return" , [ expression ] ; (* expression обязателен, если тип функции != unit *)
     /// </summary>
     private ReturnStatement ParseReturnStatement()
     {
+        // TODO: сделать возвращаемое значение опциональным для unit функций.
+        // Пока expression является обязательным, так как main требует return exitCode;
         tokens.Advance();
         Expression returnExpression = ParseExpression();
         return new ReturnStatement(returnExpression);
     }
 
     /// <summary>
-    /// function_definition = "fn" , identifier , "(" , [ parameter_list ] , ")" , ":" , type , block ;.
+    /// main_function = "fn" , "main" , "(" , "): int" , block ;.
     /// </summary>
     private EntryPointNode ParseEntryPoint()
     {
@@ -56,21 +55,19 @@ public class Parser
 
         BlockStatement body = ParseBlockStatement();
         FunctionDeclaration main = new FunctionDeclaration(fnName, [], "int", body);
-
         return new EntryPointNode(main);
     }
 
     /// <summary>
-    /// statement =
-    /// | variable_declaration , ";"
-    /// | function_declaration, ";"
+    /// statement = variable_declaration , ";"
+    /// | assignment , ";"
     /// | function_call , ";"
     /// | return_statement , ";"
     /// | if_statement
     /// | while_statement
     /// | for_statement
     /// | "break" , ";"
-    /// | "continue" , ";".
+    /// | "continue" , ";" ;
     /// </summary>
     private AstNode ParseStatement()
     {
@@ -113,7 +110,8 @@ public class Parser
     }
 
     /// <summary>
-    /// expression = logical_or;.
+    /// expression = assignment; // 3-ая итерация
+    /// expression = logical_or
     /// </summary>
     private Expression ParseExpression() => ParseLogicalOr();
 
@@ -134,7 +132,7 @@ public class Parser
     }
 
     /// <summary>
-    /// logical_and = equality, { "&&", equality } ;.
+    /// logical_and = equality , { "&&" , equality } ;
     /// </summary>
     private Expression ParseLogicalAnd()
     {
@@ -150,7 +148,7 @@ public class Parser
     }
 
     /// <summary>
-    /// equality = relational, { ("==" | "!="), relational } ;.
+    /// equality = relational , { ( "==" | "!=" ) , relational } ;
     /// </summary>
     private Expression ParseEquality()
     {
@@ -171,8 +169,7 @@ public class Parser
     }
 
     /// <summary>
-    /// (* Сравнение *)
-    /// additive, { ("<" | ">" | "<=" | ">="), additive }.
+    /// relational = additive , { ( "<" | ">" | "<=" | ">=" ) , additive } ;
     /// </summary>
     private Expression ParseRelational()
     {
@@ -205,7 +202,7 @@ public class Parser
     }
 
     /// <summary>
-    /// additive = multiplicative, { ("+" | "-"), multiplicative } ;.
+    /// additive = multiplicative , { ( "+" | "-" ) , multiplicative } ;
     /// </summary>
     private Expression ParseAdditive()
     {
@@ -227,7 +224,7 @@ public class Parser
     }
 
     /// <summary>
-    /// multiplicative  = power, { ("*" | "/" | "%"), power } ;.
+    /// multiplicative = unary , { ( "*" | "/" | "%" ) , unary } ;
     /// </summary>
     private Expression ParseMultiplicative()
     {
@@ -253,7 +250,7 @@ public class Parser
     }
 
     /// <summary>
-    /// power = unary, [ ("^", "**"), power ] ;.
+    /// power = primary , [ "**" , power ] ;.
     /// </summary>
     private Expression ParsePower()
     {
@@ -296,11 +293,13 @@ public class Parser
     }
 
     /// <summary>
-    /// primary = number_literal
-    ///       | string_literal
-    ///       | identifier
-    ///       | function_call
-    ///       | "(" , expression , ")" ;.
+    /// primary = integer_literal
+    /// | float_literal
+    /// | string_literal
+    /// | bool_literal
+    /// | identifier
+    /// | function_call
+    /// | "(" , expression , ")" ;
     /// </summary>
     private Expression ParsePrimary()
     {
@@ -350,7 +349,7 @@ public class Parser
 
     /// <summary>
     /// function_call = identifier , "(" , [ argument_list ] , ")" ;
-    /// argument_list = expression , { "," , expression } ;.
+    /// argument_list = expression , { "," , expression } ;
     /// </summary>
     private FunctionCallExpression ParseFunctionCall(string name)
     {

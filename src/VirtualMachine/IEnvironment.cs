@@ -21,9 +21,4 @@ public interface IEnvironment
     /// Печатает вещественное число в поток вывода.
     /// </summary>
     public void PrintFloat(double value, int precision);
-
-    /// <summary>
-    /// Сбрасывает накопленный буфер вывода в поток вывода.
-    /// </summary>
-    public void Flush();
 }

@@ -10,11 +10,11 @@ using Runtime;
 
 public class Parser
 {
-    private readonly TokenStream tokens;
+    private readonly TokenStream _tokens;
 
     public Parser(string source)
     {
-        tokens = new TokenStream(source);
+        _tokens = new TokenStream(source);
     }
 
     public EntryPointNode Parse()
@@ -27,8 +27,8 @@ public class Parser
     /// </summary>
     private ReturnStatement ParseReturnStatement()
     {
-        tokens.Advance();
-        if (tokens.Peek().Type == TokenType.Semicolon)
+        _tokens.Advance();
+        if (_tokens.Peek().Type == TokenType.Semicolon)
         {
             return new ReturnStatement();
         }
@@ -74,7 +74,7 @@ public class Parser
     /// </summary>
     private AstNode ParseStatement()
     {
-        Token token = tokens.Peek();
+        Token token = _tokens.Peek();
         AstNode evaluated;
 
         switch (token.Type)
@@ -101,8 +101,8 @@ public class Parser
         Match(TokenType.LeftBrace);
         List<AstNode> statements = [];
 
-        while (tokens.Peek().Type != TokenType.RightBrace &&
-               tokens.Peek().Type != TokenType.Eof)
+        while (_tokens.Peek().Type != TokenType.RightBrace &&
+               _tokens.Peek().Type != TokenType.Eof)
         {
             AstNode stmt = ParseStatement();
             statements.Add(stmt);
@@ -124,9 +124,9 @@ public class Parser
     private Expression ParseLogicalOr()
     {
         Expression left = ParseLogicalAnd();
-        while (tokens.Peek().Type == TokenType.OrOr)
+        while (_tokens.Peek().Type == TokenType.Or)
         {
-            tokens.Advance();
+            _tokens.Advance();
             Expression right = ParseLogicalAnd();
             left = new BinaryOperationExpression(left, BinaryOperation.Or, right);
         }
@@ -140,9 +140,9 @@ public class Parser
     private Expression ParseLogicalAnd()
     {
         Expression left = ParseEquality();
-        while (tokens.Peek().Type == TokenType.AndAnd)
+        while (_tokens.Peek().Type == TokenType.And)
         {
-            tokens.Advance();
+            _tokens.Advance();
             Expression right = ParseEquality();
             left = new BinaryOperationExpression(left, BinaryOperation.And, right);
         }
@@ -156,10 +156,10 @@ public class Parser
     private Expression ParseEquality()
     {
         Expression left = ParseRelational();
-        if (tokens.Peek().Type == TokenType.EqualEqual ||
-            tokens.Peek().Type == TokenType.NotEqual)
+        if (_tokens.Peek().Type == TokenType.EqualEqual ||
+            _tokens.Peek().Type == TokenType.NotEqual)
         {
-            Token op = tokens.Advance();
+            Token op = _tokens.Advance();
             Expression right = ParseRelational();
             left = new BinaryOperationExpression(
                 left,
@@ -177,12 +177,12 @@ public class Parser
     private Expression ParseRelational()
     {
         Expression left = ParseAdditive();
-        if (tokens.Peek().Type == TokenType.Less ||
-            tokens.Peek().Type == TokenType.Greater ||
-            tokens.Peek().Type == TokenType.LessEqual ||
-            tokens.Peek().Type == TokenType.GreaterEqual)
+        if (_tokens.Peek().Type == TokenType.Less ||
+            _tokens.Peek().Type == TokenType.Greater ||
+            _tokens.Peek().Type == TokenType.LessEqual ||
+            _tokens.Peek().Type == TokenType.GreaterEqual)
         {
-            Token op = tokens.Advance();
+            Token op = _tokens.Advance();
             Expression right = ParseAdditive();
             switch (op.Type)
             {
@@ -211,10 +211,10 @@ public class Parser
     {
         Expression left = ParseMultiplicative();
 
-        while (tokens.Peek().Type == TokenType.Plus ||
-               tokens.Peek().Type == TokenType.Minus)
+        while (_tokens.Peek().Type == TokenType.Plus ||
+               _tokens.Peek().Type == TokenType.Minus)
         {
-            Token op = tokens.Advance();
+            Token op = _tokens.Advance();
             Expression right = ParseMultiplicative();
             left = new BinaryOperationExpression(
                 left,
@@ -233,11 +233,11 @@ public class Parser
     {
         Expression left = ParsePower();
 
-        while (tokens.Peek().Type == TokenType.Star ||
-               tokens.Peek().Type == TokenType.Slash ||
-               tokens.Peek().Type == TokenType.Percent)
+        while (_tokens.Peek().Type == TokenType.Star ||
+               _tokens.Peek().Type == TokenType.Slash ||
+               _tokens.Peek().Type == TokenType.Percent)
         {
-            Token op = tokens.Advance();
+            Token op = _tokens.Advance();
             Expression right = ParsePower();
 
             left = op.Type switch
@@ -245,7 +245,10 @@ public class Parser
                 TokenType.Star => new BinaryOperationExpression(left, BinaryOperation.Multiply, right),
                 TokenType.Slash => new BinaryOperationExpression(left, BinaryOperation.Divide, right),
                 TokenType.Percent => new BinaryOperationExpression(left, BinaryOperation.Modulo, right),
-                _ => throw new Exception("Invalid operator"),
+                _ => throw new UnexpectedLexemeException(
+                    [TokenType.Star, TokenType.Slash, TokenType.Percent],
+                    op
+                ),
             };
         }
 
@@ -259,9 +262,9 @@ public class Parser
     {
         Expression left = ParseUnary();
 
-        if (tokens.Peek().Type == TokenType.StarStar)
+        if (_tokens.Peek().Type == TokenType.StarStar)
         {
-            tokens.Advance();
+            _tokens.Advance();
             Expression right = ParsePower(); // правоассоциативно
             left = new BinaryOperationExpression(left, BinaryOperation.Power, right);
         }
@@ -274,19 +277,19 @@ public class Parser
     /// </summary>
     private Expression ParseUnary()
     {
-        if (tokens.Peek().Type == TokenType.Plus)
+        if (_tokens.Peek().Type == TokenType.Plus)
         {
-            tokens.Advance();
+            _tokens.Advance();
             return new UnaryOperationExpression(UnaryOperation.Plus, ParseUnary());
         }
-        else if (tokens.Peek().Type == TokenType.Minus)
+        else if (_tokens.Peek().Type == TokenType.Minus)
         {
-            tokens.Advance();
+            _tokens.Advance();
             return new UnaryOperationExpression(UnaryOperation.Minus, ParseUnary());
         }
-        else if (tokens.Peek().Type == TokenType.Not)
+        else if (_tokens.Peek().Type == TokenType.Not)
         {
-            tokens.Advance();
+            _tokens.Advance();
             return new UnaryOperationExpression(UnaryOperation.Not, ParseUnary());
         }
         else
@@ -306,25 +309,25 @@ public class Parser
     /// </summary>
     private Expression ParsePrimary()
     {
-        Token token = tokens.Peek();
+        Token token = _tokens.Peek();
         switch (token.Type)
         {
             case TokenType.IntegerLiteral:
-                tokens.Advance();
+                _tokens.Advance();
                 return new LiteralExpression(ValueType.Int, new Value((long)token.Value!.ToDecimal()));
 
             case TokenType.FloatLiteral:
-                tokens.Advance();
+                _tokens.Advance();
                 return new LiteralExpression(ValueType.Float, new Value((double)token.Value!.ToDecimal()));
 
             case TokenType.StringLiteral:
-                tokens.Advance();
+                _tokens.Advance();
                 return new LiteralExpression(ValueType.String, new Value(token.Value!.ToString()));
 
             case TokenType.Identifier:
 
-                string name = tokens.Advance().Value!.ToString();
-                if (tokens.Peek().Type == TokenType.LeftParen)
+                string name = _tokens.Advance().Value!.ToString();
+                if (_tokens.Peek().Type == TokenType.LeftParen)
                 {
                     return ParseFunctionCall(name);
                 }
@@ -332,10 +335,10 @@ public class Parser
                 throw new NotImplementedException("Variable expression are not yet implemented");
 
             case TokenType.LeftParen:
-            case TokenType.AndAnd:
-            case TokenType.OrOr:
+            case TokenType.And:
+            case TokenType.Or:
 
-                tokens.Advance();
+                _tokens.Advance();
                 Expression expr = ParseExpression();
 
                 if (token.Type == TokenType.LeftParen)
@@ -346,7 +349,7 @@ public class Parser
                 return expr;
 
             default:
-                throw new Exception($"Unexpected token {token.Type}");
+                throw new UnexpectedLexemeException(token);
         }
     }
 
@@ -359,7 +362,7 @@ public class Parser
         Match(TokenType.LeftParen);
         List<Expression> args = new();
 
-        if (tokens.Peek().Type != TokenType.RightParen)
+        if (_tokens.Peek().Type != TokenType.RightParen)
         {
             do
             {
@@ -374,9 +377,9 @@ public class Parser
 
     private bool MatchOptional(TokenType type)
     {
-        if (tokens.Peek().Type == type)
+        if (_tokens.Peek().Type == type)
         {
-            tokens.Advance();
+            _tokens.Advance();
             return true;
         }
 
@@ -385,12 +388,12 @@ public class Parser
 
     private Token Match(TokenType expected)
     {
-        Token t = tokens.Peek();
+        Token t = _tokens.Peek();
         if (t.Type != expected)
         {
             throw new UnexpectedLexemeException(expected, t);
         }
 
-        return tokens.Advance();
+        return _tokens.Advance();
     }
 }

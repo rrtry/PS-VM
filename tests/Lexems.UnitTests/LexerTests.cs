@@ -153,20 +153,6 @@ public class LexerTests
                 ]
             },
             {
-                "x++",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.PlusPlus),
-                ]
-            },
-            {
-                "x--",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.MinusMinus),
-                ]
-            },
-            {
                 "x + y / (10 - z * 2)",
                 [
                     new Token(TokenType.Identifier, "x"),
@@ -188,11 +174,11 @@ public class LexerTests
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.Less),
                     new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.OrOr),
+                    new Token(TokenType.Or),
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.Greater),
                     new Token(TokenType.Identifier, "c"),
-                    new Token(TokenType.OrOr),
+                    new Token(TokenType.Or),
                     new Token(TokenType.Identifier, "b"),
                     new Token(TokenType.EqualEqual),
                     new Token(TokenType.Identifier, "c"),
@@ -204,18 +190,18 @@ public class LexerTests
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.LessEqual),
                     new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.And),
                     new Token(TokenType.Identifier, "b"),
                     new Token(TokenType.GreaterEqual),
                     new Token(TokenType.Identifier, "c"),
-                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.And),
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.NotEqual),
                     new Token(TokenType.Identifier, "c"),
                 ]
             },
             {
-                "a < b | a > c | b == c",
+                "a < b || a > c || b == c",
                 [
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.Less),
@@ -231,7 +217,7 @@ public class LexerTests
                 ]
             },
             {
-                "a <= b & b >= c & a != c",
+                "a <= b && b >= c && a != c",
                 [
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.LessEqual),
@@ -288,13 +274,12 @@ public class LexerTests
         return new TheoryData<string, List<Token>>
         {
             {
-                "255 0xFF 0b11111111 3.14 0.5 .5",
+                "255 0xFF 0b11111111 3.14 0.5",
                 [
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.FloatLiteral,   3.14m),
-                    new(TokenType.FloatLiteral,   0.5m),
                     new(TokenType.FloatLiteral,   0.5m),
                 ]
             },

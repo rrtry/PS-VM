@@ -62,7 +62,7 @@ public class CheckTypesPass : AbstractPass
 
     private static void CheckAreSameTypes(string category, Expression expression, Runtime.ValueType expectedType)
     {
-        if (!ValueTypeUtil.AreExactTypes(expression.ResultType, expectedType))
+        if (!ValueTypeUtil.AreEqual(expression.ResultType, expectedType))
         {
             throw new TypeErrorException(category, expectedType, expression.ResultType);
         }
@@ -94,7 +94,7 @@ public class CheckTypesPass : AbstractPass
             Expression argument = e.Arguments[i];
             AbstractParameterDeclaration parameter = function.Parameters[i];
 
-            if (!ValueTypeUtil.AreExactTypes(parameter.ResultType, argument.ResultType))
+            if (!ValueTypeUtil.AreEqual(parameter.ResultType, argument.ResultType))
             {
                 throw new TypeErrorException(
                     $"Cannot apply argument #{i} of type {argument.ResultType} to function {e.Name} parameter {parameter.Name} which has type {parameter.ResultType}"

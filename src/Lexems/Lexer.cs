@@ -11,16 +11,14 @@ public class Lexer
         TokenType.Slash,         // /
         TokenType.StarStar,      // **
         TokenType.Percent,       // %
-        TokenType.PlusPlus,      // ++
-        TokenType.MinusMinus,    // --
         TokenType.EqualEqual,    // ==
         TokenType.NotEqual,      // !=
         TokenType.Less,          // <
         TokenType.LessEqual,     // <=
         TokenType.Greater,       // >
         TokenType.GreaterEqual,  // >=
-        TokenType.AndAnd,        // &&
-        TokenType.OrOr,          // ||
+        TokenType.And,        // &&
+        TokenType.Or,          // ||
         TokenType.Not,           // !
     };
 
@@ -35,7 +33,7 @@ public class Lexer
         TokenType.Comma,         // ,
         TokenType.Semicolon,     // ;
         TokenType.Eof,           // End of file
-        TokenType.Unknown,        // Unknown or invalid token
+        TokenType.Unknown,       // Unknown or invalid token
     };
 
     public static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
@@ -65,7 +63,7 @@ public class Lexer
         scanner = new TextScanner(source);
     }
 
-    public Token Peek(int count)
+    public Token Peek()
     {
         int pos = scanner.GetPosition();
         Token token = ParseToken();
@@ -88,7 +86,7 @@ public class Lexer
 
         if (char.IsAsciiDigit(c))
         {
-            if ((c - '0') == 0)
+            if (c == '0')
             {
                 if (scanner.Peek(1) == 'b' || scanner.Peek(1) == 'B')
                 {
@@ -106,10 +104,6 @@ public class Lexer
                 }
             }
 
-            return ParseNumericLiteral(octal);
-        }
-        else if (c == '.')
-        {
             return ParseNumericLiteral(octal);
         }
 
@@ -140,19 +134,19 @@ public class Lexer
                 if (scanner.Peek() == '|')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.OrOr);
+                    return new Token(TokenType.Or);
                 }
 
-                return new Token(TokenType.Or);
+                return new Token(TokenType.Unknown);
             case '&':
                 scanner.Advance();
                 if (scanner.Peek() == '&')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.AndAnd);
+                    return new Token(TokenType.And);
                 }
 
-                return new Token(TokenType.And);
+                return new Token(TokenType.Unknown);
             case '!':
                 scanner.Advance();
                 if (scanner.Peek() == '=')
@@ -179,21 +173,9 @@ public class Lexer
                 return new Token(TokenType.Comma);
             case '+':
                 scanner.Advance();
-                if (scanner.Peek() == '+')
-                {
-                    scanner.Advance();
-                    return new Token(TokenType.PlusPlus);
-                }
-
                 return new Token(TokenType.Plus);
             case '-':
                 scanner.Advance();
-                if (scanner.Peek() == '-')
-                {
-                    scanner.Advance();
-                    return new Token(TokenType.MinusMinus);
-                }
-
                 return new Token(TokenType.Minus);
             case '*':
                 scanner.Advance();

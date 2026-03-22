@@ -18,11 +18,6 @@ public class TokenStream
         nextToken = lexer.ParseToken();
     }
 
-    public Token Peek(int c)
-    {
-        return lexer.Peek(c);
-    }
-
     public Token Peek()
     {
         return nextToken;

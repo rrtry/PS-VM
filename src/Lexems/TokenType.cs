@@ -89,12 +89,6 @@ public enum TokenType
     /// <summary>Остаток от деления (`%`).</summary>
     Percent,
 
-    /// <summary>Инкремент (`++`).</summary>
-    PlusPlus,
-
-    /// <summary>Декремент (`--`).</summary>
-    MinusMinus,
-
     /// <summary>Равно (`==`).</summary>
     EqualEqual,
 
@@ -113,17 +107,11 @@ public enum TokenType
     /// <summary>Больше или равно (`>=`).</summary>
     GreaterEqual,
 
-    /// <summary>Бинарное И (`&`).</summary>
+    /// <summary>Логическое И (`&&`).</summary>
     And,
 
-    /// <summary>Логическое И (`&&`).</summary>
-    AndAnd,
-
-    /// <summary>Бинарное ИЛИ (`|`).</summary>
-    Or,
-
     /// <summary>Логическое ИЛИ (`||`).</summary>
-    OrOr,
+    Or,
 
     /// <summary>Логическое отрицание (`!`).</summary>
     Not,

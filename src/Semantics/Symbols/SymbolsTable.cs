@@ -30,7 +30,6 @@ public sealed class SymbolsTable
         return declaration switch
         {
             AbstractFunctionDeclaration function => function,
-            AbstractVariableDeclaration _ => throw new InvalidSymbolException(name, "function", "variable"),
             null => throw UnknownSymbolException.UndefinedVariableOrFunction(name),
             _ => throw new UnreachableException(),
         };

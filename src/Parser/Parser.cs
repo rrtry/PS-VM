@@ -57,20 +57,20 @@ public class Parser
         Match(TokenType.Int);
 
         BlockStatement body = ParseBlockStatement();
-        FunctionDeclaration main = new FunctionDeclaration(fnName, [], "int", body);
+        FunctionDeclaration main = new FunctionDeclaration(fnName, "int", body);
         return new EntryPointNode(main);
     }
 
     /// <summary>
     /// statement = variable_declaration , ";"
-    /// | assignment , ";"
-    /// | function_call , ";"
-    /// | return_statement , ";"
-    /// | if_statement
-    /// | while_statement
-    /// | for_statement
-    /// | "break" , ";"
-    /// | "continue" , ";" ;
+    ///       | assign_statement , ";"
+    ///       | function_call , ";"
+    ///       | return_statement , ";"
+    ///       | if_statement
+    ///       | while_statement
+    ///       | for_statement
+    ///       | "break" , ";"
+    ///       | "continue" , ";" ;
     /// </summary>
     private AstNode ParseStatement()
     {
@@ -113,96 +113,10 @@ public class Parser
     }
 
     /// <summary>
-    /// expression = assignment; // 3-ая итерация
-    /// expression = logical_or
+    /// expression = logical_or; // 3-ая итерация
+    /// expression = additive;
     /// </summary>
-    private Expression ParseExpression() => ParseLogicalOr();
-
-    /// <summary>
-    /// logical_or = logical_and , { "||" , logical_and } ;.
-    /// </summary>
-    private Expression ParseLogicalOr()
-    {
-        Expression left = ParseLogicalAnd();
-        while (_tokens.Peek().Type == TokenType.Or)
-        {
-            _tokens.Advance();
-            Expression right = ParseLogicalAnd();
-            left = new BinaryOperationExpression(left, BinaryOperation.Or, right);
-        }
-
-        return left;
-    }
-
-    /// <summary>
-    /// logical_and = equality , { "&&" , equality } ;
-    /// </summary>
-    private Expression ParseLogicalAnd()
-    {
-        Expression left = ParseEquality();
-        while (_tokens.Peek().Type == TokenType.And)
-        {
-            _tokens.Advance();
-            Expression right = ParseEquality();
-            left = new BinaryOperationExpression(left, BinaryOperation.And, right);
-        }
-
-        return left;
-    }
-
-    /// <summary>
-    /// equality = relational , { ( "==" | "!=" ) , relational } ;
-    /// </summary>
-    private Expression ParseEquality()
-    {
-        Expression left = ParseRelational();
-        if (_tokens.Peek().Type == TokenType.EqualEqual ||
-            _tokens.Peek().Type == TokenType.NotEqual)
-        {
-            Token op = _tokens.Advance();
-            Expression right = ParseRelational();
-            left = new BinaryOperationExpression(
-                left,
-                op.Type == TokenType.EqualEqual ? BinaryOperation.Equal : BinaryOperation.NotEqual,
-                right
-            );
-        }
-
-        return left;
-    }
-
-    /// <summary>
-    /// relational = additive , { ( "<" | ">" | "<=" | ">=" ) , additive } ;
-    /// </summary>
-    private Expression ParseRelational()
-    {
-        Expression left = ParseAdditive();
-        if (_tokens.Peek().Type == TokenType.Less ||
-            _tokens.Peek().Type == TokenType.Greater ||
-            _tokens.Peek().Type == TokenType.LessEqual ||
-            _tokens.Peek().Type == TokenType.GreaterEqual)
-        {
-            Token op = _tokens.Advance();
-            Expression right = ParseAdditive();
-            switch (op.Type)
-            {
-                case TokenType.Less:
-                    left = new BinaryOperationExpression(left, BinaryOperation.LessThan, right);
-                    break;
-                case TokenType.Greater:
-                    left = new BinaryOperationExpression(left, BinaryOperation.GreaterThan, right);
-                    break;
-                case TokenType.LessEqual:
-                    left = new BinaryOperationExpression(left, BinaryOperation.LessThanOrEqual, right);
-                    break;
-                case TokenType.GreaterEqual:
-                    left = new BinaryOperationExpression(left, BinaryOperation.GreaterThanOrEqual, right);
-                    break;
-            }
-        }
-
-        return left;
-    }
+    private Expression ParseExpression() => ParseAdditive();
 
     /// <summary>
     /// additive = multiplicative , { ( "+" | "-" ) , multiplicative } ;
@@ -280,17 +194,22 @@ public class Parser
         if (_tokens.Peek().Type == TokenType.Plus)
         {
             _tokens.Advance();
+            if (_tokens.Peek().Type == TokenType.Plus)
+            {
+                throw new UnexpectedLexemeException(_tokens.Peek());
+            }
+
             return new UnaryOperationExpression(UnaryOperation.Plus, ParseUnary());
         }
         else if (_tokens.Peek().Type == TokenType.Minus)
         {
             _tokens.Advance();
+            if (_tokens.Peek().Type == TokenType.Minus)
+            {
+                throw new UnexpectedLexemeException(_tokens.Peek());
+            }
+
             return new UnaryOperationExpression(UnaryOperation.Minus, ParseUnary());
-        }
-        else if (_tokens.Peek().Type == TokenType.Not)
-        {
-            _tokens.Advance();
-            return new UnaryOperationExpression(UnaryOperation.Not, ParseUnary());
         }
         else
         {
@@ -300,12 +219,12 @@ public class Parser
 
     /// <summary>
     /// primary = integer_literal
-    /// | float_literal
-    /// | string_literal
-    /// | bool_literal
-    /// | identifier
-    /// | function_call
-    /// | "(" , expression , ")" ;
+    ///     | float_literal
+    ///     | string_literal
+    ///     | bool_literal
+    ///     | identifier
+    ///     | function_call
+    ///     | "(" , expression , ")" ;
     /// </summary>
     private Expression ParsePrimary()
     {

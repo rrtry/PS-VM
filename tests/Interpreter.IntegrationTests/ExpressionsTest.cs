@@ -29,6 +29,10 @@ public class ExpressionsTest
         return new TheoryData<string, string>
         {
             {
+                // Унарный оператор +
+                "fn main(): int { printi(+1); return 0; }", "1"
+            },
+            {
                 // Вещественное число
                 "fn main(): int { printf(3.14 * 2, 2); return 0; }", "6.28"
             },
@@ -83,75 +87,6 @@ public class ExpressionsTest
             {
                 "fn main(): int { printi(2 * 2 * -5); return 0; }", "-20"
             },
-
-            // Разбор операторов сравнения
-            {
-                "fn main(): int { printi(1 + 2 < 5); return 0; }", "1"
-            },
-            {
-                "fn main(): int { printi(2 * 2 > 5); return 0; }", "0"
-            },
-            {
-                "fn main(): int { printi(2 * 2 == 5); return 0; }", "0"
-            },
-            {
-                "fn main(): int { printi(2 / 2 != 4); return 0; }", "1"
-            },
-            {
-                "fn main(): int { printi(2 * 2 >= 4); return 0; }", "1"
-            },
-            {
-                "fn main(): int { printi(2 - 1 <= 1); return 0; }", "1"
-            },
-            {
-                "fn main(): int { printi(1 == (2 == 3)); return 0; }", "0"
-            },
-
-            // Разбор операций сравнения строк
-            {
-                """
-                fn main(): int { printi("Hello" == "Hello!"); return 0; }
-                """,
-                "0"
-            },
-            {
-                """
-                fn main(): int { printi("Hello" != "Hello!"); return 0; }
-                """,
-                "1"
-            },
-            {
-                """
-                fn main(): int { printi("Bob" > "Alice"); return 0; }
-                """,
-                "1"
-            },
-            {
-                """
-                fn main(): int { printi("Bob" < "Alice"); return 0; }
-                """,
-                "0"
-            },
-            {
-                """
-                fn main(): int { printi("Bob" >= "Alice"); return 0; }
-                """,
-                "1"
-            },
-            {
-                """
-                fn main(): int { printi("Bob" <= "Alice"); return 0; }
-                """,
-                "0"
-            },
-
-            // Разбор логических операторов
-            {
-                "fn main(): int { printi(1 && 0); return 0; }", "0"
-            },
-            {
-                "fn main(): int { printi(1 || 0); return 0; }", "1"
-            },
         };
     }
 
@@ -159,8 +94,10 @@ public class ExpressionsTest
     {
         return
         [
-            "fn main(): int { 1 < 2 < 3; return 0; }",
-            "fn main(): int { 1 == 2 == 3; return 0;}",
+            "fn main(): int { printi(++1); return 0; }", // Двойной унарный +
+            "fn main(): int { printi(--1); return 0; }", // Двойной унарный -
+            "fn main(): int { printi(1++); return 0; }", // Инкремент (отсутствует)
+            "fn main(): int { printi(1--); return 0; }", // Декремент (отсутствует)
         ];
     }
 }

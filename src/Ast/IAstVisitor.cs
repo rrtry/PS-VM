@@ -16,8 +16,6 @@ public interface IAstVisitor
 
     public void Visit(FunctionDeclaration d);
 
-    public void Visit(ParameterDeclaration d);
-
     public void Visit(EntryPointNode n);
 
     public void Visit(BlockStatement s);

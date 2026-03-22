@@ -153,20 +153,6 @@ public class LexerTests
                 ]
             },
             {
-                "x++",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.PlusPlus),
-                ]
-            },
-            {
-                "x--",
-                [
-                    new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.MinusMinus),
-                ]
-            },
-            {
                 "x + y / (10 - z * 2)",
                 [
                     new Token(TokenType.Identifier, "x"),

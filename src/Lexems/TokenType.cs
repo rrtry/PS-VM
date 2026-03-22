@@ -89,12 +89,6 @@ public enum TokenType
     /// <summary>Остаток от деления (`%`).</summary>
     Percent,
 
-    /// <summary>Инкремент (`++`).</summary>
-    PlusPlus,
-
-    /// <summary>Декремент (`--`).</summary>
-    MinusMinus,
-
     /// <summary>Равно (`==`).</summary>
     EqualEqual,
 

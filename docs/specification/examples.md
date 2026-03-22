@@ -5,7 +5,7 @@
 ### Типы данных и функции преобразования
 
 ```
-fn data_type_check() {
+fn data_type_check(): unit {
     let x: int = 42;
     let y: float = 3.14;
     let sum = x + y;
@@ -20,7 +20,7 @@ fn data_type_check() {
 ### Операторы
 
 ```
-fn operators_check() {
+fn operators_check(): unit {
     let a = 10;
     let b = 3;
     
@@ -38,13 +38,13 @@ fn operators_check() {
 ### Цикл For и управление им
 
 ```
-fn for_loop_check() {
-    let mut i = 0;
+fn for_loop_check(): unit {
+    let i = 0;
     for (i = 1; i <= 5; i = i + 1) {
         printi(i);
     }
     
-    let mut n = 1;
+    let n = 1;
     while (n < 100) {
         if (n > 10) { break; }
         n = n * 2;
@@ -52,26 +52,10 @@ fn for_loop_check() {
 }
 ```
 
-### Проверка области видимостей
-
-```
-let global = 100;
-
-fn scope_check() {
-    let local = 10;
-    {
-        let local = 20;
-        printi(local);
-    }
-    printi(local);
-    printi(global);
-}
-```
-
 ### Операции над строками
 
 ```
-fn string_check() {
+fn string_check(): unit {
     let s = sconcat("Hello", " World");
     let len = strlen(s);
     let sub = substr(s, 0, 5);
@@ -83,7 +67,7 @@ fn string_check() {
 ### Проверка граничных случаев
 
 ```
-fn boundary_check() {
+fn boundary_check(): unit {
     safe_div(10, 0);
     
     let max = 9223372036854775807;
@@ -116,7 +100,7 @@ fn main() : int {
     print("\n");
 }
 
-fn gcd(mut x: int, mut y: int): int {
+fn gcd(x: int, y: int): int {
     while (y != 0) {
         let temp = y;
         y = x % y;
@@ -194,7 +178,7 @@ fn main() : int {
 fn reverse(s: str): str {
     let len = strlen(s);
     let result = "";
-    let mut i = 0;
+    let i = 0;
 
     for (i = len - 1; i >= 0; i = i - 1) {
         result = sconcat(result, substr(s, i, 1));

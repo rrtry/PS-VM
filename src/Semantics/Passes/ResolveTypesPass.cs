@@ -106,22 +106,10 @@ public sealed class ResolveTypesPass : AbstractPass
             case BinaryOperation.GreaterThan:
             case BinaryOperation.LessThanOrEqual:
             case BinaryOperation.GreaterThanOrEqual:
-
-                if (left == ValueType.String && right == ValueType.String)
-                {
-                    return ValueType.Int;
-                }
-
-                if (ValueTypeUtil.AreNumeric(left, right))
-                {
-                    return ValueType.Int;
-                }
-
-                return null;
-
             case BinaryOperation.Equal:
             case BinaryOperation.NotEqual:
-                if (ValueTypeUtil.CanApplyBinaryOperation(left, right))
+
+                if (ValueTypeUtil.AreEqual(left, right))
                 {
                     return ValueType.Int;
                 }

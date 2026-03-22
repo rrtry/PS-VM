@@ -89,6 +89,15 @@ fn safe_div(a: int, b: int): unit {
 ### 1. GCD — наибольший общий делитель (алгоритм Евклида)
 
 ```
+fn gcd(x: int, y: int): int {
+    while (y != 0) {
+        let temp = y;
+        y = x % y;
+        x = temp;
+    }
+    return x;
+}
+
 fn main() : int {
     let a = stoi(input());
     let b = stoi(input());
@@ -99,15 +108,6 @@ fn main() : int {
     printi(result);
     print("\n");
 }
-
-fn gcd(x: int, y: int): int {
-    while (y != 0) {
-        let temp = y;
-        y = x % y;
-        x = temp;
-    }
-    return x;
-}
 ```
 
 ---
@@ -115,14 +115,6 @@ fn gcd(x: int, y: int): int {
 ### 2. QuadraticEquation — решение квадратного уравнения ax² + bx + c = 0
 
 ```
-fn main() : int {
-    let a = stof(input());
-    let b = stof(input());
-    let c = stof(input());
-
-    solve(a, b, c);
-}
-
 fn solve(a: float, b: float, c: float): unit {
     if (a == 0.0) {
         if (b == 0.0) {
@@ -161,6 +153,14 @@ fn solve(a: float, b: float, c: float): unit {
     print(ftos(x2, 4));
     print("\n");
 }
+
+fn main() : int {
+    let a = stof(input());
+    let b = stof(input());
+    let c = stof(input());
+
+    solve(a, b, c);
+}
 ```
 
 ---
@@ -168,13 +168,6 @@ fn solve(a: float, b: float, c: float): unit {
 ### 3. ReverseString — реверс строки
 
 ```
-fn main() : int {
-    let s = input();
-    let rev = reverse(s);
-    print(rev);
-    print("\n");
-}
-
 fn reverse(s: str): str {
     let len = strlen(s);
     let result = "";
@@ -186,22 +179,18 @@ fn reverse(s: str): str {
 
     return result;
 } 
+
+fn main() : int {
+    let s = input();
+    let rev = reverse(s);
+    print(rev);
+    print("\n");
+}
 ```
 
 ### 4. CheckPalindrome — проверка, является ли строка палиндромом (с учётом регистра и пробелов)
 
 ```
-fn main() : int {
-    let line = input();
-    let cleaned = normalize(line);
-
-    if (is_palindrome(cleaned)) {
-        print("yes\n");
-    } else {
-        print("no\n");
-    }
-}
-
 fn normalize(s: str): str {
     let len = strlen(s);
     let result = "";
@@ -267,17 +256,22 @@ fn is_palindrome(s: str): bool {
 
     return true;
 }
+
+fn main() : int {
+    let line = input();
+    let cleaned = normalize(line);
+
+    if (is_palindrome(cleaned)) {
+        print("yes\n");
+    } else {
+        print("no\n");
+    }
+}
 ```
 
 ### 5. Программа IsPrime - Вычисление простого числа
 
 ```
-fn main() : int
-{
-    let result = is_prime(5);
-    printi(result);
-}
-
 fn is_prime(n : int): int
 {
     if (n < 2) 
@@ -301,5 +295,11 @@ fn is_prime(n : int): int
         i = i + 2;
     }
     return 1;
+}
+
+fn main() : int
+{
+    let result = is_prime(5);
+    printi(result);
 }
 ```

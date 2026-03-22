@@ -124,7 +124,7 @@ public class Parser
     private Expression ParseLogicalOr()
     {
         Expression left = ParseLogicalAnd();
-        while (tokens.Peek().Type == TokenType.OrOr)
+        while (tokens.Peek().Type == TokenType.Or)
         {
             tokens.Advance();
             Expression right = ParseLogicalAnd();
@@ -140,7 +140,7 @@ public class Parser
     private Expression ParseLogicalAnd()
     {
         Expression left = ParseEquality();
-        while (tokens.Peek().Type == TokenType.AndAnd)
+        while (tokens.Peek().Type == TokenType.And)
         {
             tokens.Advance();
             Expression right = ParseEquality();
@@ -332,8 +332,8 @@ public class Parser
                 throw new NotImplementedException("Variable expression are not yet implemented");
 
             case TokenType.LeftParen:
-            case TokenType.AndAnd:
-            case TokenType.OrOr:
+            case TokenType.And:
+            case TokenType.Or:
 
                 tokens.Advance();
                 Expression expr = ParseExpression();

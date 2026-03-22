@@ -188,11 +188,11 @@ public class LexerTests
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.Less),
                     new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.OrOr),
+                    new Token(TokenType.Or),
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.Greater),
                     new Token(TokenType.Identifier, "c"),
-                    new Token(TokenType.OrOr),
+                    new Token(TokenType.Or),
                     new Token(TokenType.Identifier, "b"),
                     new Token(TokenType.EqualEqual),
                     new Token(TokenType.Identifier, "c"),
@@ -204,18 +204,18 @@ public class LexerTests
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.LessEqual),
                     new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.And),
                     new Token(TokenType.Identifier, "b"),
                     new Token(TokenType.GreaterEqual),
                     new Token(TokenType.Identifier, "c"),
-                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.And),
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.NotEqual),
                     new Token(TokenType.Identifier, "c"),
                 ]
             },
             {
-                "a < b | a > c | b == c",
+                "a < b || a > c || b == c",
                 [
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.Less),
@@ -231,7 +231,7 @@ public class LexerTests
                 ]
             },
             {
-                "a <= b & b >= c & a != c",
+                "a <= b && b >= c && a != c",
                 [
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.LessEqual),

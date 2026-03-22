@@ -19,8 +19,8 @@ public class Lexer
         TokenType.LessEqual,     // <=
         TokenType.Greater,       // >
         TokenType.GreaterEqual,  // >=
-        TokenType.AndAnd,        // &&
-        TokenType.OrOr,          // ||
+        TokenType.And,        // &&
+        TokenType.Or,          // ||
         TokenType.Not,           // !
     };
 
@@ -35,7 +35,7 @@ public class Lexer
         TokenType.Comma,         // ,
         TokenType.Semicolon,     // ;
         TokenType.Eof,           // End of file
-        TokenType.Unknown,        // Unknown or invalid token
+        TokenType.Unknown,       // Unknown or invalid token
     };
 
     public static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
@@ -140,19 +140,19 @@ public class Lexer
                 if (scanner.Peek() == '|')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.OrOr);
+                    return new Token(TokenType.Or);
                 }
 
-                return new Token(TokenType.Or);
+                return new Token(TokenType.Unknown);
             case '&':
                 scanner.Advance();
                 if (scanner.Peek() == '&')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.AndAnd);
+                    return new Token(TokenType.And);
                 }
 
-                return new Token(TokenType.And);
+                return new Token(TokenType.Unknown);
             case '!':
                 scanner.Advance();
                 if (scanner.Peek() == '=')

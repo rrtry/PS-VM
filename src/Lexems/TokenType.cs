@@ -113,17 +113,11 @@ public enum TokenType
     /// <summary>Больше или равно (`>=`).</summary>
     GreaterEqual,
 
-    /// <summary>Бинарное И (`&`).</summary>
+    /// <summary>Логическое И (`&&`).</summary>
     And,
 
-    /// <summary>Логическое И (`&&`).</summary>
-    AndAnd,
-
-    /// <summary>Бинарное ИЛИ (`|`).</summary>
-    Or,
-
     /// <summary>Логическое ИЛИ (`||`).</summary>
-    OrOr,
+    Or,
 
     /// <summary>Логическое отрицание (`!`).</summary>
     Not,

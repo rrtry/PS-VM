@@ -6,12 +6,11 @@ using System.Globalization;
 /// Абстракция над типами, которые доступны в языке.
 /// int    - целое число (int64_t).
 /// float  - вещественное число (double).
-/// str    - UTF-8 строка.
+/// str    - Unicode строка (UTF-16)
 /// unit   - отсуствие возвращаемого типа у функции.
 /// </summary>
-public class Value : IEquatable<Value>
+public class Value
 {
-    public const double Tolerance = 0.001d;
     public static readonly Value Unit = new(UnitValue.Value);
     private readonly object value;
 
@@ -130,65 +129,12 @@ public class Value : IEquatable<Value>
     {
         return value switch
         {
-            string s => ValueUtil.EscapeStringValue(s),
+            string s => s,
             long i => i.ToString(CultureInfo.InvariantCulture),
             double d => d.ToString(CultureInfo.InvariantCulture),
             UnitValue v => v.ToString(),
             _ => throw new InvalidOperationException($"Unexpected value {value} of type {value.GetType()}"),
         };
-    }
-
-    /// <summary>
-    /// Сравнивает на равенство два значения.
-    /// </summary>
-    public bool Equals(Value? other)
-    {
-        if (other is null)
-        {
-            return false;
-        }
-
-        return value switch
-        {
-            string s => other.AsString() == s,
-            long i => other.IsDouble() ? Math.Abs(other.AsDouble() - i) < Tolerance : other.AsLong() == i,
-            double d => Math.Abs(other.AsDouble() - d) < Tolerance,
-            UnitValue => true,
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    /// <summary>
-    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
-    /// </summary>
-    public bool LessThan(Value other)
-    {
-        return value switch
-        {
-            long i => other.IsLong() ? other.AsLong() > i : other.AsDouble() > i,
-            string s => string.CompareOrdinal(s, other.AsString()) < 0,
-            double d => other.AsDouble() > d,
-            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
-        };
-    }
-
-    /// <summary>
-    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
-    /// </summary>
-    public bool LessThanOrEqual(Value other)
-    {
-        return value switch
-        {
-            long i => other.IsDouble() ? Math.Abs(other.AsDouble() - i) < Tolerance || i < other.AsDouble() : i <= other.AsLong(),
-            string s => string.CompareOrdinal(s, other.AsString()) <= 0,
-            double d => Math.Abs(other.AsDouble() - d) < Tolerance || d < other.AsDouble(),
-            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
-        };
-    }
-
-    public override bool Equals(object? obj)
-    {
-        return Equals(obj as Value);
     }
 
     public override int GetHashCode()

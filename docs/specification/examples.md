@@ -5,7 +5,7 @@
 ### Типы данных и функции преобразования
 
 ```
-fn data_type_check() {
+fn data_type_check(): unit {
     let x: int = 42;
     let y: float = 3.14;
     let sum = x + y;
@@ -20,7 +20,7 @@ fn data_type_check() {
 ### Операторы
 
 ```
-fn operators_check() {
+fn operators_check(): unit {
     let a = 10;
     let b = 3;
     
@@ -38,13 +38,13 @@ fn operators_check() {
 ### Цикл For и управление им
 
 ```
-fn for_loop_check() {
-    let mut i = 0;
+fn for_loop_check(): unit {
+    let i = 0;
     for (i = 1; i <= 5; i = i + 1) {
         printi(i);
     }
     
-    let mut n = 1;
+    let n = 1;
     while (n < 100) {
         if (n > 10) { break; }
         n = n * 2;
@@ -52,26 +52,10 @@ fn for_loop_check() {
 }
 ```
 
-### Проверка области видимостей
-
-```
-let global = 100;
-
-fn scope_check() {
-    let local = 10;
-    {
-        let local = 20;
-        printi(local);
-    }
-    printi(local);
-    printi(global);
-}
-```
-
 ### Операции над строками
 
 ```
-fn string_check() {
+fn string_check(): unit {
     let s = sconcat("Hello", " World");
     let len = strlen(s);
     let sub = substr(s, 0, 5);
@@ -83,7 +67,7 @@ fn string_check() {
 ### Проверка граничных случаев
 
 ```
-fn boundary_check() {
+fn boundary_check(): unit {
     safe_div(10, 0);
     
     let max = 9223372036854775807;
@@ -105,6 +89,15 @@ fn safe_div(a: int, b: int): unit {
 ### 1. GCD — наибольший общий делитель (алгоритм Евклида)
 
 ```
+fn gcd(x: int, y: int): int {
+    while (y != 0) {
+        let temp = y;
+        y = x % y;
+        x = temp;
+    }
+    return x;
+}
+
 fn main() : int {
     let a = stoi(input());
     let b = stoi(input());
@@ -115,15 +108,6 @@ fn main() : int {
     printi(result);
     print("\n");
 }
-
-fn gcd(mut x: int, mut y: int): int {
-    while (y != 0) {
-        let temp = y;
-        y = x % y;
-        x = temp;
-    }
-    return x;
-}
 ```
 
 ---
@@ -131,14 +115,6 @@ fn gcd(mut x: int, mut y: int): int {
 ### 2. QuadraticEquation — решение квадратного уравнения ax² + bx + c = 0
 
 ```
-fn main() : int {
-    let a = stof(input());
-    let b = stof(input());
-    let c = stof(input());
-
-    solve(a, b, c);
-}
-
 fn solve(a: float, b: float, c: float): unit {
     if (a == 0.0) {
         if (b == 0.0) {
@@ -177,6 +153,14 @@ fn solve(a: float, b: float, c: float): unit {
     print(ftos(x2, 4));
     print("\n");
 }
+
+fn main() : int {
+    let a = stof(input());
+    let b = stof(input());
+    let c = stof(input());
+
+    solve(a, b, c);
+}
 ```
 
 ---
@@ -184,17 +168,10 @@ fn solve(a: float, b: float, c: float): unit {
 ### 3. ReverseString — реверс строки
 
 ```
-fn main() : int {
-    let s = input();
-    let rev = reverse(s);
-    print(rev);
-    print("\n");
-}
-
 fn reverse(s: str): str {
     let len = strlen(s);
     let result = "";
-    let mut i = 0;
+    let i = 0;
 
     for (i = len - 1; i >= 0; i = i - 1) {
         result = sconcat(result, substr(s, i, 1));
@@ -202,22 +179,18 @@ fn reverse(s: str): str {
 
     return result;
 } 
+
+fn main() : int {
+    let s = input();
+    let rev = reverse(s);
+    print(rev);
+    print("\n");
+}
 ```
 
 ### 4. CheckPalindrome — проверка, является ли строка палиндромом (с учётом регистра и пробелов)
 
 ```
-fn main() : int {
-    let line = input();
-    let cleaned = normalize(line);
-
-    if (is_palindrome(cleaned)) {
-        print("yes\n");
-    } else {
-        print("no\n");
-    }
-}
-
 fn normalize(s: str): str {
     let len = strlen(s);
     let result = "";
@@ -283,17 +256,22 @@ fn is_palindrome(s: str): bool {
 
     return true;
 }
+
+fn main() : int {
+    let line = input();
+    let cleaned = normalize(line);
+
+    if (is_palindrome(cleaned)) {
+        print("yes\n");
+    } else {
+        print("no\n");
+    }
+}
 ```
 
 ### 5. Программа IsPrime - Вычисление простого числа
 
 ```
-fn main() : int
-{
-    let result = is_prime(5);
-    printi(result);
-}
-
 fn is_prime(n : int): int
 {
     if (n < 2) 
@@ -317,5 +295,11 @@ fn is_prime(n : int): int
         i = i + 2;
     }
     return 1;
+}
+
+fn main() : int
+{
+    let result = is_prime(5);
+    printi(result);
 }
 ```

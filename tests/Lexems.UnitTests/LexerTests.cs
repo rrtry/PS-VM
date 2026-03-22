@@ -274,13 +274,12 @@ public class LexerTests
         return new TheoryData<string, List<Token>>
         {
             {
-                "255 0xFF 0b11111111 3.14 0.5 .5",
+                "255 0xFF 0b11111111 3.14 0.5",
                 [
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.FloatLiteral,   3.14m),
-                    new(TokenType.FloatLiteral,   0.5m),
                     new(TokenType.FloatLiteral,   0.5m),
                 ]
             },

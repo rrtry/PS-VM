@@ -106,10 +106,6 @@ public class Lexer
 
             return ParseNumericLiteral(octal);
         }
-        else if (c == '.')
-        {
-            return ParseNumericLiteral(octal);
-        }
 
         if (c == '"')
         {

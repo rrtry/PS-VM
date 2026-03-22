@@ -107,6 +107,8 @@ fn main() : int {
     print("НОД = ");
     printi(result);
     print("\n");
+    
+    return 0;
 }
 ```
 
@@ -154,7 +156,7 @@ fn solve(a: float, b: float, c: float): unit {
     print("\n");
 }
 
-fn main() : int {
+fn main() : unit {
     let a = stof(input());
     let b = stof(input());
     let c = stof(input());
@@ -180,7 +182,7 @@ fn reverse(s: str): str {
     return result;
 } 
 
-fn main() : int {
+fn main() : unit {
     let s = input();
     let rev = reverse(s);
     print(rev);
@@ -266,40 +268,41 @@ fn main() : int {
     } else {
         print("no\n");
     }
+    
+    return 0;
 }
 ```
 
 ### 5. Программа IsPrime - Вычисление простого числа
 
 ```
-fn is_prime(n : int): bool
-{
-    if (n < 2) 
-    {
-        return 0;
+fn is_prime(n: int): bool {
+    if (n < 2) {
+        return false;
     }
-    if (n == 2) 
-    {
-        return 1;
+    if (n == 2) {
+        return true;
     }
 
-    let limit = n**0.5;
+    let limit = n ** 0.5;
     let i = 3;
 
-    while (i <= limit) 
-    {
-        if (n % i == 0) 
-        {
-            return 0;
+    while (i <= limit) {
+        if (n % i == 0) {
+            return false;
         }
         i = i + 2;
     }
-    return 1;
+    return true;
 }
 
-fn main() : int
-{
-    let result = is_prime(5);
-    printi(result);
+fn main(): int {
+    if (is_prime(5)) {
+        print("простое\n");
+    } else {
+        print("не простое\n");
+    }
+    
+    return 0;
 }
 ```

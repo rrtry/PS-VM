@@ -88,7 +88,7 @@ public class Lexer
 
         if (char.IsAsciiDigit(c))
         {
-            if ((c - '0') == 0)
+            if (c == '0')
             {
                 if (scanner.Peek(1) == 'b' || scanner.Peek(1) == 'B')
                 {

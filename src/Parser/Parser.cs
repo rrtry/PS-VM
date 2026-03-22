@@ -245,7 +245,10 @@ public class Parser
                 TokenType.Star => new BinaryOperationExpression(left, BinaryOperation.Multiply, right),
                 TokenType.Slash => new BinaryOperationExpression(left, BinaryOperation.Divide, right),
                 TokenType.Percent => new BinaryOperationExpression(left, BinaryOperation.Modulo, right),
-                _ => throw new Exception("Invalid operator"),
+                _ => throw new UnexpectedLexemeException(
+                    [TokenType.Star, TokenType.Slash, TokenType.Percent],
+                    op
+                ),
             };
         }
 
@@ -346,7 +349,7 @@ public class Parser
                 return expr;
 
             default:
-                throw new Exception($"Unexpected token {token.Type}");
+                throw new UnexpectedLexemeException(token);
         }
     }
 

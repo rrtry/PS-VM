@@ -272,7 +272,7 @@ fn main() : int {
 ### 5. Программа IsPrime - Вычисление простого числа
 
 ```
-fn is_prime(n : int): int
+fn is_prime(n : int): bool
 {
     if (n < 2) 
     {

@@ -24,11 +24,6 @@ public class PsVm
     /// </summary>
     private readonly Stack<Value> _evaluationStack;
 
-    /// <summary>
-    /// Результат работы программы (произвольное значение либо отсутствие значения).
-    /// </summary>
-    private Value _result;
-
     public PsVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
         ValidateInstructions(instructions);
@@ -38,7 +33,6 @@ public class PsVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _result = Value.Unit;
     }
 
     public int ExitCode => _exitCode;

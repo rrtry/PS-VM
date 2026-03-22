@@ -19,6 +19,8 @@
 | `str`      | Объявление строкового типа |
 | `bool`     | Объявление логического типа |
 | `unit`     | Тип, означающий отсутствие возвращаемого значения |
+| `true`     | Логическое значение "истина" |
+| `false`    | Логическое значение "ложь"   |
 
 ## 2. Идентификаторы
 
@@ -125,9 +127,9 @@ whitespace = ? Unicode-символы пробела? ;
 
 (* Идентификаторы и ключевые слова *)
 identifier = (letter | "_"), { letter | digit | "_" } ;
-keyword    = "fn" | "let" | "return" | "if" | "else" | "while" | "for"
+keyword = "fn" | "let" | "return" | "if" | "else" | "while" | "for"
         | "break" | "continue" | "int" | "float"
-        | "str" | "unit" | "bool";
+        | "str" | "unit" | "bool" | "true" | "false" ;
 
 (* Литералы *)
 bool_literal        = "true" | "false";

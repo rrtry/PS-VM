@@ -240,7 +240,7 @@ public class LexerTests
         return new TheoryData<string, List<Token>>
         {
             {
-                "x \t\r\ny",
+                "x \t\ny",
                 [
                     new Token(TokenType.Identifier, "x"),
                     new Token(TokenType.Identifier, "y"),

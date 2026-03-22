@@ -231,14 +231,14 @@ public class Parser
     /// </summary>
     private Expression ParseMultiplicative()
     {
-        Expression left = ParsePower();
+        Expression left = ParseUnary();
 
         while (_tokens.Peek().Type == TokenType.Star ||
                _tokens.Peek().Type == TokenType.Slash ||
                _tokens.Peek().Type == TokenType.Percent)
         {
             Token op = _tokens.Advance();
-            Expression right = ParsePower();
+            Expression right = ParseUnary();
 
             left = op.Type switch
             {
@@ -256,16 +256,16 @@ public class Parser
     }
 
     /// <summary>
-    /// power = primary , [ "**" , power ] ;.
+    /// power = primary , [ "**" , power ] ;
     /// </summary>
     private Expression ParsePower()
     {
-        Expression left = ParseUnary();
+        Expression left = ParsePrimary();
 
         if (_tokens.Peek().Type == TokenType.StarStar)
         {
             _tokens.Advance();
-            Expression right = ParsePower(); // правоассоциативно
+            Expression right = ParsePower();
             left = new BinaryOperationExpression(left, BinaryOperation.Power, right);
         }
 
@@ -273,7 +273,7 @@ public class Parser
     }
 
     /// <summary>
-    /// unary = [ ("+" | "-" | "!") ], primary ;.
+    /// unary = [ "+" | "-" | "!" ] , power ;.
     /// </summary>
     private Expression ParseUnary()
     {
@@ -294,7 +294,7 @@ public class Parser
         }
         else
         {
-            return ParsePrimary();
+            return ParsePower();
         }
     }
 

@@ -34,11 +34,19 @@ public class ExpressionsTest
             },
             {
                 // Степень и унарный минус
-                "fn main(): int { printi(-5 ** 2); return 0; }", "25"
+                "fn main(): int { printi(-5 ** 2); return 0; }", "-25"
+            },
+            {
+                // Степень и унарный минус
+                "fn main(): int { printi((-5) ** 2); return 0; }", "25"
             },
             {
                 // Модуль и возведение в степень
-                "fn main(): int { printi(4 % 2 ** 2); return 0; }", "0"
+                "fn main(): int { printi(4 % 3 ** 2); return 0; }", "4"
+            },
+            {
+                // Модуль и возведение в степень с приоритетом
+                "fn main(): int { printi((4 % 3) ** 2); return 0; }", "1"
             },
             {
                 // Разбор арифметических выражений с учётом приоритета

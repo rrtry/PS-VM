@@ -104,18 +104,15 @@ continue;
 | 7  | Равенства | `==` `!=` | Левая |
 | 8  | Логическое И | `&&` | Левая |
 | 9  | Логическое ИЛИ | `\|\|` | Левая |
-| 10 | Присваивание | `=` | Правая |
 
 ## 5. Полная EBNF-грамматика
 
 ```ebnf
 (* Программа *)
-program = main_function , { function_declaration } ;
+program = { function_declaration } ;
 
 (* Объявления функций *)
-function_declaration = "fn" , identifier , "(" , [ parameter_list ] , ")"
-                     , [ ":" , type ] , block ;
-main_function = "fn" , "main" , "(" , "): int" , block ;  (* специальный случай *)
+function_declaration = "fn" , identifier , "(" , [ parameter_list ] , ")", ":" , type , block ;
 
 parameter_list = parameter , { "," , parameter } ;
 parameter      = identifier , ":" , type ;
@@ -125,7 +122,7 @@ type           = "int" | "float" | "str" | "bool" | "unit" ;
 block = "{" , { statement } , "}" ;
 
 statement = variable_declaration , ";"
-          | assignment , ";"
+          | assign_statement , ";"
           | function_call , ";"
           | return_statement , ";"
           | if_statement
@@ -135,22 +132,19 @@ statement = variable_declaration , ";"
           | "continue" , ";" ;
 
 variable_declaration = "let" , identifier , [ ":" , type ] , "=" , expression ;
-assignment           = identifier , "=" , expression ;
+assign_statement     = identifier , "=" , expression ;
 return_statement     = "return" , [ expression ] ; (* expression обязателен, если тип функции != unit *)
 if_statement         = "if" , "(" , expression , ")" , block , [ "else" , block ] ;
 while_statement      = "while" , "(" , expression , ")" , block ;
-for_statement = "for" , "(" , ( variable_declaration | assignment ) , ";"
-                , expression , ";" , assignment , ")" , block ;
+for_statement = "for" , "(" , ( variable_declaration | assign_statement ) , ";"
+                , expression , ";" , assign_statement , ")" , block ;
 
 (* Выражения *)
-expression  = assignment ;
-assignment  = logical_or , [ "=" , assignment ] ;
-logical_or  = logical_and , { "||" , logical_and } ;
-logical_and = equality , { "&&" , equality } ;
-
-equality   = relational , { ( "==" | "!=" ) , relational } ;
-relational = additive , { ( "<" | ">" | "<=" | ">=" ) , additive } ;
-
+expression     = logical_or ;
+logical_or     = logical_and , { "||" , logical_and } ;
+logical_and    = equality , { "&&" , equality } ;
+equality       = relational , { ( "==" | "!=" ) , relational } ;
+relational     = additive , { ( "<" | ">" | "<=" | ">=" ) , additive } ;
 additive       = multiplicative , { ( "+" | "-" ) , multiplicative } ;
 multiplicative = unary , { ( "*" | "/" | "%" ) , unary } ;
 

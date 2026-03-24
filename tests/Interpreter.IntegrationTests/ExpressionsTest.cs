@@ -115,6 +115,8 @@ public class ExpressionsTest
             "fn main(): int { printi(1---1); return 0; }",
             "fn main(): int { printi(1+-+1); return 0; }",
             "fn main(): int { printi(1-+-1); return 0; }",
+
+            "fn main(): int { printi(((5 + 5) * 2); return 0; }"
         ];
     }
 }

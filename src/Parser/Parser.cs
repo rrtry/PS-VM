@@ -289,11 +289,7 @@ public class Parser
 
                 _tokens.Advance();
                 Expression expr = ParseExpression();
-
-                if (token.Type == TokenType.LeftParen)
-                {
-                    Match(TokenType.RightParen);
-                }
+                Match(TokenType.RightParen);
 
                 return expr;
 

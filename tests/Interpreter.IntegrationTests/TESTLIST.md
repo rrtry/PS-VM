@@ -103,3 +103,4 @@
 | Последовательный унарный - после литерала | `printi(1--)` | `UnexepectedLexemeException` |
 | Комбинация унарных операторов | `printi(-+1);` | `UnexepectedLexemeException` |
 | Комбнации унарных операторов в бинарных выражениях | `printi(1+++1); printi(1---1); printi(1+-+1); printi(1-+-1);` | `UnexepectedLexemeException` |
+| Незакрытая скобка в выражении | `printi(((5 + 5) * 2);` | `UnexepectedLexemeException` |

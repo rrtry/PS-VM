@@ -29,10 +29,6 @@ public class ExpressionsTest
         return new TheoryData<string, string>
         {
             {
-                // Унарный оператор +
-                "fn main(): int { printi(+1); return 0; }", "1"
-            },
-            {
                 // Вещественное число
                 "fn main(): int { printf(3.14 * 2, 2); return 0; }", "6.28"
             },
@@ -80,12 +76,27 @@ public class ExpressionsTest
                 "fn main(): int { printi(10 / 3 * 2); return 0; }", "6"
             },
 
-            // Разбор унарного минуса
+            // Унарные операторы
+            {
+                "fn main(): int { printi(+1); return 0; }", "1"
+            },
             {
                 "fn main(): int { printi(-4); return 0; }", "-4"
             },
             {
                 "fn main(): int { printi(2 * 2 * -5); return 0; }", "-20"
+            },
+            {
+                "fn main(): int { printi(1+-1); return 0; }", "0"
+            },
+            {
+                "fn main(): int { printi(1++1); return 0; }", "2"
+            },
+            {
+                "fn main(): int { printi(-(-5)); return 0; }", "5"
+            },
+            {
+                "fn main(): int { printi(+(-5)); return 0; }", "-5"
             },
         };
     }
@@ -94,10 +105,16 @@ public class ExpressionsTest
     {
         return
         [
-            "fn main(): int { printi(++1); return 0; }", // Двойной унарный +
-            "fn main(): int { printi(--1); return 0; }", // Двойной унарный -
-            "fn main(): int { printi(1++); return 0; }", // Инкремент (отсутствует)
-            "fn main(): int { printi(1--); return 0; }", // Декремент (отсутствует)
+            "fn main(): int { printi(++1); return 0; }",
+            "fn main(): int { printi(--1); return 0; }",
+            "fn main(): int { printi(1++); return 0; }",
+            "fn main(): int { printi(1--); return 0; }",
+
+            "fn main(): int { printi(-+1); return 0; }",
+            "fn main(): int { printi(1+++1); return 0; }",
+            "fn main(): int { printi(1---1); return 0; }",
+            "fn main(): int { printi(1+-+1); return 0; }",
+            "fn main(): int { printi(1-+-1); return 0; }",
         ];
     }
 }

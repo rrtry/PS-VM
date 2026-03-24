@@ -232,22 +232,12 @@ public class Parser
         if (_tokens.Peek().Type == TokenType.Plus)
         {
             _tokens.Advance();
-            if (_tokens.Peek().Type == TokenType.Plus)
-            {
-                throw new UnexpectedLexemeException(_tokens.Peek());
-            }
-
-            return new UnaryOperationExpression(UnaryOperation.Plus, ParseUnary());
+            return new UnaryOperationExpression(UnaryOperation.Plus, ParsePower());
         }
         else if (_tokens.Peek().Type == TokenType.Minus)
         {
             _tokens.Advance();
-            if (_tokens.Peek().Type == TokenType.Minus)
-            {
-                throw new UnexpectedLexemeException(_tokens.Peek());
-            }
-
-            return new UnaryOperationExpression(UnaryOperation.Minus, ParseUnary());
+            return new UnaryOperationExpression(UnaryOperation.Minus, ParsePower());
         }
         else
         {

@@ -35,7 +35,7 @@ public class Parser
     /// </summary>
     private FunctionDeclaration ParseFunctionDeclaration()
     {
-        // Проверяем наличие main в SemanticsChecker, при отсутствии/неверной сигнатуре выбрасываем InvalidDeclarationException
+        // Парсим как обычную функцию, проверку на main делегируем SemanticsChecker
         Match(TokenType.Fn);
         Token fnNameToken = Match(TokenType.Identifier);
         string fnName = fnNameToken.Value!.ToString();
@@ -43,9 +43,17 @@ public class Parser
         // Без параметров
         Match(TokenType.LeftParen);
         Match(TokenType.RightParen);
-        Match(TokenType.Colon);
 
-        string typeName;
+        string typeName = "unit";
+        BlockStatement body;
+
+        if (_tokens.Peek().Type == TokenType.LeftBrace)
+        {
+            body = ParseBlockStatement();
+            return new FunctionDeclaration(fnName, typeName, body);
+        }
+
+        Match(TokenType.Colon);
         switch (_tokens.Peek().Type)
         {
             case TokenType.Int:
@@ -64,12 +72,15 @@ public class Parser
                 typeName = "unit";
                 break;
 
+            case TokenType.Bool:
+                throw new NotImplementedException("'bool' type is not yet implemeneted");
+
             default:
                 throw new UnexpectedLexemeException([TokenType.Int, TokenType.Float, TokenType.Str, TokenType.Unit], _tokens.Peek());
         }
 
         _tokens.Advance();
-        BlockStatement body = ParseBlockStatement();
+        body = ParseBlockStatement();
         return new FunctionDeclaration(fnName, typeName, body);
     }
 
@@ -140,8 +151,8 @@ public class Parser
     }
 
     /// <summary>
-    /// expression = logical_or; // 3-ая итерация
-    /// expression = additive;
+    /// expression = logical_or; // начиная с 3-ей итерации
+    /// expression = additive; // 2-ая итерация
     /// </summary>
     private Expression ParseExpression() => ParseAdditive();
 
@@ -270,6 +281,10 @@ public class Parser
                 _tokens.Advance();
                 return new LiteralExpression(ValueType.String, new Value(token.Value!.ToString()));
 
+            case TokenType.True:
+            case TokenType.False:
+                throw new NotImplementedException("'bool' type is not yet implemented");
+
             case TokenType.Identifier:
 
                 string name = _tokens.Advance().Value!.ToString();
@@ -281,6 +296,7 @@ public class Parser
                 throw new NotImplementedException("Variable expression are not yet implemented");
 
             case TokenType.LeftParen:
+
                 _tokens.Advance();
                 Expression expr = ParseExpression();
 

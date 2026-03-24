@@ -47,6 +47,7 @@ public class EntryPointTest
             // Без точки входа
             { "printi(1);", typeof(UnexpectedLexemeException) },
 
+            // неверное определение main
             { "fn func(): unit { printi(0); }", typeof(InvalidDeclarationException) },
 
             // неверное определение main

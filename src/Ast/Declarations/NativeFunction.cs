@@ -1,5 +1,3 @@
-using Runtime;
-
 using ValueType = Runtime.ValueType;
 
 namespace Ast.Declarations;
@@ -9,8 +7,6 @@ namespace Ast.Declarations;
 /// </summary>
 public sealed class NativeFunction : AbstractFunctionDeclaration
 {
-    private readonly Func<IReadOnlyList<Value>, Value>? implementation;
-
     public NativeFunction(
         string name,
         IReadOnlyList<NativeFunctionParameter> parameters,
@@ -18,28 +14,6 @@ public sealed class NativeFunction : AbstractFunctionDeclaration
         : base(name, parameters)
     {
         ResultType = resultType;
-    }
-
-    public NativeFunction(
-        string name,
-        IReadOnlyList<NativeFunctionParameter> parameters,
-        ValueType resultType,
-        Func<IReadOnlyList<Value>, Value> implementation
-    )
-        : base(name, parameters)
-    {
-        ResultType = resultType;
-        this.implementation = implementation;
-    }
-
-    public Value Invoke(IReadOnlyList<Value> arguments)
-    {
-        if (implementation != null)
-        {
-            return implementation(arguments);
-        }
-
-        throw new NotImplementedException();
     }
 
     public override void Accept(IAstVisitor visitor)

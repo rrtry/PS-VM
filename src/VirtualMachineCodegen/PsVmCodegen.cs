@@ -129,10 +129,7 @@ public class PsVmCodegen : IAstVisitor
         switch (e.Function)
         {
             case NativeFunction native:
-                Instruction instruction = native.Name switch
-                {
-                    _ => new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name)),
-                };
+                Instruction instruction = new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name));
                 _builder.Append(instruction);
                 break;
 
@@ -164,7 +161,7 @@ public class PsVmCodegen : IAstVisitor
         }
         else
         {
-            s.ReturnValue?.Accept(this);
+            s.ReturnValue.Accept(this);
         }
     }
 
@@ -175,10 +172,13 @@ public class PsVmCodegen : IAstVisitor
             AstNode node = sequence[i];
             node.Accept(this);
 
-            if (node is Expression &&
-                i != iMax && ((Expression)node).ResultType != ValueType.Unit)
+            if (node is Expression && i != iMax)
             {
-                _builder.Append(new Instruction(InstructionCode.Pop));
+                Expression expression = (Expression)node;
+                if (expression.ResultType != ValueType.Unit)
+                {
+                    _builder.Append(new Instruction(InstructionCode.Pop));
+                }
             }
         }
     }

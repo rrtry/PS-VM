@@ -51,9 +51,7 @@ public class CheckTypesPass : AbstractPass
         {
             if (s.ReturnValue == null)
             {
-                throw new TypeErrorException(
-                    $"Function '{currentFunction.Name}' must return a value of type {currentFunction.DeclaredType.ResultType}"
-                );
+                throw new TypeErrorException($"Function '{currentFunction.Name}' must return a value of type {currentFunction.DeclaredType.ResultType}");
             }
 
             CheckAreSameTypes("return value", s.ReturnValue, currentFunction.DeclaredType.ResultType);
@@ -92,7 +90,7 @@ public class CheckTypesPass : AbstractPass
         for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
         {
             Expression argument = e.Arguments[i];
-            NativeFunctionParameter parameter = (NativeFunctionParameter)function.Parameters[i]; // приведение безопасено, так как пользовательские функции пока что не могут иметь аругменты
+            NativeFunctionParameter parameter = (NativeFunctionParameter)function.Parameters[i]; // приведение безопасно, так как пользовательские функции пока что не могут иметь аругменты
 
             if (!ValueTypeUtil.AreEqual(parameter.ResultType, argument.ResultType))
             {

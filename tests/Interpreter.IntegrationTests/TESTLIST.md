@@ -16,6 +16,7 @@
 | Тип float вместо int | `fn main(): int { printi(0); return 0.0; }` | `TypeErrorException ` |
 | Тип unit вместо int | `fn main(): int { printi(0); return; }` | `TypeErrorException ` |
 | Отсутствие return | `fn main(): int { printi(0); }` | `TypeErrorException` |
+| Недостижимый код после return | `fn main(): int { return 1; printi(0); }` | `InvalidOperationException` |
 
 # Тесты BuiltinFunctionsTest
 

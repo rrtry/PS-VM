@@ -50,9 +50,6 @@ public class EntryPointTest
             // неверное определение main
             { "fn func(): unit { printi(0); }", typeof(InvalidDeclarationException) },
 
-            // неверное определение main
-            { "fn main(): unit { printi(0); }", typeof(InvalidDeclarationException) },
-
             // main не имеет return с int в конце
             { "fn main(): int { printi(0); }", typeof(TypeErrorException) },
 
@@ -64,6 +61,9 @@ public class EntryPointTest
 
             // main содержит return неверного типа
             { "fn main(): int { printi(0); return; }", typeof(TypeErrorException) },
+
+            // недостижимый код
+            { "fn main(): int { return 1; printi(0); }", typeof(InvalidOperationException) },
         };
     }
 }

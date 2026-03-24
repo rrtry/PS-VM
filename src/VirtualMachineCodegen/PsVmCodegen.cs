@@ -66,7 +66,6 @@ public class PsVmCodegen : IAstVisitor
     public List<Instruction> GenerateCode(EntryPointNode program)
     {
         program.Main.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Halt));
         return _builder.Finish();
     }
 
@@ -140,7 +139,7 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(BlockStatement s)
     {
-        GenerateBlockStatementCode(s.Statements);
+        GenerateBlockStatementCode(s);
     }
 
     public void Visit(EntryPointNode n)
@@ -155,18 +154,13 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(ReturnStatement s)
     {
-        if (s.ReturnValue == null)
-        {
-            _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
-        }
-        else
-        {
-            s.ReturnValue.Accept(this);
-        }
+        s.ReturnValue!.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Halt));
     }
 
-    private void GenerateBlockStatementCode(IReadOnlyList<AstNode> sequence)
+    private void GenerateBlockStatementCode(BlockStatement statement)
     {
+        IReadOnlyList<AstNode> sequence = statement.Statements;
         for (int i = 0, iMax = sequence.Count - 1; i <= iMax; ++i)
         {
             AstNode node = sequence[i];

@@ -17,9 +17,60 @@ public class Parser
         _tokens = new TokenStream(source);
     }
 
-    public EntryPointNode Parse()
+    public EntryPointNode ParseProgram()
     {
         return ParseEntryPoint();
+    }
+
+    /// <summary>
+    /// program = { function_declaration } ;
+    /// </summary>
+    private EntryPointNode ParseEntryPoint()
+    {
+        return new EntryPointNode(ParseFunctionDeclaration());
+    }
+
+    /// <summary>
+    /// function_declaration = "fn" , identifier , "(" , [ parameter_list ] , ")", ":" , type , block ;
+    /// </summary>
+    private FunctionDeclaration ParseFunctionDeclaration()
+    {
+        // Проверяем наличие main в SemanticsChecker, при отсутствии/неверной сигнатуре выбрасываем InvalidDeclarationException
+        Match(TokenType.Fn);
+        Token fnNameToken = Match(TokenType.Identifier);
+        string fnName = fnNameToken.Value!.ToString();
+
+        // Без параметров
+        Match(TokenType.LeftParen);
+        Match(TokenType.RightParen);
+        Match(TokenType.Colon);
+
+        string typeName;
+        switch (_tokens.Peek().Type)
+        {
+            case TokenType.Int:
+                typeName = "int";
+                break;
+
+            case TokenType.Float:
+                typeName = "float";
+                break;
+
+            case TokenType.Str:
+                typeName = "str";
+                break;
+
+            case TokenType.Unit:
+                typeName = "unit";
+                break;
+
+            default:
+                throw new UnexpectedLexemeException([TokenType.Int, TokenType.Float, TokenType.Str, TokenType.Unit], _tokens.Peek());
+        }
+
+        _tokens.Advance();
+        BlockStatement body = ParseBlockStatement();
+        return new FunctionDeclaration(fnName, typeName, body);
     }
 
     /// <summary>
@@ -35,30 +86,6 @@ public class Parser
 
         Expression returnExpression = ParseExpression();
         return new ReturnStatement(returnExpression);
-    }
-
-    /// <summary>
-    /// main_function = "fn" , "main" , "(" , "): int" , block ;.
-    /// </summary>
-    private EntryPointNode ParseEntryPoint()
-    {
-        Match(TokenType.Fn);
-        Token fnNameToken = Match(TokenType.Identifier);
-        string fnName = fnNameToken.Value!.ToString();
-
-        if (fnName != "main")
-        {
-            throw new UnexpectedLexemeException("main", fnNameToken);
-        }
-
-        Match(TokenType.LeftParen);
-        Match(TokenType.RightParen);
-        Match(TokenType.Colon);
-        Match(TokenType.Int);
-
-        BlockStatement body = ParseBlockStatement();
-        FunctionDeclaration main = new FunctionDeclaration(fnName, "int", body);
-        return new EntryPointNode(main);
     }
 
     /// <summary>
@@ -254,9 +281,6 @@ public class Parser
                 throw new NotImplementedException("Variable expression are not yet implemented");
 
             case TokenType.LeftParen:
-            case TokenType.And:
-            case TokenType.Or:
-
                 _tokens.Advance();
                 Expression expr = ParseExpression();
 

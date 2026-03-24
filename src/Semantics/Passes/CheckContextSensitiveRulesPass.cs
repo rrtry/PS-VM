@@ -38,7 +38,7 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
 
         if (d.ResultType != Runtime.ValueType.Int)
         {
-            throw new InvalidDeclarationException("'main' function signature: fn main(): int");
+            throw new InvalidDeclarationException("'main' signature: fn main(): int");
         }
 
         expressionContextStack.Push(ExpressionContext.InsideFunction);

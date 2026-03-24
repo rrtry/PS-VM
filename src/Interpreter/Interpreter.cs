@@ -32,7 +32,7 @@ public class Interpreter
         }
 
         Parser parser = new(sourceCode);
-        EntryPointNode program = parser.Parse();
+        EntryPointNode program = parser.ParseProgram();
 
         SemanticsChecker semanticsChecker = new(Builtins.Functions, Builtins.Types);
         semanticsChecker.Check(program);

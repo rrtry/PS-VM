@@ -14,21 +14,6 @@ namespace Semantics.Passes;
 /// </remarks>
 public sealed class CheckContextSensitiveRulesPass : AbstractPass
 {
-    // Стек контекстов выражений используется для проверки контекстно-зависимых правил.
-    private readonly Stack<ExpressionContext> expressionContextStack;
-
-    public CheckContextSensitiveRulesPass()
-    {
-        expressionContextStack = [];
-        expressionContextStack.Push(ExpressionContext.TopLevel);
-    }
-
-    private enum ExpressionContext
-    {
-        TopLevel,
-        InsideFunction,
-    }
-
     public override void Visit(FunctionDeclaration d)
     {
         if (d.Name != "main")
@@ -41,25 +26,7 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
             throw new InvalidDeclarationException("'main' signature: fn main(): int");
         }
 
-        expressionContextStack.Push(ExpressionContext.InsideFunction);
-        try
-        {
-            base.Visit(d);
-        }
-        finally
-        {
-            expressionContextStack.Pop();
-        }
-    }
-
-    public override void Visit(ReturnStatement e)
-    {
-        if (expressionContextStack.Peek() != ExpressionContext.InsideFunction)
-        {
-            throw new InvalidStatementException("'return' statement is allowed only within function");
-        }
-
-        base.Visit(e);
+        base.Visit(d);
     }
 
     /// <summary>
@@ -68,19 +35,12 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     /// <exception cref="InvalidFunctionCallException">Бросается при неправильном вызове функций.</exception>
     public override void Visit(FunctionCallExpression e)
     {
-        if (expressionContextStack.Peek() != ExpressionContext.TopLevel)
+        base.Visit(e);
+        if (e.Arguments.Count != e.Function.Parameters.Count)
         {
-            base.Visit(e);
-            if (e.Arguments.Count != e.Function.Parameters.Count)
-            {
-                throw new InvalidFunctionCallException(
-                    $"Function {e.Name} requires {e.Function.Parameters.Count} arguments, got {e.Arguments.Count}"
-                );
-            }
-        }
-        else
-        {
-            throw new InvalidExpressionException("Top-level expressions are not allowed");
+            throw new InvalidFunctionCallException(
+                $"Function {e.Name} requires {e.Function.Parameters.Count} arguments, got {e.Arguments.Count}"
+            );
         }
     }
 }

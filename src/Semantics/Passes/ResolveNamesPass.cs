@@ -12,35 +12,26 @@ public sealed class ResolveNamesPass : AbstractPass
     /// <summary>
     /// В таблицу символов складываются объявления.
     /// </summary>
-    private SymbolsTable symbols;
+    private readonly SymbolsTable _symbols;
 
     public ResolveNamesPass(SymbolsTable globalSymbols)
     {
-        symbols = globalSymbols;
+        _symbols = globalSymbols;
     }
 
     public override void Visit(FunctionDeclaration d)
     {
-        d.ResultType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType :
-                       symbols.GetTypeDeclaration("unit").ResultType;
-        d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
+        AbstractTypeDeclaration declaredType = _symbols.GetTypeDeclaration(d.DeclaredTypeName ?? "unit");
+        d.ResultType = declaredType.ResultType;
+        d.DeclaredType = declaredType;
 
-        symbols.DeclareFunction(d);
-        symbols = new SymbolsTable(symbols);
-
-        try
-        {
-            base.Visit(d);
-        }
-        finally
-        {
-            symbols = symbols.Parent!;
-        }
+        _symbols.DeclareFunction(d);
+        base.Visit(d);
     }
 
     public override void Visit(FunctionCallExpression e)
     {
         base.Visit(e);
-        e.Function = symbols.GetFunctionDeclaration(e.Name);
+        e.Function = _symbols.GetFunctionDeclaration(e.Name);
     }
 }

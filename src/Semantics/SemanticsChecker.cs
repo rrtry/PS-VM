@@ -18,7 +18,7 @@ public class SemanticsChecker
         IReadOnlyList<BuiltinType> builtinTypes
     )
     {
-        SymbolsTable globalSymbols = new(parent: null);
+        SymbolsTable globalSymbols = new();
         foreach (NativeFunction function in builtinFunctions)
         {
             globalSymbols.DeclareFunction(function);

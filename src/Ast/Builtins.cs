@@ -93,31 +93,6 @@ public static class Builtins
             [ new NativeFunctionParameter("n", ValueType.Int),],
             ValueType.Unit
         ),
-        new(
-            "abs",
-            [new NativeFunctionParameter("x", ValueType.Int)],
-            ValueType.Int
-        ),
-        new(
-            "sqrt",
-            [new NativeFunctionParameter("x", ValueType.Float)],
-            ValueType.Float
-        ),
-        new(
-            "pow",
-            [new NativeFunctionParameter("x", ValueType.Int), new NativeFunctionParameter("y", ValueType.Int)],
-            ValueType.Int
-        ),
-        new(
-            "min",
-            [new NativeFunctionParameter("x", ValueType.Int), new NativeFunctionParameter("y", ValueType.Int)],
-            ValueType.Int
-        ),
-        new(
-            "max",
-            [new NativeFunctionParameter("x", ValueType.Int), new NativeFunctionParameter("y", ValueType.Int)],
-            ValueType.Int
-        )
     ];
 
     /// <summary>

@@ -29,15 +29,10 @@ public class CheckTypesPass : AbstractPass
         currentFunction = d;
         base.Visit(d);
 
-        if (d.DeclaredType != null &&
-            d.DeclaredType.ResultType != Runtime.ValueType.Unit)
+        if (d.DeclaredType!.ResultType != Runtime.ValueType.Unit &&
+            !GuaranteesReturn(d.Body))
         {
-            if (!GuaranteesReturn(d.Body))
-            {
-                throw new TypeErrorException(
-                    $"Function '{d.Name}' with return type must guarantee a return statement on all execution paths."
-                );
-            }
+            throw new TypeErrorException($"Function '{d.Name}' with return type must guarantee a return statement on all execution paths.");
         }
 
         currentFunction = null;
@@ -45,16 +40,24 @@ public class CheckTypesPass : AbstractPass
 
     public override void Visit(ReturnStatement s)
     {
-        base.Visit(s);
-        if (currentFunction != null &&
-            currentFunction.DeclaredType != null)
+        if (currentFunction == null)
         {
-            if (s.ReturnValue == null)
+            return;
+        }
+
+        base.Visit(s);
+        Runtime.ValueType returnType = currentFunction.DeclaredType!.ResultType;
+
+        if (s.ReturnValue == null)
+        {
+            if (returnType != Runtime.ValueType.Unit)
             {
                 throw new TypeErrorException($"Function '{currentFunction.Name}' must return a value of type {currentFunction.DeclaredType.ResultType}");
             }
-
-            CheckAreSameTypes("return value", s.ReturnValue, currentFunction.DeclaredType.ResultType);
+        }
+        else
+        {
+            CheckAreSameTypes("return value", s.ReturnValue, returnType);
         }
     }
 

@@ -6,27 +6,22 @@ using Semantics.Exceptions;
 namespace Semantics.Symbols;
 
 /// <summary>
-/// Таблица символов, основанная на лексических областях видимости (областях действия) символов в коде.
+/// Глобальная таблица символов.
 /// </summary>
 public sealed class SymbolsTable
 {
-    private readonly SymbolsTable? parent;
-
-    private readonly Dictionary<string, Declaration> variablesAndFunctions;
+    private readonly Dictionary<string, Declaration> declarations;
     private readonly Dictionary<string, Declaration> types;
 
-    public SymbolsTable(SymbolsTable? parent)
+    public SymbolsTable()
     {
-        this.parent = parent;
-        variablesAndFunctions = [];
+        declarations = [];
         types = [];
     }
 
-    public SymbolsTable? Parent => parent;
-
     public AbstractFunctionDeclaration GetFunctionDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table.variablesAndFunctions, name);
+        Declaration? declaration = FindDeclaration(table => table.declarations, name);
         return declaration switch
         {
             AbstractFunctionDeclaration function => function,
@@ -48,7 +43,7 @@ public sealed class SymbolsTable
 
     public void DeclareFunction(AbstractFunctionDeclaration symbol)
     {
-        if (!variablesAndFunctions.TryAdd(symbol.Name, symbol))
+        if (!declarations.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
@@ -69,6 +64,6 @@ public sealed class SymbolsTable
             return declaration;
         }
 
-        return parent?.FindDeclaration(getTable, name);
+        return null;
     }
 }

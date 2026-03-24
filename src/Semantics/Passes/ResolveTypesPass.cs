@@ -22,9 +22,7 @@ public sealed class ResolveTypesPass : AbstractPass
     }
 
     /// <summary>
-    /// Выполняет проверки типов для бинарных операций:
-    /// 1. Арифметические и логические операции выполняются над целыми числами и возвращают число.
-    /// 2. Операции сравнения выполняются над двумя числами либо двумя строками и возвращают тот же тип.
+    /// Выполняет проверки типов для бинарных операций.
     /// </summary>
     public override void Visit(BinaryOperationExpression e)
     {
@@ -59,6 +57,9 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = operandType;
     }
 
+    /// <summary>
+    /// Присваивает возвращаемый тип вызванной функции.
+    /// </summary>
     public override void Visit(FunctionCallExpression e)
     {
         base.Visit(e);
@@ -71,7 +72,7 @@ public sealed class ResolveTypesPass : AbstractPass
     /// </summary>
     private static ValueType? GetBinaryOperationResultType(BinaryOperation operation, ValueType left, ValueType right)
     {
-        // Только арифметические операции, логические появяется вместе с типом bool, во втором эпике.
+        // Только арифметические операции, логические появяется вместе с типом bool.
         switch (operation)
         {
             case BinaryOperation.Add:

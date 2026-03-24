@@ -23,15 +23,20 @@ fn data_type_check(): unit {
 fn operators_check(): unit {
     let a = 10;
     let b = 3;
-    
-    printi(a + b); 
-    printi(a - b); 
+
+    printi(a + b);
+    printi(a - b);
     printi(a * b);
-    printi(a / b); 
-    printi(a % b); 
+    printi(a / b);
+    printi(a % b);
     printi(2 ** 3);
-    printi(-a); 
-    printi(!true);
+    printi(-a);
+
+    if (!true) {
+        print("false\n");
+    } else {
+        print("true\n");
+    }
 }
 ```
 
@@ -98,7 +103,7 @@ fn gcd(x: int, y: int): int {
     return x;
 }
 
-fn main() : int {
+fn main(): int {
     let a = stoi(input());
     let b = stoi(input());
 
@@ -107,7 +112,7 @@ fn main() : int {
     print("НОД = ");
     printi(result);
     print("\n");
-    
+
     return 0;
 }
 ```
@@ -156,12 +161,14 @@ fn solve(a: float, b: float, c: float): unit {
     print("\n");
 }
 
-fn main() : unit {
+fn main(): int {
     let a = stof(input());
     let b = stof(input());
     let c = stof(input());
 
     solve(a, b, c);
+
+    return 0;
 }
 ```
 
@@ -180,38 +187,21 @@ fn reverse(s: str): str {
     }
 
     return result;
-} 
+}
 
-fn main() : unit {
+fn main(): int {
     let s = input();
     let rev = reverse(s);
     print(rev);
     print("\n");
+
+    return 0;
 }
 ```
 
 ### 4. CheckPalindrome — проверка, является ли строка палиндромом (с учётом регистра и пробелов)
 
 ```
-fn normalize(s: str): str {
-    let len = strlen(s);
-    let result = "";
-    let i = 0;
-
-    while (i < len) {
-        let ch = substr(s, i, 1);
-        let lower = to_lower(ch);
-
-        if ((lower >= "a" && lower <= "z") || (lower >= "а" && lower <= "я")) {
-            result = sconcat(result, lower);
-        }
-
-        i = i + 1;
-    }
-
-    return result;
-}
-
 fn to_lower(ch: str): str {
     if (ch == "A") { return "a"; }
     if (ch == "B") { return "b"; }
@@ -238,9 +228,57 @@ fn to_lower(ch: str): str {
     if (ch == "W") { return "w"; }
     if (ch == "X") { return "x"; }
     if (ch == "Y") { return "y"; }
-    if (ch == "Z") { return "z"; }    
-    
+    if (ch == "Z") { return "z"; }
     return ch;
+}
+
+fn is_latin_lower(ch: str): bool {
+    if (ch == "a") { return true; }
+    if (ch == "b") { return true; }
+    if (ch == "c") { return true; }
+    if (ch == "d") { return true; }
+    if (ch == "e") { return true; }
+    if (ch == "f") { return true; }
+    if (ch == "g") { return true; }
+    if (ch == "h") { return true; }
+    if (ch == "i") { return true; }
+    if (ch == "j") { return true; }
+    if (ch == "k") { return true; }
+    if (ch == "l") { return true; }
+    if (ch == "m") { return true; }
+    if (ch == "n") { return true; }
+    if (ch == "o") { return true; }
+    if (ch == "p") { return true; }
+    if (ch == "q") { return true; }
+    if (ch == "r") { return true; }
+    if (ch == "s") { return true; }
+    if (ch == "t") { return true; }
+    if (ch == "u") { return true; }
+    if (ch == "v") { return true; }
+    if (ch == "w") { return true; }
+    if (ch == "x") { return true; }
+    if (ch == "y") { return true; }
+    if (ch == "z") { return true; }
+    return false;
+}
+
+fn normalize(s: str): str {
+    let len = strlen(s);
+    let result = "";
+    let i = 0;
+
+    while (i < len) {
+        let ch = substr(s, i, 1);
+        let lower = to_lower(ch);
+
+        if (is_latin_lower(lower)) {
+            result = sconcat(result, lower);
+        }
+
+        i = i + 1;
+    }
+
+    return result;
 }
 
 fn is_palindrome(s: str): bool {
@@ -259,7 +297,7 @@ fn is_palindrome(s: str): bool {
     return true;
 }
 
-fn main() : int {
+fn main(): int {
     let line = input();
     let cleaned = normalize(line);
 
@@ -268,7 +306,7 @@ fn main() : int {
     } else {
         print("no\n");
     }
-    
+
     return 0;
 }
 ```
@@ -302,7 +340,7 @@ fn main(): int {
     } else {
         print("не простое\n");
     }
-    
+
     return 0;
 }
 ```

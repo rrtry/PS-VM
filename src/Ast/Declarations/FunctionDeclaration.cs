@@ -11,11 +11,10 @@ public sealed class FunctionDeclaration : AbstractFunctionDeclaration
 
     public FunctionDeclaration(
         string name,
-        IReadOnlyList<ParameterDeclaration> parameters,
         string? declaredTypeName,
         BlockStatement body
     )
-        : base(name, parameters)
+        : base(name, []) // main не принимает параметров
     {
         DeclaredTypeName = declaredTypeName;
         Body = body;

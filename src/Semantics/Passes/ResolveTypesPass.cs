@@ -71,6 +71,7 @@ public sealed class ResolveTypesPass : AbstractPass
     /// </summary>
     private static ValueType? GetBinaryOperationResultType(BinaryOperation operation, ValueType left, ValueType right)
     {
+        // Только арифметические операции, логические появяется вместе с типом bool, во втором эпике.
         switch (operation)
         {
             case BinaryOperation.Add:
@@ -91,30 +92,6 @@ public sealed class ResolveTypesPass : AbstractPass
                 }
 
                 return ValueType.Int;
-
-            case BinaryOperation.Or:
-            case BinaryOperation.And:
-
-                if (left == ValueType.Int && right == ValueType.Int)
-                {
-                    return ValueType.Int;
-                }
-
-                return null;
-
-            case BinaryOperation.LessThan:
-            case BinaryOperation.GreaterThan:
-            case BinaryOperation.LessThanOrEqual:
-            case BinaryOperation.GreaterThanOrEqual:
-            case BinaryOperation.Equal:
-            case BinaryOperation.NotEqual:
-
-                if (ValueTypeUtil.AreEqual(left, right))
-                {
-                    return ValueType.Int;
-                }
-
-                return null;
 
             default:
                 throw new InvalidOperationException($"Unknown binary operation {operation}");

@@ -24,11 +24,6 @@ public class PsVm
     /// </summary>
     private readonly Stack<Value> _evaluationStack;
 
-    /// <summary>
-    /// Результат работы программы (произвольное значение либо отсутствие значения).
-    /// </summary>
-    private Value _result;
-
     public PsVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
         ValidateInstructions(instructions);
@@ -38,12 +33,11 @@ public class PsVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _result = Value.Unit;
     }
 
     public int ExitCode => _exitCode;
 
-    public Value RunProgram()
+    public int RunProgram()
     {
         while (true)
         {
@@ -141,68 +135,6 @@ public class PsVm
                         break;
                     }
 
-                case InstructionCode.And:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value((left.AsLong() != 0 && right.AsLong() != 0) ? 1 : 0));
-                    }
-
-                    break;
-
-                case InstructionCode.Or:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value((left.AsLong() != 0 || right.AsLong() != 0) ? 1 : 0));
-                    }
-
-                    break;
-
-                case InstructionCode.Not:
-                    {
-                        Value operand = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(operand.AsLong() == 0 ? 1 : 0));
-                    }
-
-                    break;
-
-                case InstructionCode.Equal:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.Equals(right) ? 1 : 0));
-                    }
-
-                    break;
-
-                case InstructionCode.NotEqual:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.Equals(right) ? 0 : 1));
-                    }
-
-                    break;
-
-                case InstructionCode.Less:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.LessThan(right) ? 1 : 0));
-                    }
-
-                    break;
-
-                case InstructionCode.LessOrEqual:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.LessThanOrEqual(right) ? 1 : 0));
-                    }
-
-                    break;
-
                 case InstructionCode.Negate:
                     {
                         Value operand = _evaluationStack.Pop();
@@ -213,46 +145,13 @@ public class PsVm
 
                     break;
 
-                case InstructionCode.Jump:
-                    {
-                        _instructionPointer = (int)instruction.Operand.AsLong();
-                    }
-
-                    break;
-
-                case InstructionCode.JumpIfTrue:
-                    {
-                        Value condition = _evaluationStack.Pop();
-                        if (condition.AsLong() != 0)
-                        {
-                            _instructionPointer = (int)instruction.Operand.AsLong();
-                        }
-                    }
-
-                    break;
-
-                case InstructionCode.JumpIfFalse:
-                    {
-                        Value condition = _evaluationStack.Pop();
-                        if (condition.AsLong() == 0)
-                        {
-                            _instructionPointer = (int)instruction.Operand.AsLong();
-                        }
-                    }
-
-                    break;
-
                 case InstructionCode.CallBuiltin:
                     CallBuiltin((BuiltinFunctionCode)instruction.Operand.AsLong());
                     break;
 
-                case InstructionCode.StoreResult:
-                    _result = _evaluationStack.Pop();
-                    break;
-
                 case InstructionCode.Halt:
                     _exitCode = (int)_evaluationStack.Pop().AsLong();
-                    return _result;
+                    return _exitCode;
 
                 default:
                     throw new NotImplementedException($"Unsupported instruction code: {instruction.Code}");

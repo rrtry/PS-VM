@@ -24,7 +24,7 @@ public class Interpreter
     /// Выполнение программы.
     /// </summary>
     /// <param name="sourceCode">Исходный код программы.</param>
-    public Value Execute(string sourceCode)
+    public int Execute(string sourceCode)
     {
         if (string.IsNullOrEmpty(sourceCode))
         {
@@ -41,9 +41,8 @@ public class Interpreter
         List<Instruction> instructions = codegen.GenerateCode(program);
 
         PsVm vm = new(environment, instructions);
-        Value result = vm.RunProgram();
-        ExitCode = vm.ExitCode;
+        ExitCode = vm.RunProgram();
 
-        return result;
+        return ExitCode;
     }
 }

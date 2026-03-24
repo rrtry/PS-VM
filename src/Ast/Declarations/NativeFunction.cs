@@ -11,7 +11,6 @@ public sealed class NativeFunction : AbstractFunctionDeclaration
 {
     private readonly Func<IReadOnlyList<Value>, Value>? implementation;
 
-    // No implementation
     public NativeFunction(
         string name,
         IReadOnlyList<NativeFunctionParameter> parameters,

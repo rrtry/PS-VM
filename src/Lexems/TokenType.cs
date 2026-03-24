@@ -128,12 +128,6 @@ public enum TokenType
     /// <summary>Правая круглая скобка (`)`).</summary>
     RightParen,
 
-    /// <summary>Левая квадратная скобка (`[`).</summary>
-    LeftBracket,
-
-    /// <summary>Правая квадратная скобка (`]`).</summary>
-    RightBracket,
-
     /// <summary>Запятая (`,`).</summary>
     Comma,
 

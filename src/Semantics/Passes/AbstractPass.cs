@@ -39,11 +39,7 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(FunctionDeclaration d)
     {
-        foreach (AbstractParameterDeclaration declaration in d.Parameters)
-        {
-            declaration.Accept(this);
-        }
-
+        // Объявление функции не поддерживает параметры
         d.Body.Accept(this);
     }
 
@@ -59,10 +55,5 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(LiteralExpression e)
     {
-    }
-
-    public virtual void Visit(ParameterDeclaration d)
-    {
-        throw new NotImplementedException();
     }
 }

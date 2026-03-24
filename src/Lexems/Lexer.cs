@@ -17,8 +17,8 @@ public class Lexer
         TokenType.LessEqual,     // <=
         TokenType.Greater,       // >
         TokenType.GreaterEqual,  // >=
-        TokenType.And,        // &&
-        TokenType.Or,          // ||
+        TokenType.And,           // &&
+        TokenType.Or,            // ||
         TokenType.Not,           // !
     };
 
@@ -28,8 +28,6 @@ public class Lexer
         TokenType.RightBrace,    // }
         TokenType.LeftParen,     // (
         TokenType.RightParen,    // )
-        TokenType.LeftBracket,   // [
-        TokenType.RightBracket,  // ]
         TokenType.Comma,         // ,
         TokenType.Semicolon,     // ;
         TokenType.Eof,           // End of file
@@ -123,12 +121,6 @@ public class Lexer
             case '}':
                 scanner.Advance();
                 return new Token(TokenType.RightBrace);
-            case '[':
-                scanner.Advance();
-                return new Token(TokenType.LeftBracket);
-            case ']':
-                scanner.Advance();
-                return new Token(TokenType.RightBracket);
             case '|':
                 scanner.Advance();
                 if (scanner.Peek() == '|')
@@ -240,13 +232,11 @@ public class Lexer
             scanner.Advance();
         }
 
-        // Проверяем на совпадение с ключевым словом.
         if (Keywords.TryGetValue(value, out TokenType type))
         {
             return new Token(type);
         }
 
-        // Возвращаем токен идентификатора.
         return new Token(TokenType.Identifier, new TokenValue(value));
     }
 
@@ -394,9 +384,7 @@ public class Lexer
         if (scanner.Peek() == '\\')
         {
             scanner.Advance();
-            char next = scanner.Peek();
-
-            switch (next)
+            switch (scanner.Peek())
             {
                 case '\"':
                     scanner.Advance();
@@ -416,11 +404,6 @@ public class Lexer
                 case 't':
                     scanner.Advance();
                     unescaped = '\t';
-                    return true;
-
-                case 'r':
-                    scanner.Advance();
-                    unescaped = '\r';
                     return true;
 
                 default:

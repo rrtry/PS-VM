@@ -1,4 +1,3 @@
-using Runtime;
 using Tests.TestLibrary.TestDoubles;
 using VirtualMachine.Instructions;
 
@@ -15,10 +14,9 @@ public class HaltTest
             new Instruction(InstructionCode.Push, exitCode),
             new Instruction(InstructionCode.Halt),
         ]);
-        Value result = vm.RunProgram();
 
+        vm.RunProgram();
         Assert.Equal(exitCode, vm.ExitCode);
-        Assert.Equal(Value.Unit, result);
         Assert.Empty(environment.OutputBuffer);
     }
 

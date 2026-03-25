@@ -217,9 +217,9 @@ public class Lexer
     ///  Распознаёт идентификаторы и ключевые слова.
     ///  Идентификаторы обрабатываются по правилам:
     /// identifier = (letter | "_"), { letter | digit | "_" } ;
-    /// keyword    = "fn" | "let" | "return" | "if" | "else" | "while" | "for"
-    /// | "break" | "continue" | "int" | "float"
-    /// | "str" | "unit" | "bool";
+    /// keyword = "fn" | "let" | "return" | "if" | "else" | "while" | "for"
+    ///    | "break" | "continue" | "int" | "float"
+    ///    | "str" | "unit" | "bool" | "true" | "false" ;
     /// </summary>
     private Token ParseIdentifierOrKeyword()
     {

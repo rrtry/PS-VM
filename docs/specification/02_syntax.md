@@ -26,6 +26,10 @@ fn main(): int {
     <инструкции>
 }
 
+- Параметры функции обязаны иметь тип
+- Возвращаемое значение должно соответствовать объявленному типу функций
+- Функции с типом `unit` могут не иметь `return` или использовать `return` без выражения.
+
 ## 3. Блоки и инструкции
 
 **Блок** — последовательность инструкций, заключённая в фигурные скобки. Блок создаёт новую область видимости.
@@ -46,9 +50,10 @@ let <идентификатор>[: <тип>] = <выражение>;
 
 ### 3.3. Возврат из функции
 
-return <выражение>;
+return [<выражение>];
 
-- Выражение обязательно
+- Для функций с типом `unit` выражение не указывается
+- Для остальных типов выражение обязательно
 
 ### 3.4. Ветвление if-else
 
@@ -128,7 +133,7 @@ statement = variable_declaration , ";"
 
 variable_declaration = "let" , identifier , [ ":" , type ] , "=" , expression ;
 assign_statement     = identifier , "=" , expression ;
-return_statement = "return" , expression ;
+return_statement     = "return" , [ expression ] ; (* expression обязателен, если тип функции != unit *)
 if_statement         = "if" , "(" , expression , ")" , block , [ "else" , block ] ;
 while_statement      = "while" , "(" , expression , ")" , block ;
 for_statement = "for" , "(" , ( variable_declaration | assign_statement ) , ";"

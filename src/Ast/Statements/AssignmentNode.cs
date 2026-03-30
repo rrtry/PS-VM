@@ -1,11 +1,11 @@
 using Ast.Attributes;
-using Ast.Expressions;
 using Ast.Declarations;
+using Ast.Expressions;
 
 namespace Ast.Statements;
 
 /// <summary>
-/// Присваивание значения переменной: <c>x = 10;</c>
+/// Присваивание значения переменной.
 /// </summary>
 public sealed class AssignmentNode : Statement
 {
@@ -22,7 +22,7 @@ public sealed class AssignmentNode : Statement
     public Expression Value { get; }
 
     /// <summary>
-    /// Ссылка на объявление переменной (заполняется семантическим анализом).
+    /// Ссылка на объявление переменной.
     /// </summary>
     public AbstractFunctionDeclaration? Symbol
     {

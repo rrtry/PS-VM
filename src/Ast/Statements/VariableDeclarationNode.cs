@@ -1,11 +1,11 @@
 using Ast.Attributes;
-using Ast.Expressions;
 using Ast.Declarations;
+using Ast.Expressions;
 
 namespace Ast.Statements;
 
 /// <summary>
-/// Объявление переменной: <c>let x: int = 42;</c>
+/// Объявление переменной.
 /// </summary>
 public sealed class VariableDeclarationNode : Statement
 {
@@ -21,7 +21,7 @@ public sealed class VariableDeclarationNode : Statement
     public string Name { get; }
 
     /// <summary>
-    /// Аннотация типа (может быть <c>null</c>, если тип выводится из инициализатора).
+    /// Аннотация типа.
     /// </summary>
     public BuiltinType? TypeAnnotation { get; }
 
@@ -31,7 +31,7 @@ public sealed class VariableDeclarationNode : Statement
     public Expression Initializer { get; }
 
     /// <summary>
-    /// Ссылка на запись в таблице символов (заполняется семантическим анализом).
+    /// Ссылка на запись в таблице символов.
     /// </summary>
     public AbstractFunctionDeclaration? Symbol
     {

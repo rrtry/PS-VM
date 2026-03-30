@@ -56,4 +56,16 @@ public abstract class AbstractPass : IAstVisitor
     public virtual void Visit(LiteralExpression e)
     {
     }
+
+    public virtual void Visit(IdentifierNode node)
+    {
+    }
+
+    public virtual void Visit(VariableDeclarationNode node)
+    {
+    }
+
+    public virtual void Visit(AssignmentNode node)
+    {
+    }
 }

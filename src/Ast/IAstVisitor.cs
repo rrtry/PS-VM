@@ -21,4 +21,10 @@ public interface IAstVisitor
     public void Visit(BlockStatement s);
 
     public void Visit(ReturnStatement s);
+
+    public void Visit(IdentifierNode e);
+
+    public void Visit(VariableDeclarationNode s);
+
+    public void Visit(AssignmentNode s);
 }

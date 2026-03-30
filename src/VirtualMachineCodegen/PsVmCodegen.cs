@@ -158,6 +158,18 @@ public class PsVmCodegen : IAstVisitor
         _builder.Append(new Instruction(InstructionCode.Halt));
     }
 
+    public void Visit(IdentifierNode node)
+    {
+    }
+
+    public void Visit(VariableDeclarationNode node)
+    {
+    }
+
+    public void Visit(AssignmentNode node)
+    {
+    }
+
     private void GenerateBlockStatementCode(BlockStatement statement)
     {
         IReadOnlyList<AstNode> sequence = statement.Statements;

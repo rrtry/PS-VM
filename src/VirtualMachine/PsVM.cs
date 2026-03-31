@@ -1,4 +1,5 @@
 using Runtime;
+
 using VirtualMachine.Builtins;
 using VirtualMachine.Instructions;
 
@@ -24,6 +25,11 @@ public class PsVm
     /// </summary>
     private readonly Stack<Value> _evaluationStack;
 
+    private readonly Dictionary<string, Value> _locals;
+
+    /// <summary>
+    /// Словарь для хранения локальных переменных по имени.
+    /// </summary>
     public PsVm(IEnvironment environment, IReadOnlyList<Instruction> instructions)
     {
         ValidateInstructions(instructions);
@@ -33,6 +39,7 @@ public class PsVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
+        _locals = new Dictionary<string, Value>();
     }
 
     public int ExitCode => _exitCode;
@@ -152,6 +159,29 @@ public class PsVm
                 case InstructionCode.Halt:
                     _exitCode = (int)_evaluationStack.Pop().AsLong();
                     return _exitCode;
+
+                case InstructionCode.LoadLocal:
+                    {
+                        string varName = instruction.Operand.AsString();
+
+                        if (!_locals.TryGetValue(varName, out Value? value))
+                        {
+                            throw new InvalidOperationException($"Variable '{varName}' is not defined");
+                        }
+
+                        _evaluationStack.Push(value);
+                        break;
+                    }
+
+                case InstructionCode.StoreLocal:
+                    {
+                        string varName = instruction.Operand.AsString();
+
+                        Value value = _evaluationStack.Pop();
+
+                        _locals[varName] = value;
+                        break;
+                    }
 
                 default:
                     throw new NotImplementedException($"Unsupported instruction code: {instruction.Code}");

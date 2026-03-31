@@ -160,14 +160,21 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(IdentifierNode node)
     {
+        _builder.Append(new Instruction(InstructionCode.LoadLocal, node.Name));
     }
 
     public void Visit(VariableDeclarationNode node)
     {
+        node.Initializer.Accept(this);
+
+        _builder.Append(new Instruction(InstructionCode.StoreLocal, node.Name));
     }
 
     public void Visit(AssignmentNode node)
     {
+        node.Value.Accept(this);
+
+        _builder.Append(new Instruction(InstructionCode.StoreLocal, node.VariableName));
     }
 
     private void GenerateBlockStatementCode(BlockStatement statement)

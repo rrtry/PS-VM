@@ -1,6 +1,7 @@
 using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
+
 using Semantics.Exceptions;
 
 namespace Semantics.Passes;
@@ -27,6 +28,15 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
         }
 
         base.Visit(d);
+    }
+
+    public override void Visit(AssignmentStatement e)
+    {
+        base.Visit(e);
+        if (e.Left is not IdentifierExpression)
+        {
+            throw new InvalidAssignmentException("Left side of assignment must be variable name");
+        }
     }
 
     /// <summary>

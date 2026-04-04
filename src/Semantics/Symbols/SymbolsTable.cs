@@ -1,6 +1,6 @@
-using System.Diagnostics;
-
 using Ast.Declarations;
+using Ast.Statements;
+
 using Semantics.Exceptions;
 
 namespace Semantics.Symbols;
@@ -10,40 +10,44 @@ namespace Semantics.Symbols;
 /// </summary>
 public sealed class SymbolsTable
 {
-    private readonly Dictionary<string, Declaration> declarations;
-    private readonly Dictionary<string, Declaration> types;
+    private readonly Dictionary<string, Declaration> _functions;
+    private readonly Dictionary<string, Declaration> _types;
+    private readonly Dictionary<string, Declaration> _variables = new();
 
     public SymbolsTable()
     {
-        declarations = [];
-        types = [];
+        _functions = [];
+        _types = [];
+        _variables = new();
     }
+
+    public int CurrentLocalScopeLevel => _variables.Count;
 
     public AbstractFunctionDeclaration GetFunctionDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table.declarations, name);
-        return declaration switch
+        Declaration? function = FindDeclaration(table => table._functions, name);
+        if (function == null)
         {
-            AbstractFunctionDeclaration function => function,
-            null => throw UnknownSymbolException.UndefinedVariableOrFunction(name),
-            _ => throw new UnreachableException(),
-        };
+            throw UnknownSymbolException.UndefinedVariableOrFunction(name);
+        }
+
+        return (AbstractFunctionDeclaration)function;
     }
 
     public AbstractTypeDeclaration GetTypeDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table.types, name);
-        if (declaration is null)
+        Declaration? type = FindDeclaration(table => table._types, name);
+        if (type is null)
         {
             throw UnknownSymbolException.UndefinedType(name);
         }
 
-        return (AbstractTypeDeclaration)declaration;
+        return (AbstractTypeDeclaration)type;
     }
 
     public void DeclareFunction(AbstractFunctionDeclaration symbol)
     {
-        if (!declarations.TryAdd(symbol.Name, symbol))
+        if (!_functions.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
@@ -51,10 +55,29 @@ public sealed class SymbolsTable
 
     public void DeclareType(AbstractTypeDeclaration symbol)
     {
-        if (!types.TryAdd(symbol.Name, symbol))
+        if (!_types.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateType(symbol.Name);
         }
+    }
+
+    public void DeclareVariable(VariableDeclaration decl)
+    {
+        if (!_variables.TryAdd(decl.Name, decl))
+        {
+            throw DuplicateSymbolException.DuplicateType(decl.Name);
+        }
+    }
+
+    public VariableDeclaration FindVariable(string name)
+    {
+        Declaration? variable = FindDeclaration(table => table._variables, name);
+        if (variable == null)
+        {
+            throw UnknownSymbolException.UndefinedVariableOrFunction(name);
+        }
+
+        return (VariableDeclaration)variable;
     }
 
     private Declaration? FindDeclaration(Func<SymbolsTable, Dictionary<string, Declaration>> getTable, string name)

@@ -1,4 +1,7 @@
+using Ast.Declarations;
 using Ast.Expressions;
+using Ast.Statements;
+
 using Semantics.Exceptions;
 using Semantics.Helpers;
 
@@ -19,6 +22,18 @@ public sealed class ResolveTypesPass : AbstractPass
     {
         base.Visit(e);
         e.ResultType = e.Type;
+    }
+
+    public override void Visit(IdentifierExpression e)
+    {
+        base.Visit(e);
+        e.ResultType = e.Variable.ResultType;
+    }
+
+    public override void Visit(VariableDeclaration d)
+    {
+        base.Visit(d);
+        d.ResultType = d.Initializer.ResultType;
     }
 
     /// <summary>

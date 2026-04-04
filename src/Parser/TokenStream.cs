@@ -23,6 +23,11 @@ public class TokenStream
         return nextToken;
     }
 
+    public Token Peek(int n)
+    {
+        return lexer.Peek(n);
+    }
+
     public Token Advance()
     {
         Token previousToken = Peek();

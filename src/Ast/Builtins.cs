@@ -31,12 +31,12 @@ public static class Builtins
         new(
             "itos",
             [new NativeFunctionParameter("i", ValueType.Int)],
-            ValueType.String
+            ValueType.Str
         ),
         new(
             "ftos",
             [new NativeFunctionParameter("f", ValueType.Float), new NativeFunctionParameter("p", ValueType.Int)],
-            ValueType.String
+            ValueType.Str
         ),
         new(
             "ftoi",
@@ -50,33 +50,33 @@ public static class Builtins
         ),
         new(
             "sconcat",
-            [new NativeFunctionParameter("s1", ValueType.String), new NativeFunctionParameter("s2", ValueType.String)],
-            ValueType.String
+            [new NativeFunctionParameter("s1", ValueType.Str), new NativeFunctionParameter("s2", ValueType.Str)],
+            ValueType.Str
         ),
         new(
             "strlen",
-            [new NativeFunctionParameter("s", ValueType.String)],
+            [new NativeFunctionParameter("s", ValueType.Str)],
             ValueType.Int
         ),
         new(
             "substr",
-            [new NativeFunctionParameter("s", ValueType.String), new NativeFunctionParameter("from", ValueType.Int), new NativeFunctionParameter("to", ValueType.Int)],
-            ValueType.String
+            [new NativeFunctionParameter("s", ValueType.Str), new NativeFunctionParameter("from", ValueType.Int), new NativeFunctionParameter("to", ValueType.Int)],
+            ValueType.Str
         ),
         new(
             "stoi",
-            [new NativeFunctionParameter("s", ValueType.String)],
+            [new NativeFunctionParameter("s", ValueType.Str)],
             ValueType.Int
         ),
         new(
             "stof",
-            [new NativeFunctionParameter("s", ValueType.String)],
+            [new NativeFunctionParameter("s", ValueType.Str)],
             ValueType.Float
         ),
         new(
             "input",
             [],
-            ValueType.String
+            ValueType.Str
         ),
         new(
             "printf",
@@ -85,7 +85,7 @@ public static class Builtins
         ),
         new(
             "print",
-            [ new NativeFunctionParameter("s", ValueType.String),],
+            [ new NativeFunctionParameter("s", ValueType.Str),],
             ValueType.Unit
         ),
         new(
@@ -101,7 +101,7 @@ public static class Builtins
     public static readonly IReadOnlyList<BuiltinType> Types =
     [
         new("int", ValueType.Int),
-        new("str", ValueType.String),
+        new("str", ValueType.Str),
         new("float", ValueType.Float),
         new("unit", ValueType.Unit)
     ];

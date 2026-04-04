@@ -2,6 +2,8 @@ using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
+using Runtime;
+
 using Semantics.Exceptions;
 using Semantics.Helpers;
 
@@ -58,6 +60,38 @@ public class CheckTypesPass : AbstractPass
         else
         {
             CheckAreSameTypes("return value", s.ReturnValue, returnType);
+        }
+    }
+
+    /// <summary>
+    /// Проверяет тип переменной и тип выражения, которым она инициализируется.
+    /// </summary>
+    public override void Visit(VariableDeclaration d)
+    {
+        base.Visit(d);
+
+        Runtime.ValueType inferredType = d.Initializer.ResultType;
+        if (inferredType == Runtime.ValueType.Unit)
+        {
+            throw new TypeErrorException("Unit is not allowed as inferred type");
+        }
+
+        if (d.DeclaredType != null && !ValueTypeUtil.AreEqual(d.DeclaredType.ResultType, inferredType))
+        {
+            throw new TypeErrorException(
+                $"Cannot initialize variable of type {d.DeclaredType} with value of type {inferredType}"
+            );
+        }
+    }
+
+    public override void Visit(AssignmentStatement s)
+    {
+        base.Visit(s);
+        if (!ValueTypeUtil.AreEqual(s.Left.ResultType, s.Right.ResultType))
+        {
+            throw new TypeErrorException(
+                $"Cannot assign value of type {s.Right.ResultType} to variable of type {s.Left.ResultType}"
+            );
         }
     }
 

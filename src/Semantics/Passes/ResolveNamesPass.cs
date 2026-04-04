@@ -1,5 +1,8 @@
+using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
+using Ast.Statements;
+
 using Semantics.Symbols;
 
 namespace Semantics.Passes;
@@ -33,5 +36,25 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         base.Visit(e);
         e.Function = _symbols.GetFunctionDeclaration(e.Name);
+    }
+
+    public override void Visit(BlockStatement s)
+    {
+        foreach (AstNode nested in s.Statements)
+        {
+            nested.Accept(this);
+        }
+    }
+
+    public override void Visit(VariableDeclaration d)
+    {
+        base.Visit(d);
+        _symbols.DeclareVariable(d);
+    }
+
+    public override void Visit(IdentifierExpression e)
+    {
+        base.Visit(e);
+        e.Variable = _symbols.FindVariable(e.Name);
     }
 }

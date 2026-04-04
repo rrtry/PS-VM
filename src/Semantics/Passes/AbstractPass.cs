@@ -39,7 +39,6 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(FunctionDeclaration d)
     {
-        // Объявление функции не поддерживает параметры
         d.Body.Accept(this);
     }
 
@@ -51,6 +50,21 @@ public abstract class AbstractPass : IAstVisitor
     public void Visit(EntryPointNode n)
     {
         n.Main.Accept(this);
+    }
+
+    public virtual void Visit(VariableDeclaration d)
+    {
+        d.Initializer.Accept(this);
+    }
+
+    public virtual void Visit(AssignmentStatement s)
+    {
+        s.Left.Accept(this);
+        s.Right.Accept(this);
+    }
+
+    public virtual void Visit(IdentifierExpression e)
+    {
     }
 
     public virtual void Visit(LiteralExpression e)

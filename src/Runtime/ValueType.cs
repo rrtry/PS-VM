@@ -22,7 +22,7 @@ public class ValueType
     /// <summary>
     /// Строковое значение.
     /// </summary>
-    public static readonly ValueType String = new("str");
+    public static readonly ValueType Str = new("str");
 
     private readonly string name;
 

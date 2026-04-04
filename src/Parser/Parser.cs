@@ -30,6 +30,38 @@ public class Parser
         return new EntryPointNode(ParseFunctionDeclaration());
     }
 
+    private void MatchBuiltinType(out string typeName, out ValueType typeValue)
+    {
+        switch (_tokens.Peek().Type)
+        {
+            case TokenType.Int:
+                typeName = "int";
+                typeValue = ValueType.Int;
+                break;
+
+            case TokenType.Float:
+                typeName = "float";
+                typeValue = ValueType.Float;
+                break;
+
+            case TokenType.Str:
+                typeName = "str";
+                typeValue = ValueType.Str;
+                break;
+
+            case TokenType.Unit:
+                typeName = "unit";
+                typeValue = ValueType.Unit;
+                break;
+
+            case TokenType.Bool:
+                throw new NotImplementedException("'bool' type is not yet implemeneted");
+
+            default:
+                throw new UnexpectedLexemeException([TokenType.Int, TokenType.Float, TokenType.Str, TokenType.Unit], _tokens.Peek());
+        }
+    }
+
     /// <summary>
     /// function_declaration = "fn" , identifier , "(" , [ parameter_list ] , ")", ":" , type , block ;
     /// </summary>
@@ -45,6 +77,7 @@ public class Parser
         Match(TokenType.RightParen);
 
         string typeName = "unit";
+        ValueType typeValue = ValueType.Unit;
         BlockStatement body;
 
         if (_tokens.Peek().Type == TokenType.LeftBrace)
@@ -54,30 +87,7 @@ public class Parser
         }
 
         Match(TokenType.Colon);
-        switch (_tokens.Peek().Type)
-        {
-            case TokenType.Int:
-                typeName = "int";
-                break;
-
-            case TokenType.Float:
-                typeName = "float";
-                break;
-
-            case TokenType.Str:
-                typeName = "str";
-                break;
-
-            case TokenType.Unit:
-                typeName = "unit";
-                break;
-
-            case TokenType.Bool:
-                throw new NotImplementedException("'bool' type is not yet implemeneted");
-
-            default:
-                throw new UnexpectedLexemeException([TokenType.Int, TokenType.Float, TokenType.Str, TokenType.Unit], _tokens.Peek());
-        }
+        MatchBuiltinType(out typeName, out typeValue);
 
         _tokens.Advance();
         body = ParseBlockStatement();
@@ -97,6 +107,47 @@ public class Parser
 
         Expression returnExpression = ParseExpression();
         return new ReturnStatement(returnExpression);
+    }
+
+    private VariableDeclaration ParseVariableDeclaration()
+    {
+        Match(TokenType.Let);
+        Token identifier = Match(TokenType.Identifier);
+
+        if (_tokens.Peek().Type == TokenType.Colon)
+        {
+            _tokens.Advance();
+
+            string typeName;
+            ValueType typeValue;
+
+            MatchBuiltinType(out typeName, out typeValue);
+
+            _tokens.Advance();
+            Match(TokenType.Assign);
+
+            return new VariableDeclaration(
+                identifier.Value!.ToString(),
+                new BuiltinType(typeName, typeValue),
+                ParseExpression()
+            );
+        }
+
+        Match(TokenType.Assign);
+        return new VariableDeclaration(
+            identifier.Value!.ToString(),
+            null,
+            ParseExpression()
+        );
+    }
+
+    private AssignmentStatement ParseAssignmentStatement()
+    {
+        IdentifierExpression left = (IdentifierExpression)ParseExpression();
+        Match(TokenType.Assign);
+        Expression right = ParseExpression();
+
+        return new AssignmentStatement(left, right);
     }
 
     /// <summary>
@@ -122,8 +173,13 @@ public class Parser
                 Match(TokenType.Semicolon);
                 break;
 
+            case TokenType.Let:
+                evaluated = ParseVariableDeclaration();
+                Match(TokenType.Semicolon);
+                break;
+
             default:
-                evaluated = ParseExpression();
+                evaluated = _tokens.Peek(1).Type == TokenType.Assign ? ParseAssignmentStatement() : ParseExpression();
                 Match(TokenType.Semicolon);
                 break;
         }
@@ -151,7 +207,7 @@ public class Parser
     }
 
     /// <summary>
-    /// expression = logical_or; // начиная с 3-ей итерации
+    /// expression = logical_or; // начиная с 4-ей итерации
     /// expression = additive; // 2-ая итерация
     /// </summary>
     private Expression ParseExpression() => ParseAdditive();
@@ -269,7 +325,7 @@ public class Parser
 
             case TokenType.StringLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(ValueType.String, new Value(token.Value!.ToString()));
+                return new LiteralExpression(ValueType.Str, new Value(token.Value!.ToString()));
 
             case TokenType.True:
             case TokenType.False:
@@ -283,7 +339,7 @@ public class Parser
                     return ParseFunctionCall(name);
                 }
 
-                throw new NotImplementedException("Variable expression are not yet implemented");
+                return new IdentifierExpression(name);
 
             case TokenType.LeftParen:
 

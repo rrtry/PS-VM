@@ -14,6 +14,6 @@ public static class ValueTypeUtil
     {
         return (a == ValueType.Int && b == ValueType.Int) ||
                (a == ValueType.Float && b == ValueType.Float) ||
-               (a == ValueType.String && b == ValueType.String);
+               (a == ValueType.Str && b == ValueType.Str);
     }
 }

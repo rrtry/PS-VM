@@ -22,9 +22,9 @@ public interface IAstVisitor
 
     public void Visit(ReturnStatement s);
 
-    public void Visit(IdentifierNode e);
+    public void Visit(IdentifierExpression e);
 
-    public void Visit(VariableDeclarationNode s);
+    public void Visit(VariableDeclaration s);
 
-    public void Visit(AssignmentNode s);
+    public void Visit(AssignmentStatement s);
 }

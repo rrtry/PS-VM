@@ -163,7 +163,6 @@ public class PsVm
                 case InstructionCode.LoadLocal:
                     {
                         string varName = instruction.Operand.AsString();
-
                         if (!_locals.TryGetValue(varName, out Value? value))
                         {
                             throw new InvalidOperationException($"Variable '{varName}' is not defined");
@@ -176,10 +175,7 @@ public class PsVm
                 case InstructionCode.StoreLocal:
                     {
                         string varName = instruction.Operand.AsString();
-
-                        Value value = _evaluationStack.Pop();
-
-                        _locals[varName] = value;
+                        _locals[varName] = _evaluationStack.Pop();
                         break;
                     }
 

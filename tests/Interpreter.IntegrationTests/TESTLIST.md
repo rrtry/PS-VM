@@ -104,3 +104,12 @@
 | Комбинация унарных операторов | `printi(-+1);` | `UnexepectedLexemeException` |
 | Комбнации унарных операторов в бинарных выражениях | `printi(1+++1); printi(1---1); printi(1+-+1); printi(1-+-1);` | `UnexepectedLexemeException` |
 | Незакрытая скобка в выражении | `printi(((5 + 5) * 2);` | `UnexepectedLexemeException` |
+
+
+# Тесты VariablesTest
+
+| Тест-кейс | Код | Ожидаемый результат |
+|-----------|-----|---------------------|
+| Присваивание int | `let x = 0; printi(x);` | `0` |
+| Присваивание str | `let x = "Hello World"; print(x);` | `Hello World` |
+| Присваивание float | `let x = 3.14; printf(x, 2);` | `3.14` |

@@ -41,80 +41,27 @@ public sealed class ResolveNamesPass : AbstractPass
         e.Function = _symbols.GetFunctionDeclaration(e.Name);
     }
 
-    /// <summary>
-    /// Стек областей видимости для локальных переменных.
-    /// </summary>
     public override void Visit(BlockStatement s)
     {
-        _symbols.EnterLocalScope();
-
         foreach (AstNode nested in s.Statements)
         {
             nested.Accept(this);
         }
-
-        _symbols.ExitLocalScope();
     }
 
-    public override void Visit(VariableDeclarationNode node)
+    public override void Visit(VariableDeclaration d)
     {
-        node.Initializer.Accept(this);
-
-        ValueType declaredType = node.Initializer.ResultType;
-
-        if (declaredType == ValueType.Unit)
-        {
-            return;
-        }
-
-        VariableSymbol symbol = new VariableSymbol(
-            node.Name,
-            declaredType,
-            _symbols.CurrentLocalScopeLevel);
-
-        if (!_symbols.DeclareLocalVariable(symbol))
-        {
-            throw DuplicateSymbolException.DuplicateVariableOrFunction(node.Name);
-        }
-
-        symbol.IsInitialized = true;
+        base.Visit(d);
+        _symbols.DeclareVariable(d);
     }
 
-    public override void Visit(AssignmentNode node)
+    public override void Visit(AssignmentStatement s)
     {
-        VariableSymbol? symbol = _symbols.LookupLocalVariable(node.VariableName);
-
-        if (symbol == null)
-        {
-            throw UnknownSymbolException.UndefinedVariableOrFunction(node.VariableName);
-        }
-
-        node.Value.Accept(this);
-
-        symbol.IsInitialized = true;
     }
 
-    public override void Visit(IdentifierNode node)
+    public override void Visit(IdentifierExpression e)
     {
-        VariableSymbol? localSymbol = _symbols.LookupLocalVariable(node.Name);
-
-        if (localSymbol != null)
-        {
-            if (!localSymbol.IsInitialized)
-            {
-            }
-
-            node.ResultType = localSymbol.DeclaredType;
-            return;
-        }
-
-        try
-        {
-            _symbols.GetFunctionDeclaration(node.Name);
-        }
-        catch (UnknownSymbolException)
-        {
-            throw UnknownSymbolException.UndefinedVariableOrFunction(node.Name);
-        }
+        base.Visit(e);
+        e.Variable = _symbols.FindVariable(e.Name);
     }
 }

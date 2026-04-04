@@ -1,18 +1,16 @@
 using Ast.Attributes;
-using Runtime;
-
-using ValueType = Runtime.ValueType;
+using Ast.Statements;
 
 namespace Ast.Expressions;
 
 /// <summary>
 /// Выражение-идентификатор: обращение к переменной по имени.
 /// </summary>
-public sealed class IdentifierNode : Expression
+public sealed class IdentifierExpression : Expression
 {
-    private AstAttribute<Declarations.AbstractFunctionDeclaration?>? symbol;
+    private AstAttribute<VariableDeclaration> variable;
 
-    public IdentifierNode(string name)
+    public IdentifierExpression(string name)
     {
         Name = name;
     }
@@ -22,10 +20,10 @@ public sealed class IdentifierNode : Expression
     /// <summary>
     /// Ссылка на объявление переменной (заполняется на этапе семантического анализа).
     /// </summary>
-    public Declarations.AbstractFunctionDeclaration? Symbol
+    public VariableDeclaration Variable
     {
-        get => symbol?.Get();
-        set => symbol?.Set(value);
+        get => variable.Get();
+        set => variable.Set(value);
     }
 
     public override void Accept(IAstVisitor visitor)

@@ -158,21 +158,21 @@ public class PsVmCodegen : IAstVisitor
         _builder.Append(new Instruction(InstructionCode.Halt));
     }
 
-    public void Visit(IdentifierExpression node)
+    public void Visit(IdentifierExpression e)
     {
-        _builder.Append(new Instruction(InstructionCode.LoadLocal, node.Name));
+        _builder.Append(new Instruction(InstructionCode.LoadLocal, e.Name));
     }
 
-    public void Visit(VariableDeclaration node)
+    public void Visit(VariableDeclaration d)
     {
-        node.Initializer.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.StoreLocal, node.Name));
+        d.Initializer.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.StoreLocal, d.Name));
     }
 
-    public void Visit(AssignmentStatement node)
+    public void Visit(AssignmentStatement s)
     {
-        node.Right.Accept(this);
-        IdentifierExpression lvalue = (IdentifierExpression)node.Left;
+        s.Right.Accept(this);
+        IdentifierExpression lvalue = (IdentifierExpression)s.Left;
         _builder.Append(new Instruction(InstructionCode.StoreLocal, lvalue.Name));
     }
 

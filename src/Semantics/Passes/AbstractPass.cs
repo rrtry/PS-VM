@@ -52,10 +52,6 @@ public abstract class AbstractPass : IAstVisitor
         n.Main.Accept(this);
     }
 
-    public virtual void Visit(LiteralExpression e)
-    {
-    }
-
     public virtual void Visit(VariableDeclaration d)
     {
         d.Initializer.Accept(this);
@@ -68,6 +64,10 @@ public abstract class AbstractPass : IAstVisitor
     }
 
     public virtual void Visit(IdentifierExpression e)
+    {
+    }
+
+    public virtual void Visit(LiteralExpression e)
     {
     }
 }

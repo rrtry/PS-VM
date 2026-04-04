@@ -112,13 +112,15 @@ public class Parser
     private VariableDeclaration ParseVariableDeclaration()
     {
         Match(TokenType.Let);
-        Token identifier = _tokens.Peek();
+        Token identifier = Match(TokenType.Identifier);
 
-        Match(TokenType.Identifier);
         if (_tokens.Peek().Type == TokenType.Colon)
         {
+            _tokens.Advance();
+
             string typeName;
             ValueType typeValue;
+
             MatchBuiltinType(out typeName, out typeValue);
 
             _tokens.Advance();
@@ -139,8 +141,12 @@ public class Parser
         );
     }
 
-    private AssignmentStatement ParseAssignmentStatement(IdentifierExpression left, Expression right)
+    private AssignmentStatement ParseAssignmentStatement()
     {
+        IdentifierExpression left = (IdentifierExpression)ParseExpression();
+        Match(TokenType.Assign);
+        Expression right = ParseExpression();
+
         return new AssignmentStatement(left, right);
     }
 
@@ -173,7 +179,7 @@ public class Parser
                 break;
 
             default:
-                evaluated = ParseExpression();
+                evaluated = _tokens.Peek(1).Type == TokenType.Assign ? ParseAssignmentStatement() : ParseExpression();
                 Match(TokenType.Semicolon);
                 break;
         }

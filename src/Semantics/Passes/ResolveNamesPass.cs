@@ -3,12 +3,9 @@ using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
-using Semantics.Exceptions;
 using Semantics.Symbols;
 
 namespace Semantics.Passes;
-
-using ValueType = Runtime.ValueType;
 
 /// <summary>
 /// Проход по AST, устанавливающий соответствие имён и символов (объявлений).
@@ -53,10 +50,6 @@ public sealed class ResolveNamesPass : AbstractPass
     {
         base.Visit(d);
         _symbols.DeclareVariable(d);
-    }
-
-    public override void Visit(AssignmentStatement s)
-    {
     }
 
     public override void Visit(IdentifierExpression e)

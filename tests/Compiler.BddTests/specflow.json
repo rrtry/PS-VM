@@ -1,0 +1,19 @@
+{
+  "language": {
+    "feature": "en"
+  },
+  "bindingCulture": {
+    "name": "en-US"
+  },
+  "generator": {
+    "determineTestStrategy": true
+  },
+  "runtime": {
+    "stopAtFirstError": false,
+    "missingOrPendingStepsOutcome": "Inconclusive"
+  },
+  "trace": {
+    "stepDefinitionTracing": false,
+    "stepDefinitionTracingShowArgs": false
+  }
+}

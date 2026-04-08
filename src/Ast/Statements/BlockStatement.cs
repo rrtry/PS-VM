@@ -1,5 +1,4 @@
-using Ast;
-using Ast.Statements;
+namespace Ast.Statements;
 
 public class BlockStatement : Statement
 {

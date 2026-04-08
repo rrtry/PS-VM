@@ -1,5 +1,5 @@
 using Ast.Attributes;
-using Ast.Statements;
+using Ast.Declarations;
 
 namespace Ast.Expressions;
 

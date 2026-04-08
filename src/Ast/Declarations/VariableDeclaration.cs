@@ -1,7 +1,6 @@
-using Ast.Declarations;
 using Ast.Expressions;
 
-namespace Ast.Statements;
+namespace Ast.Declarations;
 
 /// <summary>
 /// Объявление переменной.

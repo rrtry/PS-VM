@@ -2,7 +2,6 @@ namespace Interpreter;
 
 using Ast;
 using Parser;
-using Runtime;
 using Semantics;
 
 using VirtualMachine;

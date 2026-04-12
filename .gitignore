@@ -20,3 +20,7 @@ x86/
 
 # Sandbox directory
 sandbox/
+
+# Данные о покрытии кода тестами
+tests/coverage/
+tests/coverage-report/

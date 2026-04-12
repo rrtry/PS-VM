@@ -5,7 +5,7 @@ namespace Interpreter.IntegrationTests;
 
 public class BuiltinFunctionsTest
 {
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetEvaluateBuiltinFunctionsData))]
     public void Can_evaluate_builtin_functions(string code, string expected)
     {
@@ -56,7 +56,7 @@ public class BuiltinFunctionsTest
         };
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetEvaluateOutputFunctionsData))]
     public void Can_evaluate_output_functions(
         string code,
@@ -92,7 +92,7 @@ public class BuiltinFunctionsTest
         };
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetEvaluateInputFunctionsData))]
     public void Can_evaluate_input_functions(string code, string input, string expectedBufferedOutput)
     {
@@ -115,7 +115,7 @@ public class BuiltinFunctionsTest
         };
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetInvalidFunctionCallsData))]
     public void Throws_on_invalid_function_calls(string code, Type expectedExceptionType)
     {

@@ -7,7 +7,7 @@ using Xunit;
 
 public class LexerTests
 {
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetTokenizeIdentifiersAndKeywordsData))]
     [MemberData(nameof(GetTokenizeLiterals))]
     [MemberData(nameof(GetSkipWhitespacesAndCommentsData))]

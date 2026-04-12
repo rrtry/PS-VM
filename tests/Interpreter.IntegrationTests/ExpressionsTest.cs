@@ -5,7 +5,7 @@ namespace Interpreter.IntegrationTests;
 
 public class ExpressionsTest
 {
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetEvaluateExpressionsData))]
     public void Can_evaluate_expressions(string code, string expected)
     {
@@ -15,7 +15,7 @@ public class ExpressionsTest
         Assert.Equal(expected, environment.OutputBuffer);
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetInvalidExpressionsData))]
     public void Rejects_invalid_expressions(string code)
     {

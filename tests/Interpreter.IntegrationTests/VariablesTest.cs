@@ -5,7 +5,7 @@ namespace Interpreter.IntegrationTests;
 
 public class VariablesTest
 {
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetTypeMismatch))]
     public void Can_interpret_variable_type_mismatch(string code, Type expected)
     {
@@ -14,7 +14,7 @@ public class VariablesTest
         Assert.Throws(expected, () => interpreter.Execute(code));
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetDeclarationAndAssignment))]
     public void Can_interpret_variable_decl_and_assignment(string code, string expected)
     {
@@ -24,7 +24,7 @@ public class VariablesTest
         Assert.Equal(expected, environment.OutputBuffer);
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetExpressionsWithVariables))]
     public void Can_interpret_expressions_with_variables(string code, List<string> stdin, string expected)
     {

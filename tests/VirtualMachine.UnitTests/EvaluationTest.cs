@@ -7,7 +7,7 @@ namespace VirtualMachine.UnitTests;
 
 public class EvaluationTest
 {
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetEvaluateExpressionData))]
     public void Can_evaluate_expression(List<Instruction> instructions, string expected)
     {

@@ -6,7 +6,7 @@ namespace Interpreter.IntegrationTests;
 
 public class EntryPointTest
 {
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetEntryPointData))]
     public void Can_exec_main(string code, string expected, int exitCode)
     {
@@ -18,7 +18,7 @@ public class EntryPointTest
         Assert.Equal(exitCode, interpreter.ExitCode);
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetInvalidEntryPointData))]
     public void Throws_on_invalid_entry_point_declaration(string code, Type expectedExceptionType)
     {

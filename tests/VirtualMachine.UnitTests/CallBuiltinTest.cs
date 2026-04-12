@@ -7,7 +7,7 @@ namespace VirtualMachine.UnitTests;
 
 public class CallBuiltinTest
 {
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetUseInputAndOutputData))]
     public void Can_use_input_and_output(
         List<Instruction> program,
@@ -23,7 +23,7 @@ public class CallBuiltinTest
         Assert.Equal(expectedBufferedOutput, environment.OutputBuffer);
     }
 
-    [Theory]
+    [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetCallBuiltinStringFunctionsData))]
     [MemberData(nameof(GetCallBuiltinTypeFunctionsData))]
     public void Can_call_builtin_functions(

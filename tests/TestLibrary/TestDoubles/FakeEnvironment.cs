@@ -49,7 +49,8 @@ public class FakeEnvironment : IEnvironment
 
     public void PrintFloat(double value, int precision)
     {
-        _outputBuffer.Append(string.Format("{0:F2}", value));
-        Evaluated.Add(string.Format("{0:F2}", value));
+        string output = value.ToString($"F{precision}", CultureInfo.InvariantCulture);
+        _outputBuffer.Append(output);
+        Evaluated.Add(output);
     }
 }

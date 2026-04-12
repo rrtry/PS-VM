@@ -1,3 +1,5 @@
+using System.Globalization;
+
 using Runtime;
 
 namespace VirtualMachine.Builtins;
@@ -13,12 +15,12 @@ public class BuiltinFunctions
 
     public Value Itos(Value value)
     {
-        return new Value(value.AsLong().ToString());
+        return new Value(value.AsLong().ToString(CultureInfo.InvariantCulture));
     }
 
     public Value Ftos(Value value, Value precision)
     {
-        return new Value(value.AsDouble().ToString($"F{precision.AsLong()}"));
+        return new Value(value.AsDouble().ToString($"F{precision.AsLong()}", CultureInfo.InvariantCulture));
     }
 
     public Value Ftoi(Value value)
@@ -57,14 +59,14 @@ public class BuiltinFunctions
     public Value Stoi(Value value)
     {
         string s = value.AsString();
-        long l = long.Parse(s);
+        long l = long.Parse(s, CultureInfo.InvariantCulture);
         return new Value(l);
     }
 
     public Value Stof(Value value)
     {
         string s = value.AsString();
-        double d = double.Parse(s);
+        double d = double.Parse(s, CultureInfo.InvariantCulture);
         return new Value(d);
     }
 
@@ -76,7 +78,7 @@ public class BuiltinFunctions
 
     public Value Printf(Value value, Value precision)
     {
-        environment.Print(value.AsDouble().ToString($"F{precision.AsLong()}"));
+        environment.Print(value.AsDouble().ToString($"F{precision.AsLong()}", CultureInfo.InvariantCulture));
         return Value.Unit;
     }
 
@@ -88,7 +90,7 @@ public class BuiltinFunctions
 
     public Value Printi(Value value)
     {
-        environment.Print(value.AsLong().ToString());
+        environment.Print(value.AsLong().ToString(CultureInfo.InvariantCulture));
         return Value.Unit;
     }
 }

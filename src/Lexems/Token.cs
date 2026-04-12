@@ -1,5 +1,6 @@
 namespace Lexems;
 
+using System.Globalization;
 using System.Text;
 
 public class Token
@@ -81,6 +82,7 @@ public class Token
     {
         StringBuilder sb = new();
         sb.Append(Type.ToString());
+
         if (Value != null)
         {
             sb.Append($" ({Value})");

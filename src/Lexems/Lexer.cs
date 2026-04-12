@@ -1,4 +1,6 @@
-﻿namespace Lexems;
+﻿using System.Globalization;
+
+namespace Lexems;
 
 public class Lexer
 {
@@ -269,8 +271,10 @@ public class Lexer
             }
         }
 
+        string separator = CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator; // '.'
+
         // Читаем дробную часть числа.
-        if (scanner.Peek() == '.')
+        if (scanner.Peek().ToString() == separator)
         {
             if (octal != 10)
             {

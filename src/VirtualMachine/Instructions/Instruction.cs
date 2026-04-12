@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 using Runtime;
@@ -41,6 +42,7 @@ public class Instruction
     {
         StringBuilder sb = new();
         sb.Append(Code);
+
         if (!Operand.IsUnit())
         {
             sb.Append(' ');

@@ -243,7 +243,9 @@ public class Lexer
             return new Token(type);
         }
 
-        return new Token(TokenType.Identifier, new TokenValue(value));
+        return char.IsLetter(value.First()) || value.First() == '_' ?
+               new Token(TokenType.Identifier, value) :
+               new Token(TokenType.Unknown);
     }
 
     /// <summary>
@@ -283,12 +285,20 @@ public class Lexer
 
             scanner.Advance();
             decimal factor = 0.1m;
+            bool fraction = false;
 
             for (char c = scanner.Peek(); char.IsAsciiDigit(c); c = scanner.Peek())
             {
                 scanner.Advance();
                 value += factor * GetDigitValue(c, 10);
+
                 factor *= 0.1m;
+                fraction = true;
+            }
+
+            if (!fraction)
+            {
+                return new Token(TokenType.Unknown);
             }
         }
         else
@@ -362,7 +372,7 @@ public class Lexer
             if (scanner.IsEnd())
             {
                 // Ошибка: строка, не закрытая кавычкой.
-                return new Token(TokenType.Unknown, new TokenValue(contents));
+                return new Token(TokenType.Unknown);
             }
 
             // Проверяем наличие escape-последовательности.

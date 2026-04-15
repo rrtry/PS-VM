@@ -317,11 +317,11 @@ public class Parser
         {
             case TokenType.IntegerLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(ValueType.Int, new Value((long)token.Value!.ToDecimal()));
+                return new LiteralExpression(ValueType.Int, new Value((long)token.Value!.ToDouble()));
 
             case TokenType.FloatLiteral:
                 _tokens.Advance();
-                return new LiteralExpression(ValueType.Float, new Value((double)token.Value!.ToDecimal()));
+                return new LiteralExpression(ValueType.Float, new Value((double)token.Value!.ToDouble()));
 
             case TokenType.StringLiteral:
                 _tokens.Advance();

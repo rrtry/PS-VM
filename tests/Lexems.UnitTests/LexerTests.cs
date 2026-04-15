@@ -14,7 +14,14 @@ public class LexerTests
     [MemberData(nameof(GetTokenizeExpressions))]
     public void Can_tokenize_lexemes(string code, List<Token> expected)
     {
-        List<Token> actual = Tokenize(code);
+        List<Token> actual = [];
+        Lexer lexer = new(code);
+
+        for (Token t = lexer.ParseToken(); t.Type != TokenType.Eof; t = lexer.ParseToken())
+        {
+            actual.Add(t);
+        }
+
         Assert.Equal(expected, actual);
     }
 
@@ -169,7 +176,7 @@ public class LexerTests
                 ]
             },
             {
-                "a <= b && b >= c && a != c",
+                "a <= b && b >= c && a != c && !b",
                 [
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.LessEqual),
@@ -182,6 +189,9 @@ public class LexerTests
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.NotEqual),
                     new Token(TokenType.Identifier, "c"),
+                    new Token(TokenType.And),
+                    new Token(TokenType.Not),
+                    new Token(TokenType.Identifier, "b")
                 ]
             },
             {
@@ -198,6 +208,13 @@ public class LexerTests
                     new Token(TokenType.Identifier, "b"),
                     new Token(TokenType.EqualEqual),
                     new Token(TokenType.Identifier, "c"),
+                ]
+            },
+            {
+                "& |",
+                [
+                    new Token(TokenType.Unknown),
+                    new Token(TokenType.Unknown)
                 ]
             },
         };
@@ -242,13 +259,19 @@ public class LexerTests
         return new TheoryData<string, List<Token>>
         {
             {
-                "255 0xFF 0b11111111 3.14 0.5",
+                "255 0xFF 0xff 0b11111111 3.14 0.5 3,14 3. 4",
                 [
+                    new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.FloatLiteral,   3.14m),
                     new(TokenType.FloatLiteral,   0.5m),
+                    new(TokenType.IntegerLiteral, 3),
+                    new(TokenType.Comma),
+                    new(TokenType.IntegerLiteral, 14),
+                    new(TokenType.Unknown),
+                    new(TokenType.IntegerLiteral, 4),
                 ]
             },
             {
@@ -284,6 +307,15 @@ public class LexerTests
                     new(TokenType.Assign),
                     new(TokenType.StringLiteral, "Hello world"),
                     new(TokenType.Semicolon),
+                ]
+            },
+            {
+                "let hello = \"Hello world; ",
+                [
+                    new(TokenType.Let),
+                    new(TokenType.Identifier, "hello"),
+                    new(TokenType.Assign),
+                    new(TokenType.Unknown)
                 ]
             },
             {
@@ -333,19 +365,12 @@ public class LexerTests
                     new(TokenType.Unit),
                 }
             },
+            {
+                ".x",
+                [
+                    new(TokenType.Unknown),
+                ]
+            },
         };
-    }
-
-    private static List<Token> Tokenize(string code)
-    {
-        List<Token> results = [];
-        Lexer lexer = new(code);
-
-        for (Token t = lexer.ParseToken(); t.Type != TokenType.Eof; t = lexer.ParseToken())
-        {
-            results.Add(t);
-        }
-
-        return results;
     }
 }

@@ -53,20 +53,6 @@ public class TokenValue
     }
 
     /// <summary>
-    ///  Возвращает значение токена в виде числа.
-    /// </summary>
-    public decimal ToDecimal()
-    {
-        return val switch
-        {
-            string s => decimal.Parse(s, CultureInfo.InvariantCulture),
-            long l => (decimal)l,
-            decimal d => d,
-            _ => throw new NotImplementedException(),
-        };
-    }
-
-    /// <summary>
     ///  Проверяет равенство значений токенов. Значения разных типов всегда считаются разными.
     /// </summary>
     public override bool Equals(object? obj)

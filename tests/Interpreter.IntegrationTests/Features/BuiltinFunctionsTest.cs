@@ -1,5 +1,5 @@
 using Semantics.Exceptions;
-using Tests.TestLibrary.TestDoubles;
+using Tests.TestLibrary;
 
 namespace Interpreter.IntegrationTests;
 
@@ -121,7 +121,6 @@ public class BuiltinFunctionsTest
     {
         FakeEnvironment environment = new();
         Interpreter interpreter = new(environment);
-
         Assert.Throws(expectedExceptionType, () => interpreter.Execute(code));
     }
 

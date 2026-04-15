@@ -1,4 +1,4 @@
-using Tests.TestLibrary.TestDoubles;
+using Tests.TestLibrary;
 using VirtualMachine.Instructions;
 
 namespace VirtualMachine.UnitTests;

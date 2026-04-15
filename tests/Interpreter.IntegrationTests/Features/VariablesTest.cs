@@ -1,13 +1,13 @@
 using Semantics.Exceptions;
-using Tests.TestLibrary.TestDoubles;
+using Tests.TestLibrary;
 
 namespace Interpreter.IntegrationTests;
 
 public class VariablesTest
 {
     [CulturedTheory(["ru-RU", "en-US"])]
-    [MemberData(nameof(GetTypeMismatch))]
-    public void Can_interpret_variable_type_mismatch(string code, Type expected)
+    [MemberData(nameof(GetInvalidDeclarationAndAssignment))]
+    public void Can_interpret_invalid_variable_decl_and_assignment(string code, Type expected)
     {
         FakeEnvironment environment = new();
         Interpreter interpreter = new(environment);
@@ -36,10 +36,27 @@ public class VariablesTest
         Assert.Equal(expected, environment.OutputBuffer);
     }
 
-    public static TheoryData<string, Type> GetTypeMismatch()
+    public static TheoryData<string, Type> GetInvalidDeclarationAndAssignment()
     {
         return new TheoryData<string, Type>
         {
+            {
+                @"fn main(): int {
+                    f = 0;
+                    return 0;
+                }
+                ",
+                typeof(UnknownSymbolException)
+            },
+            {
+                @"fn main(): int {
+                    let f = 0;
+                    let f = 1;
+                    return 0;
+                }
+                ",
+                typeof(DuplicateSymbolException)
+            },
             {
                 @"fn main(): int {
                     let f: float = 0;

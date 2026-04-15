@@ -1,6 +1,6 @@
 using Parser;
 using Semantics.Exceptions;
-using Tests.TestLibrary.TestDoubles;
+using Tests.TestLibrary;
 
 namespace Interpreter.IntegrationTests;
 

@@ -3,7 +3,7 @@ using System.Text;
 
 using VirtualMachine;
 
-namespace Tests.TestLibrary.TestDoubles;
+namespace Tests.TestLibrary;
 
 /// <summary>
 /// Имитирует средства ввода-вывода для тестов.

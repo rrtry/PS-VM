@@ -1,5 +1,5 @@
 using Runtime;
-using Tests.TestLibrary.TestDoubles;
+using Tests.TestLibrary;
 using VirtualMachine.Builtins;
 using VirtualMachine.Instructions;
 

@@ -1,5 +1,5 @@
 ﻿using Parser;
-using Tests.TestLibrary.TestDoubles;
+using Tests.TestLibrary;
 
 namespace Interpreter.IntegrationTests;
 

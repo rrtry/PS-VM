@@ -62,10 +62,16 @@ public sealed class ResolveTypesPass : AbstractPass
         base.Visit(e);
 
         ValueType operandType = e.Operand.ResultType;
+        if (e.Operation == UnaryOperation.Not &&
+            operandType != ValueType.Int)
+        {
+            throw new TypeErrorException($"Unary operation {e.Operation} is not allowed for type {operandType}");
+        }
+
         if (operandType != ValueType.Int &&
             operandType != ValueType.Float)
         {
-            throw new TypeErrorException($"Unary minus operation is not allowed for type {operandType}");
+            throw new TypeErrorException($"Unary operation {e.Operation} is not allowed for type {operandType}");
         }
 
         e.ResultType = operandType;
@@ -86,7 +92,6 @@ public sealed class ResolveTypesPass : AbstractPass
     /// </summary>
     private static ValueType? GetBinaryOperationResultType(BinaryOperation operation, ValueType left, ValueType right)
     {
-        // Только арифметические операции, логические появяется вместе с типом bool.
         switch (operation)
         {
             case BinaryOperation.And:

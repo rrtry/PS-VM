@@ -55,10 +55,15 @@ public class Parser
                 break;
 
             case TokenType.Bool:
-                throw new NotImplementedException("'bool' type is not yet implemeneted");
+                typeName = "bool";
+                typeValue = ValueType.Bool;
+                break;
 
             default:
-                throw new UnexpectedLexemeException([TokenType.Int, TokenType.Float, TokenType.Str, TokenType.Unit], _tokens.Peek());
+                throw new UnexpectedLexemeException(
+                    [TokenType.Int, TokenType.Float, TokenType.Str, TokenType.Unit, TokenType.Bool],
+                    _tokens.Peek()
+                );
         }
     }
 
@@ -443,7 +448,8 @@ public class Parser
 
             case TokenType.True:
             case TokenType.False:
-                throw new NotImplementedException("'bool' type is not yet implemented");
+                Token b = _tokens.Advance();
+                return new LiteralExpression(ValueType.Bool, new Value(b.Type == TokenType.True));
 
             case TokenType.Identifier:
 

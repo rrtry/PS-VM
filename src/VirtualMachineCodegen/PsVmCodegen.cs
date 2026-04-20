@@ -59,6 +59,9 @@ public class PsVmCodegen : IAstVisitor
             {
                 Builtins.Input, BuiltinFunctionCode.Input
             },
+            {
+                Builtins.PrintB, BuiltinFunctionCode.PrintB
+            },
         };
 
     private readonly InstructionsBuilder _builder = new();
@@ -148,7 +151,6 @@ public class PsVmCodegen : IAstVisitor
                 _builder.Append(new Instruction(InstructionCode.Negate));
                 break;
 
-            // Логическое НЕ
             case UnaryOperation.Not:
                 _builder.Append(new Instruction(InstructionCode.Not));
                 break;
@@ -233,12 +235,12 @@ public class PsVmCodegen : IAstVisitor
         _builder.AppendJump(InstructionCode.JumpIfFalse, shortCircuitBlock);
 
         e.Right.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.Push, new Value(false)));
         _builder.Append(new Instruction(InstructionCode.NotEqual));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = shortCircuitBlock;
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.Push, new Value(false)));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = finalBlock;
@@ -254,12 +256,12 @@ public class PsVmCodegen : IAstVisitor
         _builder.AppendJump(InstructionCode.JumpIfTrue, shortCircuitBlock);
 
         e.Right.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.Push, new Value(false)));
         _builder.Append(new Instruction(InstructionCode.NotEqual));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = shortCircuitBlock;
-        _builder.Append(new Instruction(InstructionCode.Push, 1));
+        _builder.Append(new Instruction(InstructionCode.Push, new Value(true)));
         _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
         _builder.InsertPoint = finalBlock;

@@ -4,10 +4,11 @@ using System.Globalization;
 
 /// <summary>
 /// Абстракция над типами, которые доступны в языке.
-/// int    - целое число (int64_t).
+/// int    - целое число (long).
 /// float  - вещественное число (double).
 /// str    - Unicode строка (UTF-16)
 /// unit   - отсуствие возвращаемого типа у функции.
+/// bool   - булевое значение
 /// </summary>
 public class Value
 {
@@ -39,6 +40,14 @@ public class Value
     }
 
     /// <summary>
+    /// Создаёт значение булевого типа.
+    /// </summary>
+    public Value(bool b)
+    {
+        _value = b;
+    }
+
+    /// <summary>
     /// Создаёт значение неуточнённого типа.
     /// </summary>
     private Value(object v)
@@ -46,22 +55,44 @@ public class Value
         _value = v;
     }
 
-    public bool IsDouble()
+    /// <summary>
+    /// Определяет, является ли значение булевым типом.
+    /// </summary>
+    public bool IsBool()
+    {
+        return _value is bool;
+    }
+
+    /// <summary>
+    /// Возвращает значение как bool либо бросает исключение.
+    /// </summary>
+    public bool AsBool()
     {
         return _value switch
         {
-            double => true,
-            _ => false,
+            bool b => b,
+            _ => throw new InvalidOperationException($"Value ${_value} is not a bool"),
         };
     }
 
+    /// <summary>
+    /// Определяет, является ли значение вещественным числом.
+    /// </summary>
+    public bool IsDouble()
+    {
+        return _value is double;
+    }
+
+    /// <summary>
+    /// Возвращает значение как вещественное число либо бросает исключение.
+    /// </summary>
     public double AsDouble()
     {
         return _value switch
         {
             double d => d,
             long l => l,
-            _ => throw new InvalidOperationException($"Value {_value} is not a double"),
+            _ => throw new InvalidOperationException($"Value {_value} is not a number"),
         };
     }
 
@@ -70,11 +101,7 @@ public class Value
     /// </summary>
     public bool IsString()
     {
-        return _value switch
-        {
-            string => true,
-            _ => false,
-        };
+        return _value is string;
     }
 
     /// <summary>
@@ -94,11 +121,7 @@ public class Value
     /// </summary>
     public bool IsLong()
     {
-        return _value switch
-        {
-            long => true,
-            _ => false,
-        };
+        return _value is long;
     }
 
     /// <summary>
@@ -161,6 +184,7 @@ public class Value
             string s => s,
             long i => i.ToString(CultureInfo.InvariantCulture),
             double d => d.ToString(CultureInfo.InvariantCulture),
+            bool b => b.ToString(CultureInfo.InvariantCulture),
             UnitValue v => v.ToString(),
             _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
         };
@@ -181,6 +205,7 @@ public class Value
             string s => other.AsString() == s,
             long i => other.AsLong() == i,
             double d => other.AsDouble() == d,
+            bool b => other.AsBool() == b,
             UnitValue => true,
             _ => throw new NotImplementedException(),
         };

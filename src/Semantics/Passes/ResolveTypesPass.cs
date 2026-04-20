@@ -54,21 +54,21 @@ public sealed class ResolveTypesPass : AbstractPass
     }
 
     /// <summary>
-    /// Выполняет проверки типов для унарного минуса.
-    /// Унарный минус применяется только к целым числам и возвращает целое число.
+    /// Выполняет проверки типов для унарных операций
     /// </summary>
     public override void Visit(UnaryOperationExpression e)
     {
         base.Visit(e);
-
         ValueType operandType = e.Operand.ResultType;
+
         if (e.Operation == UnaryOperation.Not &&
-            operandType != ValueType.Int)
+            operandType != ValueType.Bool)
         {
             throw new TypeErrorException($"Unary operation {e.Operation} is not allowed for type {operandType}");
         }
 
-        if (operandType != ValueType.Int &&
+        if (e.Operation != UnaryOperation.Not &&
+            operandType != ValueType.Int &&
             operandType != ValueType.Float)
         {
             throw new TypeErrorException($"Unary operation {e.Operation} is not allowed for type {operandType}");
@@ -97,9 +97,9 @@ public sealed class ResolveTypesPass : AbstractPass
             case BinaryOperation.And:
             case BinaryOperation.Or:
                 {
-                    if (left == ValueType.Int && right == ValueType.Int)
+                    if (ValueTypeUtil.AreBool(left, right))
                     {
-                        return ValueType.Int; // TODO: заменить на bool
+                        return ValueType.Bool;
                     }
 
                     return null;
@@ -109,13 +109,22 @@ public sealed class ResolveTypesPass : AbstractPass
             case BinaryOperation.GreaterOrEqual:
             case BinaryOperation.Less:
             case BinaryOperation.LessOrEqual:
+                {
+                    if (ValueTypeUtil.AreNumeric(left, right) &&
+                        ValueTypeUtil.AreEqual(left, right))
+                    {
+                        return ValueType.Bool;
+                    }
+
+                    return null;
+                }
+
             case BinaryOperation.Equal:
             case BinaryOperation.NotEqual:
                 {
-                    // TODO: сравнение строк
                     if (ValueTypeUtil.AreEqual(left, right))
                     {
-                        return ValueType.Int; // TODO: заменить на bool
+                        return ValueType.Bool;
                     }
 
                     return null;

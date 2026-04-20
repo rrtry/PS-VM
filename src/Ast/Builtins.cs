@@ -13,6 +13,7 @@ public static class Builtins
     public const string Print = "print";
     public const string PrintI = "printi";
     public const string PrintF = "printf";
+    public const string PrintB = "printb";
     public const string ItoS = "itos";
     public const string FtoS = "ftos";
     public const string ItoF = "itof";
@@ -60,7 +61,11 @@ public static class Builtins
         ),
         new(
             "substr",
-            [new NativeFunctionParameter("s", ValueType.Str), new NativeFunctionParameter("from", ValueType.Int), new NativeFunctionParameter("to", ValueType.Int)],
+            [
+                new NativeFunctionParameter("s", ValueType.Str),
+                new NativeFunctionParameter("from", ValueType.Int),
+                new NativeFunctionParameter("to", ValueType.Int)
+            ],
             ValueType.Str
         ),
         new(
@@ -93,6 +98,11 @@ public static class Builtins
             [ new NativeFunctionParameter("n", ValueType.Int),],
             ValueType.Unit
         ),
+        new(
+            "printb",
+            [new NativeFunctionParameter("b", ValueType.Bool)],
+            ValueType.Unit
+        ),
     ];
 
     /// <summary>
@@ -103,6 +113,7 @@ public static class Builtins
         new("int", ValueType.Int),
         new("str", ValueType.Str),
         new("float", ValueType.Float),
-        new("unit", ValueType.Unit)
+        new("bool", ValueType.Bool),
+        new("unit", ValueType.Unit),
     ];
 }

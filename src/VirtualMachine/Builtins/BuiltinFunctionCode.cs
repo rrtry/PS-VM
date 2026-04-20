@@ -6,17 +6,17 @@ namespace VirtualMachine.Builtins;
 public enum BuiltinFunctionCode
 {
     /// <summary>
-    /// `print(s: string)` — выводит строку в стандартный поток вывода
+    /// `print(s: string): unit` — выводит строку в стандартный поток вывода
     /// </summary>
     Print = 0,
 
     /// <summary>
-    /// `printi(i: int)` — выводит целое число в стандартный поток вывода
+    /// `printi(i: int): unit` — выводит целое число в стандартный поток вывода
     /// </summary>
     PrintI = 1,
 
     /// <summary>
-    /// `printf(i: float, i: int)` — выводит вещественное число в стандартный поток вывода
+    /// `printf(i: float, i: int): unit` — выводит вещественное число в стандартный поток вывода
     /// </summary>
     PrintF = 2,
 
@@ -69,4 +69,9 @@ public enum BuiltinFunctionCode
     /// `input(): str` - возвращает строки из stdin
     /// </summary>
     Input = 12,
+
+    /// <summary>
+    /// `printb(b: bool): unit` - выводит bool значение в стандартный поток вывода
+    /// </summary>
+    PrintB = 13,
 }

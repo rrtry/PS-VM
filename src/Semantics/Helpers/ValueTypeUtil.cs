@@ -10,10 +10,16 @@ public static class ValueTypeUtil
                (b == ValueType.Int || b == ValueType.Float);
     }
 
+    public static bool AreBool(ValueType a, ValueType b)
+    {
+        return a == ValueType.Bool && b == ValueType.Bool;
+    }
+
     public static bool AreEqual(ValueType a, ValueType b)
     {
         return (a == ValueType.Int && b == ValueType.Int) ||
                (a == ValueType.Float && b == ValueType.Float) ||
-               (a == ValueType.Str && b == ValueType.Str);
+               (a == ValueType.Str && b == ValueType.Str) ||
+               (a == ValueType.Bool && b == ValueType.Bool);
     }
 }

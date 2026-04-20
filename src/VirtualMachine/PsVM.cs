@@ -176,21 +176,27 @@ public class PsVm
                     }
 
                 case InstructionCode.Or:
-                    // TODO: Заменить на AsBool
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value((left.AsLong() != 0 || right.AsLong() != 0) ? 1 : 0));
+                        _evaluationStack.Push(new Value(left.AsBool() || right.AsBool()));
                     }
 
                     break;
 
                 case InstructionCode.And:
-                    // TODO: Заменить на AsBool
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value((left.AsLong() != 0 && right.AsLong() != 0) ? 1 : 0));
+                        _evaluationStack.Push(new Value(left.AsBool() && right.AsBool()));
+                    }
+
+                    break;
+
+                case InstructionCode.Not:
+                    {
+                        Value operand = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(!operand.AsBool()));
                     }
 
                     break;
@@ -199,7 +205,7 @@ public class PsVm
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.LessThan(right) ? 1 : 0));
+                        _evaluationStack.Push(new Value(left.LessThan(right)));
                     }
 
                     break;
@@ -208,7 +214,7 @@ public class PsVm
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.LessThanOrEqual(right) ? 1 : 0));
+                        _evaluationStack.Push(new Value(left.LessThanOrEqual(right)));
                     }
 
                     break;
@@ -217,7 +223,7 @@ public class PsVm
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.Equals(right) ? 1 : 0));
+                        _evaluationStack.Push(new Value(left.Equals(right)));
                     }
 
                     break;
@@ -226,16 +232,7 @@ public class PsVm
                     {
                         Value right = _evaluationStack.Pop();
                         Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.Equals(right) ? 0 : 1));
-                    }
-
-                    break;
-
-                case InstructionCode.Not:
-                    // TODO: Заменить на AsBool
-                    {
-                        Value operand = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(operand.AsLong() == 0 ? 1 : 0));
+                        _evaluationStack.Push(new Value(!left.Equals(right)));
                     }
 
                     break;
@@ -250,7 +247,7 @@ public class PsVm
                 case InstructionCode.JumpIfTrue:
                     {
                         Value condition = _evaluationStack.Pop();
-                        if (condition.AsLong() != 0)
+                        if (condition.AsBool())
                         {
                             _instructionPointer = (int)instruction.Operand.AsLong();
                         }
@@ -261,7 +258,7 @@ public class PsVm
                 case InstructionCode.JumpIfFalse:
                     {
                         Value condition = _evaluationStack.Pop();
-                        if (condition.AsLong() == 0)
+                        if (!condition.AsBool())
                         {
                             _instructionPointer = (int)instruction.Operand.AsLong();
                         }
@@ -363,6 +360,10 @@ public class PsVm
 
             case BuiltinFunctionCode.Input:
                 _evaluationStack.Push(_builtinFunctions.Input());
+                break;
+
+            case BuiltinFunctionCode.PrintB:
+                _evaluationStack.Push(_builtinFunctions.Printb(_evaluationStack.Pop()));
                 break;
 
             default:

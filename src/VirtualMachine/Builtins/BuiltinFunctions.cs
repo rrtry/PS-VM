@@ -93,4 +93,10 @@ public class BuiltinFunctions
         environment.Print(value.AsLong().ToString(CultureInfo.InvariantCulture));
         return Value.Unit;
     }
+
+    public Value Printb(Value value)
+    {
+        environment.Print(value.AsBool().ToString(CultureInfo.InvariantCulture));
+        return Value.Unit;
+    }
 }

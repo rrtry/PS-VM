@@ -33,7 +33,17 @@ public class BooleanExpressionsTest
             {
                 @"
                 fn main(): int {
-                    let f = 3.14;
+                    let i: int = 0;
+                    printi(!i);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    let f: float = 0.0;
                     printf(!f, 2);
                     return 0;
                 }
@@ -43,8 +53,90 @@ public class BooleanExpressionsTest
             {
                 @"
                 fn main(): int {
-                    let i = 0;
-                    printi(!!i);
+                    let s: str = ""str"";
+                    print(!s);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(""Hello"" > ""World"");
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(""Hello"" < ""World"");
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(""Hello"" >= ""World"");
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(""Hello"" <= ""World"");
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(true > false);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(true < false);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(true >= false);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    printb(true <= false);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    let i: bool = false;
+                    printb(!!i);
                     return 0;
                 }
                 ",
@@ -53,8 +145,8 @@ public class BooleanExpressionsTest
             {
                 @"
                 fn main(): int {
-                    let i = 0;
-                    printi(!+i);
+                    let i: bool = false;
+                    printb(!+i);
                     return 0;
                 }
                 ",
@@ -63,8 +155,8 @@ public class BooleanExpressionsTest
             {
                 @"
                 fn main(): int {
-                    let i = 0;
-                    printi(!-i);
+                    let i: bool = false;
+                    printb(!-i);
                     return 0;
                 }
                 ",
@@ -82,22 +174,26 @@ public class BooleanExpressionsTest
                 @"
                 fn main(): int {
 
-                    let f = 1 && 0;
-                    let t = 1 || 0;
+                    let f: bool = true && false;
+                    let t: bool = true || false;
 
-                    printi(f); // 0
-                    printi(t); // 1
+                    printb(true == true);
+                    printb(true != false);
 
-                    printi(!f); // 1
-                    printi(!t); // 0
+                    print(""\n"");
 
-                    printi(!256); // != 0 -> true
-                    printi(!0); // == 0 -> false
+                    printb(f); // 0
+                    printb(t); // 1
+
+                    print(""\n"");
+
+                    printb(!f); // 1
+                    printb(!t); // 0
 
                     return 0;
                 }
                 ",
-                "011001"
+                "TrueTrue\nFalseTrue\nTrueFalse"
             },
             {
                 // Операции сравнения (int)
@@ -113,19 +209,19 @@ public class BooleanExpressionsTest
                     let eqFalse = 1 == 0;
                     let neqTrue = 1 != 0;
 
-                    printi(less);
-                    printi(greater);
-                    printi(lessEq);
-                    printi(greaterEq);
+                    printb(less);
+                    printb(greater);
+                    printb(lessEq);
+                    printb(greaterEq);
 
                     print(""\n"");
-                    printi(eqFalse);
-                    printi(neqTrue);
+                    printb(eqFalse);
+                    printb(neqTrue);
 
                     return 0;
                 }
                 ",
-                "0101\n01"
+                "FalseTrueFalseTrue\nFalseTrue"
             },
             {
                 // Операции сравнения (str)
@@ -135,14 +231,14 @@ public class BooleanExpressionsTest
                     let s1 = ""Hello"";
                     let s2 = ""Hello"";
 
-                    printi(s1 == s2);
+                    printb(s1 == s2);
                     s2 = ""World"";
-                    printi(s1 != s2);
+                    printb(s1 != s2);
 
                     return 0;
                 }
                 ",
-                "11"
+                "TrueTrue"
             },
             {
                 // Операции сравнения (float)
@@ -152,19 +248,19 @@ public class BooleanExpressionsTest
                     let euler = 2.718281828459;
                     let pi = 3.14159265358979323846;
 
-                    printi(pi > euler);  // 1
-                    printi(pi < euler);  // 0
-                    printi(pi >= euler); // 1
-                    printi(pi <= euler); // 0
-                    printi(euler != pi); // 1
-                    printi(euler == pi); // 0
-                    printi(euler == euler); // 1
-                    printi(pi == pi); // 1
+                    printb(pi > euler);  // 1
+                    printb(pi < euler);  // 0
+                    printb(pi >= euler); // 1
+                    printb(pi <= euler); // 0
+                    printb(euler != pi); // 1
+                    printb(euler == pi); // 0
+                    printb(euler == euler); // 1
+                    printb(pi == pi); // 1
 
                     return 0;
                 }
                 ",
-                "10101011"
+                "TrueFalseTrueFalseTrueFalseTrueTrue"
             },
         };
     }

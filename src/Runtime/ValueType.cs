@@ -24,6 +24,11 @@ public class ValueType
     /// </summary>
     public static readonly ValueType Str = new("str");
 
+    /// <summary>
+    /// Булевое значение.
+    /// </summary>
+    public static readonly ValueType Bool = new("bool");
+
     private readonly string name;
 
     protected ValueType(string name)

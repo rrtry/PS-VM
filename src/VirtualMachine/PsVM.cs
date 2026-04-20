@@ -156,10 +156,6 @@ public class PsVm
                     CallBuiltin((BuiltinFunctionCode)instruction.Operand.AsLong());
                     break;
 
-                case InstructionCode.Halt:
-                    _exitCode = (int)_evaluationStack.Pop().AsLong();
-                    return _exitCode;
-
                 case InstructionCode.LoadLocal:
                     {
                         string varName = instruction.Operand.AsString();
@@ -178,6 +174,110 @@ public class PsVm
                         _locals[varName] = _evaluationStack.Pop();
                         break;
                     }
+
+                case InstructionCode.Or:
+                    // TODO: Заменить на AsBool
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value((left.AsLong() != 0 || right.AsLong() != 0) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.And:
+                    // TODO: Заменить на AsBool
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value((left.AsLong() != 0 && right.AsLong() != 0) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.Less:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.LessThan(right) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.LessOrEqual:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.LessThanOrEqual(right) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.Equal:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.Equals(right) ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.NotEqual:
+                    {
+                        Value right = _evaluationStack.Pop();
+                        Value left = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(left.Equals(right) ? 0 : 1));
+                    }
+
+                    break;
+
+                case InstructionCode.Not:
+                    // TODO: Заменить на AsBool
+                    {
+                        Value operand = _evaluationStack.Pop();
+                        _evaluationStack.Push(new Value(operand.AsLong() == 0 ? 1 : 0));
+                    }
+
+                    break;
+
+                case InstructionCode.Jump:
+                    {
+                        _instructionPointer = (int)instruction.Operand.AsLong();
+                    }
+
+                    break;
+
+                case InstructionCode.JumpIfTrue:
+                    {
+                        Value condition = _evaluationStack.Pop();
+                        if (condition.AsLong() != 0)
+                        {
+                            _instructionPointer = (int)instruction.Operand.AsLong();
+                        }
+                    }
+
+                    break;
+
+                case InstructionCode.JumpIfFalse:
+                    {
+                        Value condition = _evaluationStack.Pop();
+                        if (condition.AsLong() == 0)
+                        {
+                            _instructionPointer = (int)instruction.Operand.AsLong();
+                        }
+                    }
+
+                    break;
+
+                case InstructionCode.PushVars:
+                    throw new NotImplementedException();
+
+                case InstructionCode.PopVars:
+                    throw new NotImplementedException();
+
+                case InstructionCode.Halt:
+                    _exitCode = (int)_evaluationStack.Pop().AsLong();
+                    return _exitCode;
 
                 default:
                     throw new NotImplementedException($"Unsupported instruction code: {instruction.Code}");

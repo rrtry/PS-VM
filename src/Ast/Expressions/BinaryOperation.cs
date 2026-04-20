@@ -31,4 +31,44 @@ public enum BinaryOperation
     /// Остаток от деления чисел.
     /// </summary>
     Modulo,
+
+    /// <summary>
+    /// Логическиое "ИЛИ"
+    /// </summary>
+    Or,
+
+    /// <summary>
+    /// Логическое "И"
+    /// </summary>
+    And,
+
+    /// <summary>
+    /// Операция "БОЛЬШЕ" >
+    /// </summary>
+    Greater,
+
+    /// <summary>
+    /// Операция "МЕНЬШЕ" <
+    /// </summary>
+    Less,
+
+    /// <summary>
+    /// Операция "БОЛЬШЕ ИЛИ РАВНО" >=
+    /// </summary>
+    GreaterOrEqual,
+
+    /// <summary>
+    /// Операция "МЕНЬШЕ ИЛИ РАВНО" <=
+    /// </summary>
+    LessOrEqual,
+
+    /// <summary>
+    /// Операция "РАВНО" ==
+    /// </summary>
+    Equal,
+
+    /// <summary>
+    /// Операция "НЕ РАВНО" !=
+    /// </summary>
+    NotEqual,
 }

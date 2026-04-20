@@ -90,7 +90,7 @@ public enum TokenType
     Percent,
 
     /// <summary>Равно (`==`).</summary>
-    EqualEqual,
+    Equal,
 
     /// <summary>Не равно (`!=`).</summary>
     NotEqual,
@@ -99,13 +99,13 @@ public enum TokenType
     Less,
 
     /// <summary>Меньше или равно (`<=`).</summary>
-    LessEqual,
+    LessOrEqual,
 
     /// <summary>Больше (`>`).</summary>
     Greater,
 
     /// <summary>Больше или равно (`>=`).</summary>
-    GreaterEqual,
+    GreaterOrEqual,
 
     /// <summary>Логическое И (`&&`).</summary>
     And,

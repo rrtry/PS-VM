@@ -12,14 +12,14 @@ using System.Globalization;
 public class Value
 {
     public static readonly Value Unit = new(UnitValue.Value);
-    private readonly object value;
+    private readonly object _value;
 
     /// <summary>
     /// Создаёт строковое значение.
     /// </summary>
     public Value(string v)
     {
-        value = v;
+        _value = v;
     }
 
     /// <summary>
@@ -27,7 +27,7 @@ public class Value
     /// </summary>
     public Value(long v)
     {
-        value = v;
+        _value = v;
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ public class Value
     /// </summary>
     public Value(double v)
     {
-        value = v;
+        _value = v;
     }
 
     /// <summary>
@@ -43,12 +43,12 @@ public class Value
     /// </summary>
     private Value(object v)
     {
-        value = v;
+        _value = v;
     }
 
     public bool IsDouble()
     {
-        return value switch
+        return _value switch
         {
             double => true,
             _ => false,
@@ -57,11 +57,11 @@ public class Value
 
     public double AsDouble()
     {
-        return value switch
+        return _value switch
         {
             double d => d,
             long l => l,
-            _ => throw new InvalidOperationException($"Value {value} is not a double"),
+            _ => throw new InvalidOperationException($"Value {_value} is not a double"),
         };
     }
 
@@ -70,7 +70,7 @@ public class Value
     /// </summary>
     public bool IsString()
     {
-        return value switch
+        return _value switch
         {
             string => true,
             _ => false,
@@ -82,10 +82,10 @@ public class Value
     /// </summary>
     public string AsString()
     {
-        return value switch
+        return _value switch
         {
             string s => s,
-            _ => throw new InvalidOperationException($"Value {value} is not a string"),
+            _ => throw new InvalidOperationException($"Value {_value} is not a string"),
         };
     }
 
@@ -94,7 +94,7 @@ public class Value
     /// </summary>
     public bool IsLong()
     {
-        return value switch
+        return _value switch
         {
             long => true,
             _ => false,
@@ -106,19 +106,48 @@ public class Value
     /// </summary>
     public long AsLong()
     {
-        return value switch
+        return _value switch
         {
             long i => i,
-            _ => throw new InvalidOperationException($"Value {value} is not numeric, {value.GetType()}"),
+            _ => throw new InvalidOperationException($"Value {_value} is not numeric, {_value.GetType()}"),
         };
     }
 
+    /// <summary>
+    /// Определяет, является ли значение void-подобным типом.
+    /// </summary>
     public bool IsUnit()
     {
-        return value switch
+        return _value switch
         {
             UnitValue v => true,
             _ => false,
+        };
+    }
+
+    /// <summary>
+    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
+    /// </summary>
+    public bool LessThan(Value other)
+    {
+        return _value switch
+        {
+            long i => i < other.AsLong(),
+            double d => d < other.AsDouble(),
+            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
+        };
+    }
+
+    /// <summary>
+    /// Сравнивает два значения, возвращая истину, если текущее значение меньше переданного.
+    /// </summary>
+    public bool LessThanOrEqual(Value other)
+    {
+        return _value switch
+        {
+            long i => i <= other.AsLong(),
+            double d => d <= other.AsDouble(),
+            _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
         };
     }
 
@@ -127,18 +156,38 @@ public class Value
     /// </summary>
     public override string ToString()
     {
-        return value switch
+        return _value switch
         {
             string s => s,
             long i => i.ToString(CultureInfo.InvariantCulture),
             double d => d.ToString(CultureInfo.InvariantCulture),
             UnitValue v => v.ToString(),
-            _ => throw new InvalidOperationException($"Unexpected value {value} of type {value.GetType()}"),
+            _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
+        };
+    }
+
+    /// <summary>
+    /// Сравнивает на равенство два значения.
+    /// </summary>
+    public bool Equals(Value? other)
+    {
+        if (other is null)
+        {
+            return false;
+        }
+
+        return _value switch
+        {
+            string s => other.AsString() == s,
+            long i => other.AsLong() == i,
+            double d => other.AsDouble() == d,
+            UnitValue => true,
+            _ => throw new NotImplementedException(),
         };
     }
 
     public override int GetHashCode()
     {
-        return value.GetHashCode();
+        return _value.GetHashCode();
     }
 }

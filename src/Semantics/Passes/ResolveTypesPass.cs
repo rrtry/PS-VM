@@ -1,6 +1,5 @@
 using Ast.Declarations;
 using Ast.Expressions;
-using Ast.Statements;
 
 using Semantics.Exceptions;
 using Semantics.Helpers;
@@ -90,24 +89,52 @@ public sealed class ResolveTypesPass : AbstractPass
         // Только арифметические операции, логические появяется вместе с типом bool.
         switch (operation)
         {
+            case BinaryOperation.And:
+            case BinaryOperation.Or:
+                {
+                    if (left == ValueType.Int && right == ValueType.Int)
+                    {
+                        return ValueType.Int; // TODO: заменить на bool
+                    }
+
+                    return null;
+                }
+
+            case BinaryOperation.Greater:
+            case BinaryOperation.GreaterOrEqual:
+            case BinaryOperation.Less:
+            case BinaryOperation.LessOrEqual:
+            case BinaryOperation.Equal:
+            case BinaryOperation.NotEqual:
+                {
+                    // TODO: сравнение строк
+                    if (ValueTypeUtil.AreEqual(left, right))
+                    {
+                        return ValueType.Int; // TODO: заменить на bool
+                    }
+
+                    return null;
+                }
+
             case BinaryOperation.Add:
             case BinaryOperation.Subtract:
             case BinaryOperation.Multiply:
             case BinaryOperation.Divide:
             case BinaryOperation.Modulo:
             case BinaryOperation.Power:
-
-                if (!ValueTypeUtil.AreNumeric(left, right))
                 {
-                    return null;
-                }
+                    if (!ValueTypeUtil.AreNumeric(left, right))
+                    {
+                        return null;
+                    }
 
-                if (left == ValueType.Float || right == ValueType.Float)
-                {
-                    return ValueType.Float;
-                }
+                    if (left == ValueType.Float || right == ValueType.Float)
+                    {
+                        return ValueType.Float;
+                    }
 
-                return ValueType.Int;
+                    return ValueType.Int;
+                }
 
             default:
                 throw new InvalidOperationException($"Unknown binary operation {operation}");

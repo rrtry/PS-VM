@@ -81,21 +81,59 @@ public class PsVmCodegen : IAstVisitor
             case BinaryOperation.Add:
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Add);
                 break;
+
             case BinaryOperation.Subtract:
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Subtract);
                 break;
+
             case BinaryOperation.Multiply:
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Multiply);
                 break;
+
             case BinaryOperation.Power:
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Power);
                 break;
+
             case BinaryOperation.Divide:
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Divide);
                 break;
+
             case BinaryOperation.Modulo:
                 GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Modulo);
                 break;
+
+            case BinaryOperation.And:
+                GenerateLogicalAndCode(e);
+                break;
+
+            case BinaryOperation.Or:
+                GenerateLogicalOrCode(e);
+                break;
+
+            case BinaryOperation.Equal:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Equal);
+                break;
+
+            case BinaryOperation.NotEqual:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.NotEqual);
+                break;
+
+            case BinaryOperation.Less:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.Less);
+                break;
+
+            case BinaryOperation.LessOrEqual:
+                GenerateBinaryOperationCode(e.Left, e.Right, InstructionCode.LessOrEqual);
+                break;
+
+            case BinaryOperation.Greater:
+                GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.Less);
+                break;
+
+            case BinaryOperation.GreaterOrEqual:
+                GenerateBinaryOperationCode(e.Right, e.Left, InstructionCode.LessOrEqual);
+                break;
+
             default:
                 throw new NotImplementedException($"Unsupported binary operation type {e.Operation}");
         }
@@ -108,6 +146,11 @@ public class PsVmCodegen : IAstVisitor
         {
             case UnaryOperation.Minus:
                 _builder.Append(new Instruction(InstructionCode.Negate));
+                break;
+
+            // Логическое НЕ
+            case UnaryOperation.Not:
+                _builder.Append(new Instruction(InstructionCode.Not));
                 break;
 
             case UnaryOperation.Plus:
@@ -174,6 +217,52 @@ public class PsVmCodegen : IAstVisitor
         s.Right.Accept(this);
         IdentifierExpression lvalue = (IdentifierExpression)s.Left;
         _builder.Append(new Instruction(InstructionCode.StoreLocal, lvalue.Name));
+    }
+
+    public void Visit(IfElseStatement s)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void GenerateLogicalAndCode(BinaryOperationExpression e)
+    {
+        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        e.Left.Accept(this);
+        _builder.AppendJump(InstructionCode.JumpIfFalse, shortCircuitBlock);
+
+        e.Right.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.NotEqual));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = shortCircuitBlock;
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = finalBlock;
+    }
+
+    private void GenerateLogicalOrCode(BinaryOperationExpression e)
+    {
+        BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+        e.Left.Accept(this);
+
+        _builder.AppendJump(InstructionCode.JumpIfTrue, shortCircuitBlock);
+
+        e.Right.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Push, 0));
+        _builder.Append(new Instruction(InstructionCode.NotEqual));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = shortCircuitBlock;
+        _builder.Append(new Instruction(InstructionCode.Push, 1));
+        _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+        _builder.InsertPoint = finalBlock;
     }
 
     private void GenerateBlockStatementCode(BlockStatement statement)

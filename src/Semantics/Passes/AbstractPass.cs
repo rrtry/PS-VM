@@ -70,4 +70,9 @@ public abstract class AbstractPass : IAstVisitor
     public virtual void Visit(LiteralExpression e)
     {
     }
+
+    public void Visit(IfElseStatement s)
+    {
+        throw new NotImplementedException();
+    }
 }

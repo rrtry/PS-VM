@@ -6,6 +6,8 @@ namespace Ast;
 
 public interface IAstVisitor
 {
+    public void Visit(EntryPointNode n);
+
     public void Visit(BinaryOperationExpression e);
 
     public void Visit(UnaryOperationExpression e);
@@ -14,17 +16,17 @@ public interface IAstVisitor
 
     public void Visit(FunctionCallExpression e);
 
+    public void Visit(IdentifierExpression e);
+
     public void Visit(FunctionDeclaration d);
 
-    public void Visit(EntryPointNode n);
+    public void Visit(VariableDeclaration d);
 
     public void Visit(BlockStatement s);
 
     public void Visit(ReturnStatement s);
 
-    public void Visit(IdentifierExpression e);
-
-    public void Visit(VariableDeclaration s);
-
     public void Visit(AssignmentStatement s);
+
+    public void Visit(IfElseStatement s);
 }

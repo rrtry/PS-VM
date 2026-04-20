@@ -13,12 +13,12 @@ public class Lexer
         TokenType.Slash,         // /
         TokenType.StarStar,      // **
         TokenType.Percent,       // %
-        TokenType.EqualEqual,    // ==
+        TokenType.Equal,    // ==
         TokenType.NotEqual,      // !=
         TokenType.Less,          // <
-        TokenType.LessEqual,     // <=
+        TokenType.LessOrEqual,     // <=
         TokenType.Greater,       // >
-        TokenType.GreaterEqual,  // >=
+        TokenType.GreaterOrEqual,  // >=
         TokenType.And,           // &&
         TokenType.Or,            // ||
         TokenType.Not,           // !
@@ -159,7 +159,7 @@ public class Lexer
                 if (scanner.Peek() == '=')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.EqualEqual);
+                    return new Token(TokenType.Equal);
                 }
 
                 return new Token(TokenType.Assign);
@@ -195,7 +195,7 @@ public class Lexer
                 if (scanner.Peek() == '=')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.LessEqual);
+                    return new Token(TokenType.LessOrEqual);
                 }
 
                 return new Token(TokenType.Less);
@@ -204,7 +204,7 @@ public class Lexer
                 if (scanner.Peek() == '=')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.GreaterEqual);
+                    return new Token(TokenType.GreaterOrEqual);
                 }
 
                 return new Token(TokenType.Greater);

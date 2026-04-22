@@ -73,6 +73,8 @@ public abstract class AbstractPass : IAstVisitor
 
     public void Visit(IfElseStatement s)
     {
-        throw new NotImplementedException();
+        s.Condition.Accept(this);
+        s.ThenBranch.Accept(this);
+        s.ElseBranch?.Accept(this);
     }
 }

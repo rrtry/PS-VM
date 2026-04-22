@@ -25,7 +25,10 @@ public class PsVm
     /// </summary>
     private readonly Stack<Value> _evaluationStack;
 
-    private readonly Dictionary<string, Value> _locals;
+    /// <summary>
+    /// Таблицы переменных
+    /// </summary>
+    private VariablesTable? _variables;
 
     /// <summary>
     /// Словарь для хранения локальных переменных по имени.
@@ -39,7 +42,6 @@ public class PsVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
-        _locals = new Dictionary<string, Value>();
     }
 
     public int ExitCode => _exitCode;
@@ -156,24 +158,32 @@ public class PsVm
                     CallBuiltin((BuiltinFunctionCode)instruction.Operand.AsLong());
                     break;
 
+                case InstructionCode.DefineLocal:
+                    {
+                        string varName = instruction.Operand.AsString();
+                        Value value = _evaluationStack.Pop();
+                        _variables!.DefineVariable(varName, value);
+                    }
+
+                    break;
+
                 case InstructionCode.LoadLocal:
                     {
                         string varName = instruction.Operand.AsString();
-                        if (!_locals.TryGetValue(varName, out Value? value))
-                        {
-                            throw new InvalidOperationException($"Variable '{varName}' is not defined");
-                        }
-
+                        Value value = _variables!.GetVariable(varName);
                         _evaluationStack.Push(value);
-                        break;
                     }
+
+                    break;
 
                 case InstructionCode.StoreLocal:
                     {
                         string varName = instruction.Operand.AsString();
-                        _locals[varName] = _evaluationStack.Pop();
-                        break;
+                        Value value = _evaluationStack.Pop();
+                        _variables!.AssignVariable(varName, value);
                     }
+
+                    break;
 
                 case InstructionCode.Or:
                     {
@@ -267,10 +277,12 @@ public class PsVm
                     break;
 
                 case InstructionCode.PushVars:
-                    throw new NotImplementedException();
+                    _variables = new VariablesTable(_variables);
+                    break;
 
                 case InstructionCode.PopVars:
-                    throw new NotImplementedException();
+                    _variables = _variables!.Parent;
+                    break;
 
                 case InstructionCode.Halt:
                     _exitCode = (int)_evaluationStack.Pop().AsLong();
@@ -381,7 +393,7 @@ public class PsVm
         InstructionCode lastInstructionCode = instructions[^1].Code;
         if (lastInstructionCode != InstructionCode.Halt)
         {
-            throw new InvalidOperationException($"Last instruction must be {InstructionCode.Halt},");
+            throw new InvalidOperationException($"Last instruction must be {InstructionCode.Halt}, found {lastInstructionCode}");
         }
     }
 }

@@ -1,3 +1,4 @@
+using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
@@ -104,19 +105,64 @@ public class CheckTypesPass : AbstractPass
     }
 
     /// <summary>
-    /// Проверяет гаранитию наличия return в теле функции. Упрощенная версия, так как пока не поддерживаются конструкции.
+    /// Проверяет наличие return на всех путях выполнения.
     /// </summary>
     private bool GuaranteesReturn(BlockStatement block)
     {
-        foreach (Statement stmt in block.Statements.OfType<Statement>())
+        return GuaranteesReturnInBlock(block.Statements);
+    }
+
+    /// <summary>
+    /// Рекурсивная функция для проверки наличия return на всех путях выполнения
+    /// </summary>
+    private bool GuaranteesReturnInBlock(List<AstNode> statements)
+    {
+        for (int i = 0; i < statements.Count; i++)
         {
-            if (stmt is ReturnStatement)
+            AstNode statement = statements[i];
+            if (statement is ReturnStatement)
             {
+                if (i < statements.Count - 1)
+                {
+                    throw new InvalidStatementException("Unreachable code after return statement");
+                }
+
+                return true;
+            }
+
+            if (statement is IfElseStatement ifElse &&
+                GuaranteesReturnInIfElse(ifElse))
+            {
+                if (i < statements.Count - 1)
+                {
+                    throw new InvalidStatementException("Unreachable code after if-else that always returns");
+                }
+
                 return true;
             }
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Проверка гарантии того, что конструкция if-else содержит return на всех путях выполнения
+    /// </summary>
+    private bool GuaranteesReturnInIfElse(IfElseStatement ifElse)
+    {
+        BlockStatement thenBranch = (BlockStatement)ifElse.ThenBranch;
+        BlockStatement? elseBranch = (BlockStatement?)ifElse.ElseBranch;
+        bool thenGuarantees = GuaranteesReturnInBlock(thenBranch.Statements);
+
+        if (elseBranch != null)
+        {
+            bool elseGuarantees = GuaranteesReturnInBlock(elseBranch.Statements);
+            return thenGuarantees && elseGuarantees;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /// <summary>

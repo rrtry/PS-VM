@@ -68,7 +68,8 @@ public class PsVmCodegen : IAstVisitor
 
     public List<Instruction> GenerateCode(EntryPointNode program)
     {
-        program.Main.Accept(this);
+        program.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.Halt));
         return _builder.Finish();
     }
 
@@ -173,8 +174,7 @@ public class PsVmCodegen : IAstVisitor
         switch (e.Function)
         {
             case NativeFunction native:
-                Instruction instruction = new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name));
-                _builder.Append(instruction);
+                _builder.Append(new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name)));
                 break;
 
             default:
@@ -200,7 +200,6 @@ public class PsVmCodegen : IAstVisitor
     public void Visit(ReturnStatement s)
     {
         s.ReturnValue!.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Halt));
     }
 
     public void Visit(IdentifierExpression e)
@@ -211,7 +210,7 @@ public class PsVmCodegen : IAstVisitor
     public void Visit(VariableDeclaration d)
     {
         d.Initializer.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.StoreLocal, d.Name));
+        _builder.Append(new Instruction(InstructionCode.DefineLocal, d.Name));
     }
 
     public void Visit(AssignmentStatement s)
@@ -223,7 +222,35 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(IfElseStatement s)
     {
-        throw new NotImplementedException();
+        if (s.ElseBranch != null)
+        {
+            BasicBlock elseBlock = _builder.CreateBasicBlock();
+            BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+            s.Condition.Accept(this);
+            _builder.AppendJump(InstructionCode.JumpIfFalse, elseBlock);
+
+            s.ThenBranch.Accept(this);
+            _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+            _builder.InsertPoint = elseBlock;
+            s.ElseBranch.Accept(this);
+            _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+            _builder.InsertPoint = finalBlock;
+        }
+        else
+        {
+            BasicBlock finalBlock = _builder.CreateBasicBlock();
+
+            s.Condition.Accept(this);
+            _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
+
+            s.ThenBranch.Accept(this);
+            _builder.AppendJump(InstructionCode.Jump, finalBlock);
+
+            _builder.InsertPoint = finalBlock;
+        }
     }
 
     private void GenerateLogicalAndCode(BinaryOperationExpression e)
@@ -269,6 +296,8 @@ public class PsVmCodegen : IAstVisitor
 
     private void GenerateBlockStatementCode(BlockStatement statement)
     {
+        PushScope();
+
         IReadOnlyList<AstNode> sequence = statement.Statements;
         for (int i = 0, iMax = sequence.Count - 1; i <= iMax; ++i)
         {
@@ -284,6 +313,18 @@ public class PsVmCodegen : IAstVisitor
                 }
             }
         }
+
+        PopScope();
+    }
+
+    private void PushScope()
+    {
+        _builder.Append(new Instruction(InstructionCode.PushVars));
+    }
+
+    private void PopScope()
+    {
+        _builder.Append(new Instruction(InstructionCode.PopVars));
     }
 
     private void GenerateBinaryOperationCode(Expression left, Expression right, InstructionCode code)

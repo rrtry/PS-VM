@@ -1,6 +1,4 @@
 using Ast.Declarations;
-using Ast.Statements;
-
 using Semantics.Exceptions;
 
 namespace Semantics.Symbols;
@@ -12,20 +10,29 @@ public sealed class SymbolsTable
 {
     private readonly Dictionary<string, Declaration> _functions;
     private readonly Dictionary<string, Declaration> _types;
-    private readonly Dictionary<string, Declaration> _variables = new();
+
+    private Scope? _scope;
 
     public SymbolsTable()
     {
         _functions = [];
         _types = [];
-        _variables = new();
+        _scope = new();
     }
 
-    public int CurrentLocalScopeLevel => _variables.Count;
+    public void PushScope()
+    {
+        _scope = new(_scope);
+    }
+
+    public void PopScope()
+    {
+        _scope = _scope?.Parent;
+    }
 
     public AbstractFunctionDeclaration GetFunctionDeclaration(string name)
     {
-        Declaration? function = FindDeclaration(table => table._functions, name);
+        Declaration? function = FindGlobalDeclaration(table => table._functions, name);
         if (function == null)
         {
             throw UnknownSymbolException.UndefinedVariableOrFunction(name);
@@ -36,7 +43,7 @@ public sealed class SymbolsTable
 
     public AbstractTypeDeclaration GetTypeDeclaration(string name)
     {
-        Declaration? type = FindDeclaration(table => table._types, name);
+        Declaration? type = FindGlobalDeclaration(table => table._types, name);
         if (type is null)
         {
             throw UnknownSymbolException.UndefinedType(name);
@@ -63,15 +70,15 @@ public sealed class SymbolsTable
 
     public void DeclareVariable(VariableDeclaration decl)
     {
-        if (!_variables.TryAdd(decl.Name, decl))
+        if (!_scope!.DeclareVariable(decl.Name, decl))
         {
-            throw DuplicateSymbolException.DuplicateType(decl.Name);
+            throw DuplicateSymbolException.DuplicateVariableOrFunction(decl.Name);
         }
     }
 
     public VariableDeclaration FindVariable(string name)
     {
-        Declaration? variable = FindDeclaration(table => table._variables, name);
+        Declaration? variable = _scope!.GetVariable(name);
         if (variable == null)
         {
             throw UnknownSymbolException.UndefinedVariableOrFunction(name);
@@ -80,7 +87,7 @@ public sealed class SymbolsTable
         return (VariableDeclaration)variable;
     }
 
-    private Declaration? FindDeclaration(Func<SymbolsTable, Dictionary<string, Declaration>> getTable, string name)
+    private Declaration? FindGlobalDeclaration(Func<SymbolsTable, Dictionary<string, Declaration>> getTable, string name)
     {
         if (getTable(this).TryGetValue(name, out Declaration? declaration))
         {

@@ -40,10 +40,13 @@ public sealed class ResolveNamesPass : AbstractPass
 
     public override void Visit(BlockStatement s)
     {
+        _symbols.PushScope();
         foreach (AstNode nested in s.Statements)
         {
             nested.Accept(this);
         }
+
+        _symbols.PopScope();
     }
 
     public override void Visit(VariableDeclaration d)

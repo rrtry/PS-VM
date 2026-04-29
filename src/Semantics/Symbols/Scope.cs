@@ -6,13 +6,13 @@ public class Scope
 {
     private readonly Dictionary<string, VariableDeclaration> _variables;
 
-    public Scope? Parent { get; }
-
     public Scope(Scope? parent = null)
     {
         Parent = parent;
         _variables = new();
     }
+
+    public Scope? Parent { get; }
 
     public VariableDeclaration? GetVariable(string variable)
     {

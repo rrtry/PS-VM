@@ -257,6 +257,54 @@ public class VariablesTest
                 ["3"],
                 "28.2743"
             },
+
+            // name shadowing
+            {
+                @"fn main(): int { 
+                    let x = 0;
+                    if (true) {
+                        let x = 1;
+                        printi(x);
+                    }
+                    printi(x); // остаётся неизменённой
+                    return 0;
+                }
+                ",
+                [],
+                "10"
+            },
+
+            // name shadowing с разными типами
+            {
+                @"fn main(): int { 
+                    let x = 1;
+                    if (true) {
+                        let x = ""I'm a string\n"";
+                        print(x);
+                    }
+                    printi(x); // остаётся неизменённой
+                    return 0;
+                }
+                ",
+                [],
+                "I'm a string\n1"
+            },
+
+            // inner scope
+            {
+                @"fn main(): int { 
+                    let x = 0;
+                    if (true) {
+                        x = 1;
+                        printi(x);
+                    }
+                    printi(x);
+                    return 0;
+                }
+                ",
+                [],
+                "11"
+            },
         };
     }
 

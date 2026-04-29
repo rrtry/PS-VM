@@ -375,9 +375,13 @@ public class Lexer
                 return new Token(TokenType.Unknown);
             }
 
-            // Проверяем наличие escape-последовательности.
-            if (TryParseStringLiteralEscapeSequence(out char unescaped))
+            if (scanner.Peek() == '\\')
             {
+                if (!TryParseStringLiteralEscapeSequence(out char unescaped))
+                {
+                    return new Token(TokenType.Unknown);
+                }
+
                 contents += unescaped;
             }
             else
@@ -388,7 +392,6 @@ public class Lexer
         }
 
         scanner.Advance();
-
         return new Token(TokenType.StringLiteral, new TokenValue(contents));
     }
 
@@ -399,39 +402,33 @@ public class Lexer
     /// </summary>
     private bool TryParseStringLiteralEscapeSequence(out char unescaped)
     {
-        if (scanner.Peek() == '\\')
+        scanner.Advance();
+        switch (scanner.Peek())
         {
-            scanner.Advance();
-            switch (scanner.Peek())
-            {
-                case '\"':
-                    scanner.Advance();
-                    unescaped = '\"';
-                    return true;
+            case '\"':
+                scanner.Advance();
+                unescaped = '\"';
+                return true;
 
-                case '\\':
-                    scanner.Advance();
-                    unescaped = '\\';
-                    return true;
+            case '\\':
+                scanner.Advance();
+                unescaped = '\\';
+                return true;
 
-                case 'n':
-                    scanner.Advance();
-                    unescaped = '\n';
-                    return true;
+            case 'n':
+                scanner.Advance();
+                unescaped = '\n';
+                return true;
 
-                case 't':
-                    scanner.Advance();
-                    unescaped = '\t';
-                    return true;
+            case 't':
+                scanner.Advance();
+                unescaped = '\t';
+                return true;
 
-                default:
-                    unescaped = '\0';
-                    return false;
-            }
+            default:
+                unescaped = '\0';
+                return false;
         }
-
-        unescaped = '\0';
-        return false;
     }
 
     /// <summary>

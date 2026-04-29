@@ -64,6 +64,9 @@ public class PsVmCodegen : IAstVisitor
             },
         };
 
+    private readonly Stack<Dictionary<string, string>> _shadowStack = new(); // name shadowing
+    private int _uniqueCounter;
+
     private readonly InstructionsBuilder _builder = new();
     private BasicBlock? _exitBlock;
     private bool _hasReturn = false;
@@ -238,20 +241,23 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(IdentifierExpression e)
     {
-        _builder.Append(new Instruction(InstructionCode.LoadLocal, e.Name));
+        string mappedName = GetMappedName(e.Name);
+        _builder.Append(new Instruction(InstructionCode.LoadLocal, mappedName));
     }
 
     public void Visit(VariableDeclaration d)
     {
         d.Initializer.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.DefineLocal, d.Name));
+        DefineVariable(d.Name, out string mappedName);
+        _builder.Append(new Instruction(InstructionCode.DefineLocal, mappedName));
     }
 
     public void Visit(AssignmentStatement s)
     {
-        s.Right.Accept(this);
         IdentifierExpression lvalue = (IdentifierExpression)s.Left;
-        _builder.Append(new Instruction(InstructionCode.StoreLocal, lvalue.Name));
+        string mappedName = GetMappedName(lvalue.Name);
+        s.Right.Accept(this);
+        _builder.Append(new Instruction(InstructionCode.StoreLocal, mappedName));
     }
 
     public void Visit(IfElseStatement s)
@@ -269,8 +275,8 @@ public class PsVmCodegen : IAstVisitor
 
             _builder.InsertPoint = elseBlock;
             s.ElseBranch.Accept(this);
-            _builder.AppendJump(InstructionCode.Jump, finalBlock);
 
+            _builder.AppendJump(InstructionCode.Jump, finalBlock);
             _builder.InsertPoint = finalBlock;
         }
         else
@@ -330,6 +336,8 @@ public class PsVmCodegen : IAstVisitor
 
     private void GenerateBlockStatementCode(BlockStatement statement)
     {
+        EnterBlock();
+
         IReadOnlyList<AstNode> sequence = statement.Statements;
         for (int i = 0, iMax = sequence.Count - 1; i <= iMax; ++i)
         {
@@ -345,6 +353,8 @@ public class PsVmCodegen : IAstVisitor
                 }
             }
         }
+
+        ExitBlock();
     }
 
     private void GenerateBinaryOperationCode(Expression left, Expression right, InstructionCode code)
@@ -352,6 +362,41 @@ public class PsVmCodegen : IAstVisitor
         left.Accept(this);
         right.Accept(this);
         _builder.Append(new Instruction(code));
+    }
+
+    private void EnterBlock()
+    {
+        _shadowStack.Push(new Dictionary<string, string>());
+    }
+
+    private void ExitBlock()
+    {
+        _shadowStack.Pop();
+    }
+
+    private string GetMappedName(string originalName)
+    {
+        foreach (Dictionary<string, string> map in _shadowStack)
+        {
+            if (map.TryGetValue(originalName, out string? mapped))
+            {
+                return mapped;
+            }
+        }
+
+        throw new InvalidOperationException($"Variable '{originalName}' not found");
+    }
+
+    private void DefineVariable(string originalName, out string mappedName)
+    {
+        if (_shadowStack.Count == 0)
+        {
+            throw new InvalidOperationException("No block scope");
+        }
+
+        // Уникальное имя переменной с индикатором вложенности, вместо вложенных областей видимости для каждого блока
+        mappedName = $"{originalName}__{_uniqueCounter++}";
+        _shadowStack.Peek()[originalName] = mappedName;
     }
 
     private static int GetBuiltinFunctionCode(string name)

@@ -10,7 +10,7 @@ public class LexerTests
     [CulturedTheory(["ru-RU", "en-US"])]
     [MemberData(nameof(GetTokenizeIdentifiersAndKeywordsData))]
     [MemberData(nameof(GetTokenizeLiterals))]
-    [MemberData(nameof(GetSkipWhitespacesAndCommentsData))]
+    [MemberData(nameof(GetEscapeSequencesAndCommentsData))]
     [MemberData(nameof(GetTokenizeExpressions))]
     public void Can_tokenize_lexemes(string code, List<Token> expected)
     {
@@ -220,7 +220,7 @@ public class LexerTests
         };
     }
 
-    public static TheoryData<string, List<Token>> GetSkipWhitespacesAndCommentsData()
+    public static TheoryData<string, List<Token>> GetEscapeSequencesAndCommentsData()
     {
         return new TheoryData<string, List<Token>>
         {
@@ -229,6 +229,12 @@ public class LexerTests
                 [
                     new Token(TokenType.Identifier, "x"),
                     new Token(TokenType.Identifier, "y"),
+                ]
+            },
+            {
+                "\\q",
+                [
+                    new Token(TokenType.Unknown)
                 ]
             },
             {

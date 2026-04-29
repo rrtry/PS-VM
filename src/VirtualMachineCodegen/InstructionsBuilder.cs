@@ -32,28 +32,30 @@ public class InstructionsBuilder
         }
     }
 
-    /// <summary>
-    /// Собирает финальный список инструкций из базовых блоков, заменяя адреса во всех инструкциях перехода
-    ///  на окончательные адреса инструкций.
-    /// </summary>
     public List<Instruction> Finish()
     {
-        List<int> addresses = CalculateBasicBlockAddresses();
-        List<Instruction> instructions = [];
+        int haltBlockIndex = _basicBlocks.FindIndex(b => b.IsHaltBlock);
+        BasicBlock haltBlock = _basicBlocks[haltBlockIndex];
+
+        _basicBlocks.RemoveAt(haltBlockIndex);
+        _basicBlocks.Add(haltBlock);
+
+        Dictionary<int, int> blockAddress = CalculateBasicBlockAddresses();
+        List<Instruction> instructions = new List<Instruction>();
 
         foreach (BasicBlock block in _basicBlocks)
         {
-            foreach (Instruction instruction in block.Instructions)
+            foreach (Instruction instr in block.Instructions)
             {
-                if (IsJump(instruction.Code))
+                if (IsJump(instr.Code))
                 {
-                    int addrIndex = (int)instruction.Operand.AsLong();
-                    int newAddress = addresses[addrIndex];
-                    instructions.Add(new Instruction(instruction.Code, newAddress));
+                    int targetBlockId = (int)instr.Operand.AsLong();
+                    int targetAddress = blockAddress[targetBlockId];
+                    instructions.Add(new Instruction(instr.Code, targetAddress));
                 }
                 else
                 {
-                    instructions.Add(instruction);
+                    instructions.Add(instr);
                 }
             }
         }
@@ -118,16 +120,17 @@ public class InstructionsBuilder
     /// <summary>
     /// Вычисляет адреса последовательно расположенных базовых блоков инструкций.
     /// </summary>
-    private List<int> CalculateBasicBlockAddresses()
+    private Dictionary<int, int> CalculateBasicBlockAddresses()
     {
-        List<int> basicBlockAddresses = new(capacity: _basicBlocks.Count);
-        int nextBlockAddress = 0;
-        foreach (BasicBlock bb in _basicBlocks)
+        Dictionary<int, int> blockAddress = new Dictionary<int, int>();
+        int currentAddress = 0;
+
+        foreach (BasicBlock block in _basicBlocks)
         {
-            basicBlockAddresses.Add(nextBlockAddress);
-            nextBlockAddress += bb.Instructions.Count;
+            blockAddress[block.Id] = currentAddress;
+            currentAddress += block.Instructions.Count;
         }
 
-        return basicBlockAddresses;
+        return blockAddress;
     }
 }

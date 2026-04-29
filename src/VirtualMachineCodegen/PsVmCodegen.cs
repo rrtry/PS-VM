@@ -65,11 +65,12 @@ public class PsVmCodegen : IAstVisitor
         };
 
     private readonly InstructionsBuilder _builder = new();
+    private BasicBlock? _exitBlock;
+    private bool _hasReturn = false;
 
     public List<Instruction> GenerateCode(EntryPointNode program)
     {
         program.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.Halt));
         return _builder.Finish();
     }
 
@@ -194,12 +195,45 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(FunctionDeclaration d)
     {
+        _hasReturn = false;
+
+        // Новый фрейм
+        _builder.Append(new Instruction(InstructionCode.PushVars));
+        _exitBlock = _builder.CreateBasicBlock();
+        _exitBlock.IsHaltBlock = true; // Для main isHaltBlock = true
+
+        // Генерируем тело функции
         d.Body.Accept(this);
+
+        if (!_hasReturn)
+        {
+            // Неявный Jump в exitBlock
+            _builder.AppendJump(InstructionCode.Jump, _exitBlock);
+        }
+
+        // Теперь генерируем код выхода в этом блоке
+        _builder.InsertPoint = _exitBlock;
+
+        // Одна область видимости внутри функции, вложенные блоки проверяет SemanticsChecker
+        _builder.Append(new Instruction(InstructionCode.PopVars));
+        _builder.Append(new Instruction(InstructionCode.Halt));
+
+        _exitBlock = null;
     }
 
     public void Visit(ReturnStatement s)
     {
-        s.ReturnValue!.Accept(this);
+        _hasReturn = true;
+        if (s.ReturnValue != null)
+        {
+            s.ReturnValue.Accept(this);
+        }
+        else
+        {
+            _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
+        }
+
+        _builder.AppendJump(InstructionCode.Jump, _exitBlock!);
     }
 
     public void Visit(IdentifierExpression e)
@@ -296,8 +330,6 @@ public class PsVmCodegen : IAstVisitor
 
     private void GenerateBlockStatementCode(BlockStatement statement)
     {
-        PushScope();
-
         IReadOnlyList<AstNode> sequence = statement.Statements;
         for (int i = 0, iMax = sequence.Count - 1; i <= iMax; ++i)
         {
@@ -313,18 +345,6 @@ public class PsVmCodegen : IAstVisitor
                 }
             }
         }
-
-        PopScope();
-    }
-
-    private void PushScope()
-    {
-        _builder.Append(new Instruction(InstructionCode.PushVars));
-    }
-
-    private void PopScope()
-    {
-        _builder.Append(new Instruction(InstructionCode.PopVars));
     }
 
     private void GenerateBinaryOperationCode(Expression left, Expression right, InstructionCode code)

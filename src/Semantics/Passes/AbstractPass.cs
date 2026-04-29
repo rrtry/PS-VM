@@ -71,7 +71,7 @@ public abstract class AbstractPass : IAstVisitor
     {
     }
 
-    public void Visit(IfElseStatement s)
+    public virtual void Visit(IfElseStatement s)
     {
         s.Condition.Accept(this);
         s.ThenBranch.Accept(this);

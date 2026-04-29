@@ -1,4 +1,7 @@
 ﻿using Parser;
+
+using Semantics.Exceptions;
+
 using Tests.TestLibrary;
 
 namespace Interpreter.IntegrationTests;
@@ -16,12 +19,21 @@ public class ArithmeticExpressionsTest
     }
 
     [CulturedTheory(["ru-RU", "en-US"])]
-    [MemberData(nameof(GetInvalidExpressionsData))]
-    public void Rejects_invalid_expressions(string code)
+    [MemberData(nameof(GetInvalidSyntaxExpressions))]
+    public void Reject_invalid_syntax_expressions(string code)
     {
         FakeEnvironment environment = new();
         Interpreter interpreter = new(environment);
         Assert.Throws<UnexpectedLexemeException>(() => interpreter.Execute(code));
+    }
+
+    [CulturedTheory(["ru-RU", "en-US"])]
+    [MemberData(nameof(GetInvalidSematicExpressions))]
+    public void Reject_invalid_semantic_expressions(string code, Type exception)
+    {
+        FakeEnvironment environment = new();
+        Interpreter interpreter = new(environment);
+        Assert.Throws(exception, () => interpreter.Execute(code));
     }
 
     public static TheoryData<string, string> GetArithmeticExpressions()
@@ -101,7 +113,249 @@ public class ArithmeticExpressionsTest
         };
     }
 
-    public static TheoryData<string> GetInvalidExpressionsData()
+    public static TheoryData<string, Type> GetInvalidSematicExpressions()
+    {
+        return new TheoryData<string, Type>
+        {
+            // str и int
+            {
+                @"fn main(): int {""0"" + 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" - 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" * 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" / 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" ** 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" > 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" >= 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" < 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" <= 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" == 0; return 0; }",
+                typeof(TypeErrorException)
+            },
+
+            // bool и int
+            {
+                @"fn main(): int {true + 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true - 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true * 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true / 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true ** 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true > 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true >= 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true < 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true <= 1; return 0; }",
+                typeof(TypeErrorException)
+            },
+
+            // bool и float
+            {
+                @"fn main(): int {true + 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true - 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true * 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true / 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true ** 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true > 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true >= 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true < 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true <= 1.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+
+            // bool и str
+            {
+                @"fn main(): int {true + ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true - ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true * ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true ** ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true / ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true > ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true >= ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true < ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {true <= ""1.0""; return 0; }",
+                typeof(TypeErrorException)
+            },
+
+            // str и float
+            {
+                @"fn main(): int {""0"" + 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" - 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" * 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" / 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" ** 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" > 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" >= 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" < 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" <= 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" == 0.0; return 0; }",
+                typeof(TypeErrorException)
+            },
+
+            // str и str
+            {
+                @"fn main(): int {""0"" + """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" - """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" * """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" / """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" ** """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" > """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" >= """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" < """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {""0"" <= """"; return 0; }",
+                typeof(TypeErrorException)
+            },
+        };
+    }
+
+    public static TheoryData<string> GetInvalidSyntaxExpressions()
     {
         return
         [

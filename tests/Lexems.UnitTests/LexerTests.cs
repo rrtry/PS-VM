@@ -130,7 +130,7 @@ public class LexerTests
                     new(TokenType.Identifier, "n"),
                     new(TokenType.Assign),
                     new(TokenType.Identifier, "n"),
-                    new(TokenType.Star),
+                    new(TokenType.Mult),
                     new(TokenType.IntegerLiteral, "2"),
                     new(TokenType.Semicolon),
                     new(TokenType.RightBrace),
@@ -155,7 +155,7 @@ public class LexerTests
                 "x ** y",
                 [
                     new Token(TokenType.Identifier, "x"),
-                    new Token(TokenType.StarStar),
+                    new Token(TokenType.Pow),
                     new Token(TokenType.Identifier, "y")
                 ]
             },
@@ -170,7 +170,7 @@ public class LexerTests
                     new Token(TokenType.IntegerLiteral, 10),
                     new Token(TokenType.Minus),
                     new Token(TokenType.Identifier, "z"),
-                    new Token(TokenType.Star),
+                    new Token(TokenType.Mult),
                     new Token(TokenType.IntegerLiteral, 2),
                     new Token(TokenType.RightParen),
                 ]
@@ -247,7 +247,7 @@ public class LexerTests
                     new Token(TokenType.Identifier, "a"),
                     new Token(TokenType.Slash),
                     new Token(TokenType.Identifier, "b"),
-                    new Token(TokenType.Star),
+                    new Token(TokenType.Mult),
                     new Token(TokenType.Identifier, "c"),
                 ]
             },

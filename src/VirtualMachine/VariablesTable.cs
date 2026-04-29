@@ -18,25 +18,6 @@ public sealed class VariablesTable
     public VariablesTable? Parent => _parent;
 
     /// <summary>
-    /// Получает таблицу с указанной глубиной.
-    /// Это необходимо для поддержки захвата функцией окружающей её области видимости.
-    /// </summary>
-    public VariablesTable GetAncestor(int depth)
-    {
-        if (depth <= 0)
-        {
-            throw new InvalidOperationException($"Invalid variables table depth {depth}");
-        }
-
-        if (depth > _depth)
-        {
-            throw new InvalidOperationException($"No variables table with depth {depth}: current depth is {_depth}");
-        }
-
-        return GetAncestorImpl(depth);
-    }
-
-    /// <summary>
     /// Получает значение переменной по имени.
     /// </summary>
     public Value GetVariable(string name)
@@ -44,11 +25,6 @@ public sealed class VariablesTable
         if (_variables.TryGetValue(name, out Value? value))
         {
             return value;
-        }
-
-        if (_parent != null)
-        {
-            return _parent.GetVariable(name);
         }
 
         throw new InvalidOperationException($"No variable with name {name}");
@@ -90,15 +66,5 @@ public sealed class VariablesTable
         }
 
         return false;
-    }
-
-    private VariablesTable GetAncestorImpl(int depth)
-    {
-        if (_depth == depth)
-        {
-            return this;
-        }
-
-        return _parent!.GetAncestor(depth);
     }
 }

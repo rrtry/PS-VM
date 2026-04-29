@@ -148,7 +148,7 @@ public class Parser
 
     private AssignmentStatement ParseAssignmentStatement()
     {
-        IdentifierExpression left = (IdentifierExpression)ParseExpression();
+        Expression left = ParseExpression();
         Match(TokenType.Assign);
         Expression right = ParseExpression();
 
@@ -355,7 +355,7 @@ public class Parser
     {
         Expression left = ParseUnary();
 
-        while (_tokens.Peek().Type == TokenType.Star ||
+        while (_tokens.Peek().Type == TokenType.Mult ||
                _tokens.Peek().Type == TokenType.Slash ||
                _tokens.Peek().Type == TokenType.Percent)
         {
@@ -364,11 +364,11 @@ public class Parser
 
             left = op.Type switch
             {
-                TokenType.Star => new BinaryOperationExpression(left, BinaryOperation.Multiply, right),
+                TokenType.Mult => new BinaryOperationExpression(left, BinaryOperation.Multiply, right),
                 TokenType.Slash => new BinaryOperationExpression(left, BinaryOperation.Divide, right),
                 TokenType.Percent => new BinaryOperationExpression(left, BinaryOperation.Modulo, right),
                 _ => throw new UnexpectedLexemeException(
-                    [TokenType.Star, TokenType.Slash, TokenType.Percent],
+                    [TokenType.Mult, TokenType.Slash, TokenType.Percent],
                     op
                 ),
             };
@@ -384,7 +384,7 @@ public class Parser
     {
         Expression left = ParsePrimary();
 
-        if (_tokens.Peek().Type == TokenType.StarStar)
+        if (_tokens.Peek().Type == TokenType.Pow)
         {
             _tokens.Advance();
             Expression right = ParsePower();

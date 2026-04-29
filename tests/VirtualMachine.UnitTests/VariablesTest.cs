@@ -26,47 +26,55 @@ public class VariablesTest
         {
             {
                 [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, 42),
-                    new Instruction(InstructionCode.StoreLocal, new Value("x")),
+                    new Instruction(InstructionCode.DefineLocal, new Value("x")),
                     new Instruction(InstructionCode.LoadLocal, new Value("x")),
                     new Instruction(InstructionCode.CallBuiltin, new Value((int)BuiltinFunctionCode.PrintI)),
                     new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt),
                 ],
                 "42"
             },
             {
                 [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, new Value(3.14)),
-                    new Instruction(InstructionCode.StoreLocal, new Value("pi")),
+                    new Instruction(InstructionCode.DefineLocal, new Value("pi")),
                     new Instruction(InstructionCode.LoadLocal, new Value("pi")),
                     new Instruction(InstructionCode.Push, new Value(2)),
                     new Instruction(InstructionCode.CallBuiltin, new Value((int)BuiltinFunctionCode.PrintF)),
                     new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt),
                 ],
                 "3.14"
             },
             {
                 [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, new Value("Hello, World!")),
-                    new Instruction(InstructionCode.StoreLocal, new Value("msg")),
+                    new Instruction(InstructionCode.DefineLocal, new Value("msg")),
                     new Instruction(InstructionCode.LoadLocal, new Value("msg")),
                     new Instruction(InstructionCode.CallBuiltin, new Value((int)BuiltinFunctionCode.Print)),
                     new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt),
                 ],
                 "Hello, World!"
             },
             {
                 [
+                    new Instruction(InstructionCode.PushVars),
                     new Instruction(InstructionCode.Push, 100),
-                    new Instruction(InstructionCode.StoreLocal, new Value("var")),
+                    new Instruction(InstructionCode.DefineLocal, new Value("var")),
                     new Instruction(InstructionCode.Push, new Value("now a string")),
                     new Instruction(InstructionCode.StoreLocal, new Value("var")),
                     new Instruction(InstructionCode.LoadLocal, new Value("var")),
                     new Instruction(InstructionCode.CallBuiltin, new Value((int)BuiltinFunctionCode.Print)),
                     new Instruction(InstructionCode.Push, 0),
+                    new Instruction(InstructionCode.PopVars),
                     new Instruction(InstructionCode.Halt),
                 ],
                 "now a string"

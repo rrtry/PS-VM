@@ -42,6 +42,38 @@ public class VariablesTest
         {
             {
                 @"fn main(): int {
+                    true = 0;
+                    return 0;
+                }
+                ",
+                typeof(InvalidAssignmentException)
+            },
+            {
+                @"fn main(): int {
+                    0 = 0;
+                    return 0;
+                }
+                ",
+                typeof(InvalidAssignmentException)
+            },
+            {
+                @"fn main(): int {
+                    0.0 = 0;
+                    return 0;
+                }
+                ",
+                typeof(InvalidAssignmentException)
+            },
+            {
+                @"fn main(): int {
+                    ""0.0"" = 0;
+                    return 0;
+                }
+                ",
+                typeof(InvalidAssignmentException)
+            },
+            {
+                @"fn main(): int {
                     f = 0;
                     return 0;
                 }

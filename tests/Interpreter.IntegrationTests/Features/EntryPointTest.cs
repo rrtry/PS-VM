@@ -63,7 +63,7 @@ public class EntryPointTest
             { "fn main(): int { printi(0); return; }", typeof(TypeErrorException) },
 
             // недостижимый код
-            { "fn main(): int { return 1; printi(0); }", typeof(InvalidStatementException) },
+            { "fn main(): int { return 1; printi(0); }", typeof(UnreachableCodeException) },
         };
     }
 }

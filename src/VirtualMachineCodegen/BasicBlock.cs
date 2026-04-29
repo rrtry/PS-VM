@@ -14,10 +14,13 @@ public class BasicBlock
     private readonly int _id;
     private readonly List<Instruction> _instructions;
 
+    public bool IsHaltBlock { get; set; }
+
     public BasicBlock(int id)
     {
         _id = id;
         _instructions = [];
+        IsHaltBlock = false;
     }
 
     /// <summary>

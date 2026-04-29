@@ -78,13 +78,13 @@ public enum TokenType
     Minus,
 
     /// <summary>Умножение (`*`).</summary>
-    Star,
+    Mult,
 
     /// <summary>Деление (`/`).</summary>
     Slash,
 
     /// <summary> Возведение в степень (`**`).</summary>
-    StarStar,
+    Pow,
 
     /// <summary>Остаток от деления (`%`).</summary>
     Percent,

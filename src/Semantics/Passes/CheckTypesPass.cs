@@ -3,8 +3,6 @@ using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
-using Runtime;
-
 using Semantics.Exceptions;
 using Semantics.Helpers;
 
@@ -96,6 +94,19 @@ public class CheckTypesPass : AbstractPass
         }
     }
 
+    public override void Visit(IfElseStatement s)
+    {
+        s.Condition.Accept(this);
+
+        if (s.Condition.ResultType != Runtime.ValueType.Bool)
+        {
+            throw new TypeErrorException("Condition for `if` statement should have type `bool`");
+        }
+
+        s.ThenBranch.Accept(this);
+        s.ElseBranch?.Accept(this);
+    }
+
     private static void CheckAreSameTypes(string category, Expression expression, Runtime.ValueType expectedType)
     {
         if (!ValueTypeUtil.AreEqual(expression.ResultType, expectedType))
@@ -124,7 +135,7 @@ public class CheckTypesPass : AbstractPass
             {
                 if (i < statements.Count - 1)
                 {
-                    throw new InvalidStatementException("Unreachable code after return statement");
+                    throw new UnreachableCodeException("Unreachable code after return statement");
                 }
 
                 return true;
@@ -135,7 +146,7 @@ public class CheckTypesPass : AbstractPass
             {
                 if (i < statements.Count - 1)
                 {
-                    throw new InvalidStatementException("Unreachable code after if-else that always returns");
+                    throw new UnreachableCodeException("Unreachable code after if-else that always returns");
                 }
 
                 return true;

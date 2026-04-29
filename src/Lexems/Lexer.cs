@@ -9,9 +9,9 @@ public class Lexer
         TokenType.Assign,        // =
         TokenType.Plus,          // +
         TokenType.Minus,         // -
-        TokenType.Star,          // *
+        TokenType.Mult,          // *
         TokenType.Slash,         // /
-        TokenType.StarStar,      // **
+        TokenType.Pow,      // **
         TokenType.Percent,       // %
         TokenType.Equal,    // ==
         TokenType.NotEqual,      // !=
@@ -180,10 +180,10 @@ public class Lexer
                 if (scanner.Peek() == '*')
                 {
                     scanner.Advance();
-                    return new Token(TokenType.StarStar);
+                    return new Token(TokenType.Pow);
                 }
 
-                return new Token(TokenType.Star);
+                return new Token(TokenType.Mult);
             case '/':
                 scanner.Advance();
                 return new Token(TokenType.Slash);

@@ -3,7 +3,7 @@ namespace Semantics.Exceptions;
 #pragma warning disable RCS1194
 
 /// <summary>
-/// Исключение из-за некорректного обращения к переменной.
+/// Исключение из-за неверного объявления функции/переменной
 /// </summary>
 public class InvalidDeclarationException : Exception
 {

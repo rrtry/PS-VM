@@ -248,6 +248,20 @@ public class LexerTests
                 ]
             },
             {
+                @"
+                /* Multiline comment
+                   Another line
+                */
+                let x = 0; // This is single line comment",
+                [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, "x"),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.IntegerLiteral, 0),
+                    new Token(TokenType.Semicolon)
+                ]
+            },
+            {
                 "/* comments */ a / /* should be */ b * c /* ignored */",
                 [
                     new Token(TokenType.Identifier, "a"),
@@ -265,14 +279,21 @@ public class LexerTests
         return new TheoryData<string, List<Token>>
         {
             {
-                "255 0xFF 0xff 0b11111111 3.14 0.5 3,14 3. 4",
+                "0b1000100001111 0B1000100001111 0x48339f5568d5 0X48339F5568D5 255 0xFF 0xff 0b11111111 3.14 0.5 3,14 3. 4",
                 [
+                    new(TokenType.IntegerLiteral, 0b1000100001111),
+                    new(TokenType.IntegerLiteral, 0b1000100001111),
+                    new(TokenType.IntegerLiteral, 0x48339f5568d5),
+                    new(TokenType.IntegerLiteral, 0X48339F5568D5),
+
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
                     new(TokenType.IntegerLiteral, 255),
+
                     new(TokenType.FloatLiteral,   3.14m),
                     new(TokenType.FloatLiteral,   0.5m),
+
                     new(TokenType.IntegerLiteral, 3),
                     new(TokenType.Comma),
                     new(TokenType.IntegerLiteral, 14),

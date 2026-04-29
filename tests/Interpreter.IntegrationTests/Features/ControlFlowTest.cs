@@ -34,6 +34,32 @@ public class ControlFlowTest
         return new TheoryData<string, List<string>, Type>
         {
             {
+                // Неверные типы для &&
+                @"fn main(): int {
+                    let x = 10;
+                    let s = ""10"";
+                    if (x && s) {
+                        print(""equal"");
+                    }
+                    return 0;
+                }",
+                [],
+                typeof(TypeErrorException)
+            },
+            {
+                // Неверные типы для ||
+                @"fn main(): int {
+                    let x = 10;
+                    let s = ""10"";
+                    if (x || s) {
+                        print(""equal"");
+                    }
+                    return 0;
+                }",
+                [],
+                typeof(TypeErrorException)
+            },
+            {
                 // Неверное сравнение типов (str с int)
                 @"fn main(): int {
                     let x = 10;

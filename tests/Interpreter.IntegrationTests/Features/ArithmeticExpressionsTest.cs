@@ -352,6 +352,16 @@ public class ArithmeticExpressionsTest
                 @"fn main(): int {""0"" <= """"; return 0; }",
                 typeof(TypeErrorException)
             },
+
+            // unary
+            {
+                @"fn main(): int {-true; return 0; }",
+                typeof(TypeErrorException)
+            },
+            {
+                @"fn main(): int {-""""; return 0; }",
+                typeof(TypeErrorException)
+            },
         };
     }
 

@@ -31,6 +31,7 @@
 `"\n\t\"\\"`
 
 ## 3. Escape-последовательности и комментарии (`GetEscapeSequencesAndCommentsData`)
+
 ### 3.1 Различные пробельные символы
 `x \t\ny`
 
@@ -40,7 +41,13 @@
 ### 3.3 Однострочный комментарий
 `let x = 0; // This is a comment`
 
-### 3.4 Многострочные комментарии
+### 3.4 Многострочный комментарий
+`/* Multiline comment
+    Another line
+*/
+let x = 0; // This is single line comment`
+
+### 3.5 Пропуск комментариев между идентификаторами
 `/* comments */ a / /* should be */ b * c /* ignored */`
 
 ## 4. Выражения и операторы

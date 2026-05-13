@@ -23,6 +23,8 @@ public class BasicBlock
 
     public bool IsHaltBlock { get; set; }
 
+    public bool IsReturnBlock { get; set; }
+
     /// <summary>
     /// Идентификатор (номер) базового блока.
     /// Используется как промежуточное значение операнда в инструкциях перехода до того,

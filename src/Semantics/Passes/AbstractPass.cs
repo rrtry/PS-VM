@@ -49,6 +49,7 @@ public abstract class AbstractPass : IAstVisitor
 
     public void Visit(EntryPointNode n)
     {
+        n.Functions.ForEach(f => f.Accept(this));
         n.Main.Accept(this);
     }
 
@@ -76,5 +77,10 @@ public abstract class AbstractPass : IAstVisitor
         s.Condition.Accept(this);
         s.ThenBranch.Accept(this);
         s.ElseBranch?.Accept(this);
+    }
+
+    public void Visit(ParameterDeclaration d)
+    {
+        // TODO: implement
     }
 }

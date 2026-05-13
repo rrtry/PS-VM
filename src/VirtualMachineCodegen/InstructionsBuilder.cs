@@ -34,12 +34,6 @@ public class InstructionsBuilder
 
     public List<Instruction> Finish()
     {
-        int haltBlockIndex = _basicBlocks.FindIndex(b => b.IsHaltBlock);
-        BasicBlock haltBlock = _basicBlocks[haltBlockIndex];
-
-        _basicBlocks.RemoveAt(haltBlockIndex);
-        _basicBlocks.Add(haltBlock);
-
         Dictionary<int, int> blockAddress = CalculateBasicBlockAddresses();
         List<Instruction> instructions = new List<Instruction>();
 

@@ -15,21 +15,6 @@ namespace Semantics.Passes;
 /// </remarks>
 public sealed class CheckContextSensitiveRulesPass : AbstractPass
 {
-    public override void Visit(FunctionDeclaration d)
-    {
-        if (d.Name != "main")
-        {
-            throw new InvalidDeclarationException("Currently only 'main' entry point function is supported");
-        }
-
-        if (d.ResultType != Runtime.ValueType.Int)
-        {
-            throw new InvalidDeclarationException("'main' signature: fn main(): int");
-        }
-
-        base.Visit(d);
-    }
-
     public override void Visit(AssignmentStatement e)
     {
         base.Visit(e);

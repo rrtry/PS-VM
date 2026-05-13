@@ -1,5 +1,7 @@
 namespace Parser;
 
+using System.Reflection.Metadata;
+
 using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
@@ -27,7 +29,27 @@ public class Parser
     /// </summary>
     private EntryPointNode ParseEntryPoint()
     {
-        return new EntryPointNode(ParseFunctionDeclaration());
+        List<FunctionDeclaration> functions = [];
+
+        FunctionDeclaration? mainFunction = null;
+        FunctionDeclaration declaration;
+
+        while (_tokens.Peek().Type != TokenType.Eof)
+        {
+            declaration = ParseFunctionDeclaration();
+
+            if (declaration.Name == "main")
+            {
+                mainFunction = declaration;
+            }
+            else
+            {
+                functions.Add(declaration);
+            }
+        }
+
+        // TODO: check for null main
+        return new EntryPointNode(mainFunction!, functions);
     }
 
     private void MatchBuiltinType(out string typeName, out ValueType typeValue)
@@ -72,13 +94,13 @@ public class Parser
     /// </summary>
     private FunctionDeclaration ParseFunctionDeclaration()
     {
-        // Парсим как обычную функцию, проверку на main делегируем SemanticsChecker
         Match(TokenType.Fn);
         Token fnNameToken = Match(TokenType.Identifier);
         string fnName = fnNameToken.Value!.ToString();
 
         // Без параметров
         Match(TokenType.LeftParen);
+        List<ParameterDeclaration> fnParams = ParseParameterDeclarationList();
         Match(TokenType.RightParen);
 
         string typeName = "unit";
@@ -88,7 +110,7 @@ public class Parser
         if (_tokens.Peek().Type == TokenType.LeftBrace)
         {
             body = ParseBlockStatement();
-            return new FunctionDeclaration(fnName, typeName, body);
+            return new FunctionDeclaration(fnName, fnParams, typeName, body);
         }
 
         Match(TokenType.Colon);
@@ -96,7 +118,34 @@ public class Parser
 
         _tokens.Advance();
         body = ParseBlockStatement();
-        return new FunctionDeclaration(fnName, typeName, body);
+        return new FunctionDeclaration(fnName, fnParams, typeName, body);
+    }
+
+    private List<ParameterDeclaration> ParseParameterDeclarationList()
+    {
+        List<ParameterDeclaration> declarations = [];
+
+        if (_tokens.Peek().Type != TokenType.RightParen)
+        {
+            while (_tokens.Peek().Type == TokenType.Comma)
+            {
+                _tokens.Advance();
+                declarations.Add(ParseParameterDeclaration());
+            }
+        }
+
+        return declarations;
+    }
+
+    private ParameterDeclaration ParseParameterDeclaration()
+    {
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Colon);
+
+        Match(TokenType.Identifier).Value!.ToString();
+        MatchBuiltinType(out string typeName, out ValueType typeValue);
+
+        return new ParameterDeclaration(name, new BuiltinType(typeName, typeValue));
     }
 
     /// <summary>

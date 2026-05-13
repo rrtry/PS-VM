@@ -137,4 +137,14 @@ public enum InstructionCode
     /// Убирает таблицу переменных со стека таблиц переменных.
     /// </summary>
     PopVars,
+
+    /// <summary>
+    /// Вызов пользовательской функции.
+    /// </summary>
+    Call,
+
+    /// <summary>
+    /// Возрат из функции.
+    /// </summary>
+    Return,
 }

@@ -242,6 +242,59 @@ public class ControlFlowTest
         return new TheoryData<string, List<string>, string>
         {
             {
+                @"
+                fn main(): int {
+                    let x = 10;
+                    let y = 20;
+
+                    //print(""=== outer scope ==="");
+                    printi(x);    // 10
+                    printi(y);    // 20
+
+                    if (true) {
+                        let x = 100;          // затеняет внешнюю x
+                        let z = 999;
+
+                        //print(""=== inside if ==="");
+                        printi(x);             // 100
+                        printi(y);             // 20 (внешняя, не затенена)
+                        printi(z);             // 999
+
+                        x = x + 1;            // 101
+                        y = y + 5;            // изменяет внешнюю y -> 25
+
+                        if (true) {
+                            let y = 500;      // затеняет y
+                            let t = 7;
+
+                            //print(""=== inside nested block ==="");
+                            printi(x);         // 101 (из if)
+                            printi(y);         // 500 (внутренняя)
+                            printi(t);         // 7
+
+                            x = x * 2;        // 202 (всё ещё та же x из if)
+                            y = y + t;        // 507 (внутренняя y)
+                        }
+
+                        //print(""=== after nested block ==="");
+                        printi(x);             // 202 (из if)
+                        printi(y);             // 25 (внешняя y, изменённая ранее)
+                        printi(z);             // 999
+
+                        y = y + 100;          // внешняя y: 25 + 100 = 125
+                    }
+
+                    //print(""=== back to outer scope ==="");
+                    printi(x);                 // 10 (внешняя, не изменилась)
+                    printi(y);                 // 125 (изменилась внутри if)
+
+                    return 0;
+                }
+                ",
+                [],
+                "10201002099910150072022599910125"
+            },
+            {
                 // Вложенные if, все ветви возвращают значение
                 @"fn main(): int {
                     let x = stoi(input());

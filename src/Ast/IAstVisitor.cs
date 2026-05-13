@@ -29,4 +29,6 @@ public interface IAstVisitor
     public void Visit(AssignmentStatement s);
 
     public void Visit(IfElseStatement s);
+
+    public void Visit(ParameterDeclaration d);
 }

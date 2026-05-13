@@ -64,17 +64,35 @@ public class PsVmCodegen : IAstVisitor
             },
         };
 
-    private readonly Stack<Dictionary<string, string>> _shadowStack = new(); // name shadowing
+    private readonly Stack<Dictionary<string, string>> _shadowStack = new();
+    private readonly Dictionary<string, FunctionInfo> _functions = new();
     private int _uniqueCounter;
 
-    private readonly InstructionsBuilder _builder = new();
+    private FunctionInfo? _mainFunction;
+
+    private InstructionsBuilder _builder = new();
+    private FunctionInfo? _currentFunction;
+    private InstructionsBuilder? _savedBuilder;
+
     private BasicBlock? _exitBlock;
     private bool _hasReturn = false;
 
     public List<Instruction> GenerateCode(EntryPointNode program)
     {
+        /*
         program.Accept(this);
-        return _builder.Finish();
+        return _builder.Finish(); */
+
+        foreach (FunctionDeclaration decl in program.Functions)
+        {
+            if (decl.Name != "main")
+            {
+                decl.Accept(this);
+            }
+        }
+
+        program.Main.Accept(this);
+        return GenerateProgram();
     }
 
     public void Visit(LiteralExpression e)
@@ -181,6 +199,10 @@ public class PsVmCodegen : IAstVisitor
                 _builder.Append(new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name)));
                 break;
 
+            case FunctionDeclaration function:
+                _builder.Append(new Instruction(InstructionCode.Call, new Value(function.Name)));
+                break;
+
             default:
                 throw new NotImplementedException($"Unsupported AST subclass {e.Function.GetType()}");
         }
@@ -198,35 +220,44 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(FunctionDeclaration d)
     {
-        _hasReturn = false;
-
-        // Новый фрейм
-        _builder.Append(new Instruction(InstructionCode.PushVars));
-        _exitBlock = _builder.CreateBasicBlock();
-        _exitBlock.IsHaltBlock = true; // Для main isHaltBlock = true
-
-        // Генерируем тело функции
-        d.Body.Accept(this);
-
-        if (!_hasReturn)
+        bool isEntryPoint = d.Name == "main";
+        if (isEntryPoint)
         {
-            // Неявный Jump в exitBlock
-            _builder.AppendJump(InstructionCode.Jump, _exitBlock);
+            _currentFunction = new FunctionInfo("main", []);
+
+            _hasReturn = false;
+            _builder.Append(new Instruction(InstructionCode.PushVars));
+
+            _exitBlock = _builder.CreateBasicBlock();
+            _exitBlock.IsHaltBlock = true;
+
+            d.Body.Accept(this);
+
+            if (!_hasReturn)
+            {
+                _builder.AppendJump(InstructionCode.Jump, _exitBlock);
+            }
+
+            _builder.InsertPoint = _exitBlock;
+            _builder.Append(new Instruction(InstructionCode.PopVars));
+            _builder.Append(new Instruction(InstructionCode.Halt));
+
+            _mainFunction = _currentFunction;
+            _mainFunction.Instructions = _builder.Finish();
+
+            _exitBlock = null;
+            _currentFunction = null;
+
+            return;
         }
 
-        // Теперь генерируем код выхода в этом блоке
-        _builder.InsertPoint = _exitBlock;
-
-        // Одна область видимости внутри функции, вложенные блоки проверяет SemanticsChecker
-        _builder.Append(new Instruction(InstructionCode.PopVars));
-        _builder.Append(new Instruction(InstructionCode.Halt));
-
-        _exitBlock = null;
+        GenerateUserFunction(d);
     }
 
     public void Visit(ReturnStatement s)
     {
         _hasReturn = true;
+
         if (s.ReturnValue != null)
         {
             s.ReturnValue.Accept(this);
@@ -236,7 +267,14 @@ public class PsVmCodegen : IAstVisitor
             _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
         }
 
-        _builder.AppendJump(InstructionCode.Jump, _exitBlock!);
+        if (_currentFunction == null || _currentFunction.Name == "main")
+        {
+            _builder.AppendJump(InstructionCode.Jump, _exitBlock!);
+        }
+        else
+        {
+            _builder.Append(new Instruction(InstructionCode.Return));
+        }
     }
 
     public void Visit(IdentifierExpression e)
@@ -258,6 +296,10 @@ public class PsVmCodegen : IAstVisitor
         string mappedName = GetMappedName(lvalue.Name);
         s.Right.Accept(this);
         _builder.Append(new Instruction(InstructionCode.StoreLocal, mappedName));
+    }
+
+    public void Visit(ParameterDeclaration d)
+    {
     }
 
     public void Visit(IfElseStatement s)
@@ -291,6 +333,88 @@ public class PsVmCodegen : IAstVisitor
 
             _builder.InsertPoint = finalBlock;
         }
+    }
+
+    private List<Instruction> GenerateProgram()
+    {
+        if (_mainFunction == null)
+        {
+            throw new InvalidOperationException("Entry point 'main' not found");
+        }
+
+        List<Instruction> allInstructions = new List<Instruction>();
+        Dictionary<string, int> functionAddresses = new Dictionary<string, int>();
+
+        functionAddresses["main"] = 0;
+        allInstructions.AddRange(_mainFunction.Instructions);
+
+        foreach (KeyValuePair<string, FunctionInfo> kv in _functions)
+        {
+            if (kv.Key == "main")
+            {
+                continue;
+            }
+
+            functionAddresses[kv.Key] = allInstructions.Count;
+            allInstructions.AddRange(kv.Value.Instructions);
+        }
+
+        for (int i = 0; i < allInstructions.Count; i++)
+        {
+            Instruction instr = allInstructions[i];
+            if (instr.Code == InstructionCode.Call && instr.Operand.IsString())
+            {
+                string funcName = instr.Operand.AsString();
+
+                if (!functionAddresses.TryGetValue(funcName, out int addr))
+                {
+                    throw new InvalidOperationException($"Undefined function '{funcName}'");
+                }
+
+                allInstructions[i] = new Instruction(InstructionCode.Call, new Value(addr));
+            }
+        }
+
+        return allInstructions;
+    }
+
+    private void GenerateUserFunction(FunctionDeclaration d)
+    {
+        _savedBuilder = _builder;
+
+        InstructionsBuilder funcBuilder = new InstructionsBuilder();
+        _builder = funcBuilder;
+        _currentFunction = new FunctionInfo(d.Name, d.Parameters);
+
+        EnterBlock();
+        _builder.Append(new Instruction(InstructionCode.PushVars));
+
+        foreach (AbstractParameterDeclaration paramDecl in d.Parameters)
+        {
+            ParameterDeclaration param = (ParameterDeclaration)paramDecl;
+            DefineVariable(param.Name, out string mappedName);
+            _builder.Append(new Instruction(InstructionCode.DefineLocal, mappedName));
+        }
+
+        bool savedHasReturn = _hasReturn;
+        _hasReturn = false;
+        d.Body.Accept(this);
+
+        if (!_hasReturn)
+        {
+            _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
+            _builder.Append(new Instruction(InstructionCode.Return));
+        }
+
+        _hasReturn = savedHasReturn;
+        ExitBlock();
+
+        _currentFunction.Instructions = funcBuilder.Finish();
+        _functions[d.Name] = _currentFunction;
+
+        _builder = _savedBuilder;
+        _savedBuilder = null;
+        _currentFunction = null;
     }
 
     private void GenerateLogicalAndCode(BinaryOperationExpression e)

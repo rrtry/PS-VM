@@ -26,6 +26,11 @@ public class PsVm
     private readonly Stack<Value> _evaluationStack;
 
     /// <summary>
+    /// Стек для сохранения возвратных адресов.
+    /// </summary>
+    private readonly Stack<int> _callStack = new();
+
+    /// <summary>
     /// Таблицы переменных
     /// </summary>
     private VariablesTable? _variables;
@@ -276,6 +281,26 @@ public class PsVm
 
                     break;
 
+                case InstructionCode.Call:
+                    {
+                        int target = (int)instruction.Operand.AsLong();
+                        _callStack.Push(_instructionPointer);
+                        _variables = new VariablesTable(_variables);
+                        _instructionPointer = target;
+                    }
+
+                    break;
+
+                case InstructionCode.Return:
+                    {
+                        Value retVal = _evaluationStack.Pop();
+                        _variables = _variables!.Parent;
+                        _instructionPointer = _callStack.Pop();
+                        _evaluationStack.Push(retVal);
+                    }
+
+                    break;
+
                 case InstructionCode.PushVars:
                     _variables = new VariablesTable(_variables);
                     break;
@@ -390,10 +415,11 @@ public class PsVm
             throw new InvalidOperationException("Invalid empty VM program");
         }
 
+        /*
         InstructionCode lastInstructionCode = instructions[^1].Code;
         if (lastInstructionCode != InstructionCode.Halt)
         {
             throw new InvalidOperationException($"Last instruction must be {InstructionCode.Halt}, found {lastInstructionCode}");
-        }
+        } */
     }
 }

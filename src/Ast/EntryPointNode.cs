@@ -4,13 +4,13 @@ namespace Ast;
 
 public class EntryPointNode : AstNode
 {
-    public EntryPointNode(FunctionDeclaration main, List<FunctionDeclaration> functions)
+    public EntryPointNode(FunctionDeclaration? main, List<FunctionDeclaration> functions)
     {
         Main = main;
         Functions = functions;
     }
 
-    public FunctionDeclaration Main { get; }
+    public FunctionDeclaration? Main { get; }
 
     public List<FunctionDeclaration> Functions { get; }
 

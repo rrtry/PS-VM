@@ -18,12 +18,10 @@ public class BasicBlock
     {
         _id = id;
         _instructions = [];
-        IsHaltBlock = false;
+        IsEntryPoint = false;
     }
 
-    public bool IsHaltBlock { get; set; }
-
-    public bool IsReturnBlock { get; set; }
+    public bool IsEntryPoint { get; set; }
 
     /// <summary>
     /// Идентификатор (номер) базового блока.

@@ -32,24 +32,34 @@ public class InstructionsBuilder
         }
     }
 
+    /// <summary>
+    /// Собирает финальный список инструкций из базовых блоков, заменяя адреса во всех инструкциях перехода
+    ///  на окончательные адреса инструкций.
+    /// </summary>
     public List<Instruction> Finish()
     {
+        int entryPointIndex = _basicBlocks.FindIndex(block => block.IsEntryPoint);
+        BasicBlock entryPointBlock = _basicBlocks[entryPointIndex];
+
+        _basicBlocks.RemoveAt(entryPointIndex);
+        _basicBlocks.Insert(0, entryPointBlock);
+
         Dictionary<int, int> blockAddress = CalculateBasicBlockAddresses();
         List<Instruction> instructions = new List<Instruction>();
 
         foreach (BasicBlock block in _basicBlocks)
         {
-            foreach (Instruction instr in block.Instructions)
+            foreach (Instruction instruction in block.Instructions)
             {
-                if (IsJump(instr.Code))
+                if (IsJump(instruction.Code))
                 {
-                    int targetBlockId = (int)instr.Operand.AsLong();
-                    int targetAddress = blockAddress[targetBlockId];
-                    instructions.Add(new Instruction(instr.Code, targetAddress));
+                    int targetBlockId = (int)instruction.Operand.AsLong();
+                    int newAddress = blockAddress[targetBlockId];
+                    instructions.Add(new Instruction(instruction.Code, newAddress));
                 }
                 else
                 {
-                    instructions.Add(instr);
+                    instructions.Add(instruction);
                 }
             }
         }
@@ -102,7 +112,7 @@ public class InstructionsBuilder
     {
         return code switch
         {
-            // TODO: Call в 5-ой итерации
+            InstructionCode.Call => true,
             InstructionCode.Jump => true,
             InstructionCode.JumpIfFalse => true,
             InstructionCode.JumpIfTrue => true,

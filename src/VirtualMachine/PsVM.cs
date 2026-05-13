@@ -28,7 +28,7 @@ public class PsVm
     /// <summary>
     /// Стек для сохранения возвратных адресов.
     /// </summary>
-    private readonly Stack<int> _callStack = new();
+    private readonly Stack<int> _callStack;
 
     /// <summary>
     /// Таблицы переменных
@@ -47,6 +47,7 @@ public class PsVm
         _instructionPointer = 0;
         _exitCode = 0;
         _evaluationStack = new Stack<Value>();
+        _callStack = new Stack<int>();
     }
 
     public int ExitCode => _exitCode;
@@ -415,11 +416,9 @@ public class PsVm
             throw new InvalidOperationException("Invalid empty VM program");
         }
 
-        /*
-        InstructionCode lastInstructionCode = instructions[^1].Code;
-        if (lastInstructionCode != InstructionCode.Halt)
+        if (!instructions.Any(i => i.Code == InstructionCode.Halt))
         {
-            throw new InvalidOperationException($"Last instruction must be {InstructionCode.Halt}, found {lastInstructionCode}");
-        } */
+            throw new InvalidOperationException("Program must contain Halt instruction");
+        }
     }
 }

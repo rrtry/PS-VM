@@ -48,8 +48,7 @@ public class Parser
             }
         }
 
-        // TODO: check for null main
-        return new EntryPointNode(mainFunction!, functions);
+        return new EntryPointNode(mainFunction, functions);
     }
 
     private void MatchBuiltinType(out string typeName, out ValueType typeValue)
@@ -127,11 +126,12 @@ public class Parser
 
         if (_tokens.Peek().Type != TokenType.RightParen)
         {
-            do
+            declarations.Add(ParseParameterDeclaration());
+            while (_tokens.Peek().Type == TokenType.Comma)
             {
+                _tokens.Advance();
                 declarations.Add(ParseParameterDeclaration());
             }
-            while (_tokens.Peek().Type == TokenType.Comma);
         }
 
         return declarations;

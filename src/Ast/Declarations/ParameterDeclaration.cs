@@ -8,6 +8,7 @@ public class ParameterDeclaration : AbstractParameterDeclaration
     public ParameterDeclaration(string name, BuiltinType type)
     : base(name, type)
     {
+        ResultType = type.ResultType;
     }
 
     public override void Accept(IAstVisitor visitor)

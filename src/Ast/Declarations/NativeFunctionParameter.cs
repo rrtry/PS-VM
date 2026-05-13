@@ -10,6 +10,7 @@ public class NativeFunctionParameter : AbstractParameterDeclaration
     public NativeFunctionParameter(string name, ValueType type)
     : base(name, new BuiltinType(type.ToString(), type))
     {
+        ResultType = type;
     }
 
     public override void Accept(IAstVisitor visitor)

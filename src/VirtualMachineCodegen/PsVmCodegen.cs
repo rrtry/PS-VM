@@ -65,34 +65,17 @@ public class PsVmCodegen : IAstVisitor
         };
 
     private readonly Stack<Dictionary<string, string>> _shadowStack = new();
-    private readonly Dictionary<string, FunctionInfo> _functions = new();
+    private readonly Dictionary<string, BasicBlock> _functions = new();
+    private readonly InstructionsBuilder _builder = new();
     private int _uniqueCounter;
 
-    private FunctionInfo? _mainFunction;
-
-    private InstructionsBuilder _builder = new();
-    private FunctionInfo? _currentFunction;
-    private InstructionsBuilder? _savedBuilder;
-
-    private BasicBlock? _exitBlock;
+    private string _currentFunction;
     private bool _hasReturn = false;
 
     public List<Instruction> GenerateCode(EntryPointNode program)
     {
-        /*
         program.Accept(this);
-        return _builder.Finish(); */
-
-        foreach (FunctionDeclaration decl in program.Functions)
-        {
-            if (decl.Name != "main")
-            {
-                decl.Accept(this);
-            }
-        }
-
-        program.Main.Accept(this);
-        return GenerateProgram();
+        return _builder.Finish();
     }
 
     public void Visit(LiteralExpression e)
@@ -199,8 +182,9 @@ public class PsVmCodegen : IAstVisitor
                 _builder.Append(new Instruction(InstructionCode.CallBuiltin, GetBuiltinFunctionCode(native.Name)));
                 break;
 
-            case FunctionDeclaration function:
-                _builder.Append(new Instruction(InstructionCode.Call, new Value(function.Name)));
+            case FunctionDeclaration:
+                BasicBlock functionBlock = _functions[e.Function.Name];
+                _builder.AppendJump(InstructionCode.Call, functionBlock);
                 break;
 
             default:
@@ -215,43 +199,53 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(EntryPointNode n)
     {
-        n.Main.Accept(this);
+        foreach (FunctionDeclaration decl in n.Functions)
+        {
+            if (decl.Name != "main")
+            {
+                decl.Accept(this);
+            }
+        }
+
+        n.Main!.Accept(this);
     }
 
     public void Visit(FunctionDeclaration d)
     {
         bool isEntryPoint = d.Name == "main";
-        if (isEntryPoint)
+
+        _currentFunction = d.Name;
+        _hasReturn = false;
+
+        BasicBlock previousBlock = _builder.InsertPoint;
+        BasicBlock functionBlock = _builder.CreateBasicBlock();
+
+        functionBlock.IsEntryPoint = isEntryPoint;
+
+        _builder.InsertPoint = functionBlock;
+        _functions[d.Name] = functionBlock;
+
+        PushScope();
+        _builder.Append(new Instruction(InstructionCode.PushVars));
+
+        foreach (AbstractParameterDeclaration paramDecl in d.Parameters)
         {
-            _currentFunction = new FunctionInfo("main", []);
-
-            _hasReturn = false;
-            _builder.Append(new Instruction(InstructionCode.PushVars));
-
-            _exitBlock = _builder.CreateBasicBlock();
-            _exitBlock.IsHaltBlock = true;
-
-            d.Body.Accept(this);
-
-            if (!_hasReturn)
-            {
-                _builder.AppendJump(InstructionCode.Jump, _exitBlock);
-            }
-
-            _builder.InsertPoint = _exitBlock;
-            _builder.Append(new Instruction(InstructionCode.PopVars));
-            _builder.Append(new Instruction(InstructionCode.Halt));
-
-            _mainFunction = _currentFunction;
-            _mainFunction.Instructions = _builder.Finish();
-
-            _exitBlock = null;
-            _currentFunction = null;
-
-            return;
+            ParameterDeclaration param = (ParameterDeclaration)paramDecl;
+            DefineVariable(param.Name, out string mappedName);
+            _builder.Append(new Instruction(InstructionCode.DefineLocal, mappedName));
         }
 
-        GenerateUserFunction(d);
+        d.Body.Accept(this);
+
+        if (!_hasReturn && !isEntryPoint)
+        {
+            _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
+            _builder.Append(new Instruction(InstructionCode.PopVars));
+            _builder.Append(new Instruction(InstructionCode.Return));
+        }
+
+        PopScope(); // PopVars выполняется в ReturnStatement
+        _builder.InsertPoint = previousBlock;
     }
 
     public void Visit(ReturnStatement s)
@@ -267,9 +261,11 @@ public class PsVmCodegen : IAstVisitor
             _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
         }
 
-        if (_currentFunction == null || _currentFunction.Name == "main")
+        _builder.Append(new Instruction(InstructionCode.PopVars));
+
+        if (_currentFunction == "main")
         {
-            _builder.AppendJump(InstructionCode.Jump, _exitBlock!);
+            _builder.Append(new Instruction(InstructionCode.Halt));
         }
         else
         {
@@ -335,88 +331,6 @@ public class PsVmCodegen : IAstVisitor
         }
     }
 
-    private List<Instruction> GenerateProgram()
-    {
-        if (_mainFunction == null)
-        {
-            throw new InvalidOperationException("Entry point 'main' not found");
-        }
-
-        List<Instruction> allInstructions = new List<Instruction>();
-        Dictionary<string, int> functionAddresses = new Dictionary<string, int>();
-
-        functionAddresses["main"] = 0;
-        allInstructions.AddRange(_mainFunction.Instructions);
-
-        foreach (KeyValuePair<string, FunctionInfo> kv in _functions)
-        {
-            if (kv.Key == "main")
-            {
-                continue;
-            }
-
-            functionAddresses[kv.Key] = allInstructions.Count;
-            allInstructions.AddRange(kv.Value.Instructions);
-        }
-
-        for (int i = 0; i < allInstructions.Count; i++)
-        {
-            Instruction instr = allInstructions[i];
-            if (instr.Code == InstructionCode.Call && instr.Operand.IsString())
-            {
-                string funcName = instr.Operand.AsString();
-
-                if (!functionAddresses.TryGetValue(funcName, out int addr))
-                {
-                    throw new InvalidOperationException($"Undefined function '{funcName}'");
-                }
-
-                allInstructions[i] = new Instruction(InstructionCode.Call, new Value(addr));
-            }
-        }
-
-        return allInstructions;
-    }
-
-    private void GenerateUserFunction(FunctionDeclaration d)
-    {
-        _savedBuilder = _builder;
-
-        InstructionsBuilder funcBuilder = new InstructionsBuilder();
-        _builder = funcBuilder;
-        _currentFunction = new FunctionInfo(d.Name, d.Parameters);
-
-        EnterBlock();
-        _builder.Append(new Instruction(InstructionCode.PushVars));
-
-        foreach (AbstractParameterDeclaration paramDecl in d.Parameters)
-        {
-            ParameterDeclaration param = (ParameterDeclaration)paramDecl;
-            DefineVariable(param.Name, out string mappedName);
-            _builder.Append(new Instruction(InstructionCode.DefineLocal, mappedName));
-        }
-
-        bool savedHasReturn = _hasReturn;
-        _hasReturn = false;
-        d.Body.Accept(this);
-
-        if (!_hasReturn)
-        {
-            _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
-            _builder.Append(new Instruction(InstructionCode.Return));
-        }
-
-        _hasReturn = savedHasReturn;
-        ExitBlock();
-
-        _currentFunction.Instructions = funcBuilder.Finish();
-        _functions[d.Name] = _currentFunction;
-
-        _builder = _savedBuilder;
-        _savedBuilder = null;
-        _currentFunction = null;
-    }
-
     private void GenerateLogicalAndCode(BinaryOperationExpression e)
     {
         BasicBlock shortCircuitBlock = _builder.CreateBasicBlock();
@@ -460,7 +374,7 @@ public class PsVmCodegen : IAstVisitor
 
     private void GenerateBlockStatementCode(BlockStatement statement)
     {
-        EnterBlock();
+        PushScope();
 
         IReadOnlyList<AstNode> sequence = statement.Statements;
         for (int i = 0, iMax = sequence.Count - 1; i <= iMax; ++i)
@@ -478,7 +392,7 @@ public class PsVmCodegen : IAstVisitor
             }
         }
 
-        ExitBlock();
+        PopScope();
     }
 
     private void GenerateBinaryOperationCode(Expression left, Expression right, InstructionCode code)
@@ -488,12 +402,12 @@ public class PsVmCodegen : IAstVisitor
         _builder.Append(new Instruction(code));
     }
 
-    private void EnterBlock()
+    private void PushScope()
     {
         _shadowStack.Push(new Dictionary<string, string>());
     }
 
-    private void ExitBlock()
+    private void PopScope()
     {
         _shadowStack.Pop();
     }

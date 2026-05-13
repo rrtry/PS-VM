@@ -3,6 +3,8 @@ using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
+using Semantics.Exceptions;
+
 namespace Semantics.Passes;
 
 /// <summary>
@@ -50,6 +52,12 @@ public abstract class AbstractPass : IAstVisitor
     public void Visit(EntryPointNode n)
     {
         n.Functions.ForEach(f => f.Accept(this));
+
+        if (n.Main == null)
+        {
+            throw new InvalidDeclarationException("missing entry point");
+        }
+
         n.Main.Accept(this);
     }
 
@@ -58,14 +66,21 @@ public abstract class AbstractPass : IAstVisitor
         d.Initializer.Accept(this);
     }
 
-    public virtual void Visit(ParameterDeclaration d)
-    {
-    }
-
     public virtual void Visit(AssignmentStatement s)
     {
         s.Left.Accept(this);
         s.Right.Accept(this);
+    }
+
+    public virtual void Visit(IfElseStatement s)
+    {
+        s.Condition.Accept(this);
+        s.ThenBranch.Accept(this);
+        s.ElseBranch?.Accept(this);
+    }
+
+    public virtual void Visit(ParameterDeclaration d)
+    {
     }
 
     public virtual void Visit(IdentifierExpression e)
@@ -74,12 +89,5 @@ public abstract class AbstractPass : IAstVisitor
 
     public virtual void Visit(LiteralExpression e)
     {
-    }
-
-    public virtual void Visit(IfElseStatement s)
-    {
-        s.Condition.Accept(this);
-        s.ThenBranch.Accept(this);
-        s.ElseBranch?.Accept(this);
     }
 }

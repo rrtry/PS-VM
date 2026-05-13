@@ -4,7 +4,7 @@ namespace Semantics.Symbols;
 
 public class Scope
 {
-    private readonly Dictionary<string, VariableDeclaration> _variables;
+    private readonly Dictionary<string, AbstractVariableDeclaration> _variables;
 
     public Scope(Scope? parent = null)
     {
@@ -14,9 +14,9 @@ public class Scope
 
     public Scope? Parent { get; }
 
-    public VariableDeclaration? GetVariable(string variable)
+    public AbstractVariableDeclaration? GetVariable(string variable)
     {
-        VariableDeclaration? declaration = _variables.GetValueOrDefault(variable);
+        AbstractVariableDeclaration? declaration = _variables.GetValueOrDefault(variable);
         if (declaration != null)
         {
             return declaration;
@@ -30,7 +30,7 @@ public class Scope
         return null;
     }
 
-    public bool DeclareVariable(string variable, VariableDeclaration declaration)
+    public bool DeclareVariable(string variable, AbstractVariableDeclaration declaration)
     {
         if (_variables.ContainsKey(variable))
         {

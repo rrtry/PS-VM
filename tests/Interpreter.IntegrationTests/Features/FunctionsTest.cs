@@ -22,15 +22,16 @@ public class FunctionsTest
         {
             {
                 @"
-                fn func(): unit {
-                    print(""User defined function"");
-                }
-
                 fn main(): int {
-                    func();
+                    func(2);
                     return 0;
                 }
-                ", [], "User defined function"
+
+                fn func(x: int): unit {
+                    printi(x);
+                }
+                
+                ", [], "2"
             },
         };
     }

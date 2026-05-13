@@ -68,7 +68,7 @@ public sealed class SymbolsTable
         }
     }
 
-    public void DeclareVariable(VariableDeclaration decl)
+    public void DeclareVariable(AbstractVariableDeclaration decl)
     {
         if (!_scope!.DeclareVariable(decl.Name, decl))
         {
@@ -76,15 +76,15 @@ public sealed class SymbolsTable
         }
     }
 
-    public VariableDeclaration FindVariable(string name)
+    public AbstractVariableDeclaration FindVariable(string name)
     {
-        Declaration? variable = _scope!.GetVariable(name);
+        AbstractVariableDeclaration? variable = _scope!.GetVariable(name);
         if (variable == null)
         {
             throw UnknownSymbolException.UndefinedVariableOrFunction(name);
         }
 
-        return (VariableDeclaration)variable;
+        return variable;
     }
 
     private Declaration? FindGlobalDeclaration(Func<SymbolsTable, Dictionary<string, Declaration>> getTable, string name)

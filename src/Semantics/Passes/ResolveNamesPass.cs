@@ -25,8 +25,15 @@ public sealed class ResolveNamesPass : AbstractPass
     public override void Visit(FunctionDeclaration d)
     {
         AbstractTypeDeclaration declaredType = _symbols.GetTypeDeclaration(d.DeclaredTypeName ?? "unit");
+
         d.ResultType = declaredType.ResultType;
         d.DeclaredType = declaredType;
+
+        foreach (AbstractParameterDeclaration param in d.Parameters)
+        {
+            ParameterDeclaration paramDecl = (ParameterDeclaration)param;
+            paramDecl.Accept(this);
+        }
 
         _symbols.DeclareFunction(d);
         base.Visit(d);
@@ -41,12 +48,19 @@ public sealed class ResolveNamesPass : AbstractPass
     public override void Visit(BlockStatement s)
     {
         _symbols.PushScope();
+
         foreach (AstNode nested in s.Statements)
         {
             nested.Accept(this);
         }
 
         _symbols.PopScope();
+    }
+
+    public override void Visit(ParameterDeclaration d)
+    {
+        base.Visit(d);
+        _symbols.DeclareVariable(d);
     }
 
     public override void Visit(VariableDeclaration d)

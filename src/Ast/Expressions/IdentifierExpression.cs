@@ -8,7 +8,7 @@ namespace Ast.Expressions;
 /// </summary>
 public sealed class IdentifierExpression : Expression
 {
-    private AstAttribute<VariableDeclaration> variable;
+    private AstAttribute<AbstractVariableDeclaration> variable;
 
     public IdentifierExpression(string name)
     {
@@ -20,7 +20,7 @@ public sealed class IdentifierExpression : Expression
     /// <summary>
     /// Ссылка на объявление переменной (заполняется на этапе семантического анализа).
     /// </summary>
-    public VariableDeclaration Variable
+    public AbstractVariableDeclaration Variable
     {
         get => variable.Get();
         set => variable.Set(value);

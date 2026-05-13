@@ -5,21 +5,13 @@ namespace Ast.Declarations;
 /// <summary>
 /// Объявление переменной.
 /// </summary>
-public sealed class VariableDeclaration : Declaration
+public sealed class VariableDeclaration : AbstractVariableDeclaration
 {
     public VariableDeclaration(string name, BuiltinType? typeAnnotation, Expression initializer)
+    : base(name, typeAnnotation)
     {
-        Name = name;
-        DeclaredType = typeAnnotation;
         Initializer = initializer;
     }
-
-    public string Name { get; }
-
-    /// <summary>
-    /// Аннотация типа.
-    /// </summary>
-    public BuiltinType? DeclaredType { get; }
 
     /// <summary>
     /// Выражение-инициализатор.

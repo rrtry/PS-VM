@@ -184,7 +184,7 @@ public class CheckTypesPass : AbstractPass
         for (int i = 0, iMax = e.Arguments.Count; i < iMax; ++i)
         {
             Expression argument = e.Arguments[i];
-            NativeFunctionParameter parameter = (NativeFunctionParameter)function.Parameters[i]; // приведение безопасно, так как пользовательские функции пока что не могут иметь аругменты
+            AbstractVariableDeclaration parameter = function.Parameters[i];
 
             if (!ValueTypeUtil.AreEqual(parameter.ResultType, argument.ResultType))
             {

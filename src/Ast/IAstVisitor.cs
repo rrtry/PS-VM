@@ -22,6 +22,8 @@ public interface IAstVisitor
 
     public void Visit(VariableDeclaration d);
 
+    public void Visit(ParameterDeclaration d);
+
     public void Visit(BlockStatement s);
 
     public void Visit(ReturnStatement s);
@@ -29,6 +31,4 @@ public interface IAstVisitor
     public void Visit(AssignmentStatement s);
 
     public void Visit(IfElseStatement s);
-
-    public void Visit(ParameterDeclaration d);
 }

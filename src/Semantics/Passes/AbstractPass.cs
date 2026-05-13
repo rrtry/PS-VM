@@ -58,6 +58,10 @@ public abstract class AbstractPass : IAstVisitor
         d.Initializer.Accept(this);
     }
 
+    public virtual void Visit(ParameterDeclaration d)
+    {
+    }
+
     public virtual void Visit(AssignmentStatement s)
     {
         s.Left.Accept(this);
@@ -77,10 +81,5 @@ public abstract class AbstractPass : IAstVisitor
         s.Condition.Accept(this);
         s.ThenBranch.Accept(this);
         s.ElseBranch?.Accept(this);
-    }
-
-    public void Visit(ParameterDeclaration d)
-    {
-        // TODO: implement
     }
 }

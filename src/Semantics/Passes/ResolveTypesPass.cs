@@ -1,5 +1,6 @@
 using Ast.Declarations;
 using Ast.Expressions;
+using Ast.Statements;
 
 using Semantics.Exceptions;
 using Semantics.Helpers;
@@ -23,16 +24,22 @@ public sealed class ResolveTypesPass : AbstractPass
         e.ResultType = e.Type;
     }
 
-    public override void Visit(IdentifierExpression e)
+    public override void Visit(ParameterDeclaration d)
     {
-        base.Visit(e);
-        e.ResultType = e.Variable.ResultType;
+        base.Visit(d);
+        d.ResultType = d.DeclaredType!.ResultType;
     }
 
     public override void Visit(VariableDeclaration d)
     {
         base.Visit(d);
         d.ResultType = d.Initializer.ResultType;
+    }
+
+    public override void Visit(IdentifierExpression e)
+    {
+        base.Visit(e);
+        e.ResultType = e.Variable.ResultType;
     }
 
     /// <summary>

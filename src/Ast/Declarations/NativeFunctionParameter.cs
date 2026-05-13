@@ -8,12 +8,9 @@ namespace Ast.Declarations;
 public class NativeFunctionParameter : AbstractParameterDeclaration
 {
     public NativeFunctionParameter(string name, ValueType type)
+    : base(name, new BuiltinType(type.ToString(), type))
     {
-        ResultType = type;
-        Name = name;
     }
-
-    public string Name { get; }
 
     public override void Accept(IAstVisitor visitor)
     {

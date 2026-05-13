@@ -127,11 +127,11 @@ public class Parser
 
         if (_tokens.Peek().Type != TokenType.RightParen)
         {
-            while (_tokens.Peek().Type == TokenType.Comma)
+            do
             {
-                _tokens.Advance();
                 declarations.Add(ParseParameterDeclaration());
             }
+            while (_tokens.Peek().Type == TokenType.Comma);
         }
 
         return declarations;
@@ -141,9 +141,8 @@ public class Parser
     {
         string name = Match(TokenType.Identifier).Value!.ToString();
         Match(TokenType.Colon);
-
-        Match(TokenType.Identifier).Value!.ToString();
         MatchBuiltinType(out string typeName, out ValueType typeValue);
+        _tokens.Advance();
 
         return new ParameterDeclaration(name, new BuiltinType(typeName, typeValue));
     }

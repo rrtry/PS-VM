@@ -35,6 +35,8 @@ public class PsVm
     /// </summary>
     private VariablesTable? _variables = new();
 
+    private readonly Stack<VariablesTable?> _variablesStack = new();
+
     /// <summary>
     /// Словарь для хранения локальных переменных по имени.
     /// </summary>
@@ -286,7 +288,8 @@ public class PsVm
                     {
                         int target = (int)instruction.Operand.AsLong();
                         _callStack.Push(_instructionPointer);
-                        _variables = new VariablesTable(_variables);
+                        _variablesStack.Push(_variables);
+                        _variables = null;
                         _instructionPointer = target;
                     }
 
@@ -295,7 +298,7 @@ public class PsVm
                 case InstructionCode.Return:
                     {
                         Value retVal = _evaluationStack.Pop();
-                        _variables = _variables!.Parent;
+                        _variables = _variablesStack.Pop();
                         _instructionPointer = _callStack.Pop();
                         _evaluationStack.Push(retVal);
                     }

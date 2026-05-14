@@ -1,5 +1,7 @@
 namespace Parser;
 
+using System.Data;
+
 using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
@@ -303,7 +305,7 @@ public class Parser
         {
             VariableDeclaration varDecl => varDecl.Name,
             AssignmentStatement assignStmt => ((IdentifierExpression)assignStmt.Left).Name,
-            _ => throw new InvalidOperationException("Invalid for loop initialization"),
+            _ => throw new SyntaxErrorException("Invalid for loop initialization"),
         };
 
         Expression condition = ParseExpression();

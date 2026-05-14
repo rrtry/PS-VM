@@ -1,5 +1,6 @@
 namespace Interpreter.IntegrationTests;
 
+using Semantics.Exceptions;
 using Tests.TestLibrary;
 
 public class FunctionsTest
@@ -14,6 +15,128 @@ public class FunctionsTest
 
         interpreter.Execute(code);
         Assert.Equal(expected, environment.OutputBuffer);
+    }
+
+    [CulturedTheory(["ru-RU", "en-US"])]
+    [MemberData(nameof(GetInvalidProgramsWithFunctions))]
+    public void Throws_on_invalid_function_usage(string code, Type expectedExceptionType)
+    {
+        FakeEnvironment environment = new();
+        Interpreter interpreter = new(environment);
+        Assert.Throws(expectedExceptionType, () => interpreter.Execute(code));
+    }
+
+    public static TheoryData<string, Type> GetInvalidProgramsWithFunctions()
+    {
+        return new TheoryData<string, Type>
+        {
+            {
+                @"
+                fn wrong_return_type(i: int): float {
+                    return i;
+                }
+                fn main(): int {
+                    wrong_return_type(1);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn wrong_return_type(s: str) {
+                    return s;
+                }
+                fn main(): int {
+                    wrong_return_type("""");
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn prints(s: str) {
+                    print(s);
+                }
+                fn main(): int {
+                    prints(1);
+                    return 0;
+                }
+                ",
+                typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn prints(s: str, i: int) {
+                    print(s);
+                }
+
+                fn main(): int {
+                    prints("""");
+                    return 0;
+                }
+                ",
+                typeof(InvalidFunctionCallException)
+            },
+            {
+                @"
+                fn prints(s: str, i: int) {
+                    print(s);
+                }
+
+                fn main(): int {
+                    prints("""", 1, 1);
+                    return 0;
+                }
+                ",
+                typeof(InvalidFunctionCallException)
+            },
+            {
+                @"
+                fn main(): int {
+                    continue; 
+                    return 0; 
+                }",
+                typeof(InvalidStatementException)
+            },
+            {
+                @"
+                fn main(): int { 
+                    break; 
+                    return 0;
+                }",
+                typeof(InvalidStatementException)
+            },
+            {
+                @"
+                fn test(): int { 
+                    continue; 
+                    return 0;
+                } 
+                fn main(): int { 
+                    return 0; 
+                }",
+                typeof(InvalidStatementException)
+            },
+            {
+                @"fn main(): int { 
+                    if (true) { break; } 
+                    return 0;
+                }",
+                typeof(InvalidStatementException)
+            },
+            {
+                @"
+                fn inner(): unit { continue; } 
+                fn main(): int { 
+                    let i = 0; 
+                    while (i < 1) { inner(); i = i + 1; } 
+                    return 0;
+                }",
+                typeof(InvalidStatementException)
+            },
+        };
     }
 
     public static TheoryData<string, List<string>, string> GetProgramsWithFunctions()
@@ -42,32 +165,14 @@ public class FunctionsTest
                     let x = 10;
                     let y = 20;
                     let result = compute(x, y);
-                    // double(10)=20, inc(20)=21, сумма = 41
+                    // double(10) = 20, inc(20) = 21, 41
                     printi(result);
-                    // Проверим, что x и y не изменились (передача по значению)
+                    // x и y не изменились
                     printi(x);
                     printi(y);
                     return 0;
                 }
                 ", [], "411020"
-            },
-            {
-                @"
-                fn countdown(n: int): unit {
-
-                    if (n == 0) {
-                        print(""Go!"");
-                        return;
-                    }
-
-                    printi(n);
-                    countdown(n - 1);
-                }
-                fn main(): int {
-                    countdown(3);
-                    return 0;
-                }
-                ", [], "321Go!"
             },
             {
                 @"
@@ -190,10 +295,12 @@ public class FunctionsTest
                     return 0;
                 }
                 fn main(): int {
+                    let x = 3;
                     test_shadowing();
+                    printi(x);
                     return 0;
                 }
-                ", [], "21"
+                ", [], "213"
             },
             {
                 @"

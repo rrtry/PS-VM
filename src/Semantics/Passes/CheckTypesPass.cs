@@ -25,6 +25,40 @@ public class CheckTypesPass : AbstractPass
         CheckFunctionArgumentTypes(e, e.Function);
     }
 
+    public override void Visit(WhileLoopStatement s)
+    {
+        base.Visit(s);
+        if (s.Condition.ResultType != Runtime.ValueType.Bool)
+        {
+            throw new TypeErrorException("While loop requires end condition of type 'bool'");
+        }
+    }
+
+    public override void Visit(ForLoopStatement s)
+    {
+        base.Visit(s);
+
+        Runtime.ValueType counterType;
+        if (s.Counter is AssignmentStatement)
+        {
+            counterType = ((AssignmentStatement)s.Counter).Left.ResultType;
+        }
+        else
+        {
+            counterType = ((VariableDeclaration)s.Counter).ResultType;
+        }
+
+        if (counterType != Runtime.ValueType.Int)
+        {
+            throw new TypeErrorException("For loop requires counter variable of type 'int'");
+        }
+
+        if (s.Condition.ResultType != Runtime.ValueType.Bool)
+        {
+            throw new TypeErrorException($"For loop requires end condition of type 'bool'");
+        }
+    }
+
     public override void Visit(FunctionDeclaration d)
     {
         currentFunction = d;

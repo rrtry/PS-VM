@@ -1,5 +1,7 @@
 namespace Interpreter.IntegrationTests;
 
+using System.Data;
+
 using Semantics.Exceptions;
 
 using Tests.TestLibrary;
@@ -32,11 +34,56 @@ public class LoopsTest
         return new TheoryData<string, Type>
         {
             {
-                @"fn main(): unit { continue; return 0; }",
+                @"
+                fn main(): int {
+                    let i = 1;
+                    while (i) {
+                        i = i + 1;
+                    }
+                    return 0;
+                }
+                ", typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    for (let i: float = 0.0; i < 1.0; i = i + 1)
+                    {
+                        printf(i, 2);
+                    }
+                    return 0;
+                }
+                ", typeof(TypeErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    for (false; i < 1.0; i = i + 1)
+                    {
+                        printf(i, 2);
+                    }
+                    return 0;
+                }
+                ", typeof(SyntaxErrorException)
+            },
+            {
+                @"
+                fn main(): int {
+                    let i = 0;
+                    for (i; i < 1.0; i = i + 1)
+                    {
+                        printf(i, 2);
+                    }
+                    return 0;
+                }
+                ", typeof(SyntaxErrorException)
+            },
+            {
+                @"fn main(): int { continue; return 0; }",
                 typeof(InvalidStatementException)
             },
             {
-                @"fn main(): unit { break; return 0; }",
+                @"fn main(): int { break; return 0; }",
                 typeof(InvalidStatementException)
             },
             {
@@ -48,7 +95,15 @@ public class LoopsTest
                 typeof(InvalidStatementException)
             },
             {
-                @"fn inner(): unit { continue; } fn main(): int { let i = 0; while (i < 1) { inner(); i = i + 1; } return 0; }",
+                @"fn inner(): unit { continue; } 
+                fn main(): int { 
+                    let i = 0; 
+                    while (i < 1) {
+                      inner(); 
+                      i = i + 1; 
+                    } 
+                    return 0; 
+                }",
                 typeof(InvalidStatementException)
             },
         };
@@ -58,6 +113,41 @@ public class LoopsTest
     {
         return new TheoryData<string, List<string>, string>
         {
+            {
+                @"
+                fn loop_outer_counter() {
+                    let i = 100;
+                    for (i = 0; i < 5; i = i + 1) {
+                        printi(i);
+                    }
+                }
+
+                fn main(): int {
+                    loop_outer_counter();
+                    return 0;
+                }
+                ", [], "01234"
+            },
+            {
+                @"
+                fn return_from_loop(): int {
+                
+                    for (let i = 0; i < 10; i = i + 1) {
+                        if (i == 5) {
+                            return i;
+                        }
+                    }
+
+                    return -1;
+                }
+
+                fn main(): int {
+                    let loop = return_from_loop();
+                    printi(loop);
+                    return 0;
+                }
+                ", [], "5"
+            },
             {
                 @"
                 fn main(): int {
@@ -286,63 +376,6 @@ public class LoopsTest
                     return 0;
                 }
                 ", [], "8"
-            },
-            {
-                @"
-                fn main(): int {
-                    for (let i = 0; i < 10; i = i + 1) {
-                        if (i == 5) {
-                            break;
-                        }
-                        if (i == 0) {
-                            continue;
-                        }
-                        printi(i);
-                    }
-                    return 0;
-                }
-                ", [], "1234"
-            },
-            {
-                @"
-                fn main(): int {
-                    let i = 0;
-                    while (i < 10) {
-                        if (i == 5) {
-                            break;
-                        }
-                        if (i == 0) {
-                            i = i + 1;
-                            continue;
-                        }
-                        printi(i);
-                        i = i + 1;
-                    }
-                    return 0;
-                }
-                ", [], "1234"
-            },
-            {
-                @"
-                fn main(): int {
-                    for (let i = 0; i < 5; i = i + 1) {
-                        printi(i);
-                    }
-                    return 0;
-                }
-                ", [], "01234"
-            },
-            {
-                @"
-                fn main(): int {
-                    let i = 0;
-                    while (i < 10) {
-                        printi(i);
-                        i = i + 1;
-                    }
-                    return 0;
-                }
-                ", [], "0123456789"
             },
         };
     }

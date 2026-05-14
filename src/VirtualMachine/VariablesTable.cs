@@ -6,12 +6,10 @@ public sealed class VariablesTable
 {
     private readonly VariablesTable? _parent;
     private readonly Dictionary<string, Value> _variables;
-    private readonly int _depth;
 
     public VariablesTable(VariablesTable? parent = null)
     {
         _parent = parent;
-        _depth = (parent?._depth ?? 0) + 1;
         _variables = [];
     }
 
@@ -27,6 +25,11 @@ public sealed class VariablesTable
             return value;
         }
 
+        if (_parent != null)
+        {
+            return _parent.GetVariable(name);
+        }
+
         throw new InvalidOperationException($"No variable with name {name}");
     }
 
@@ -35,15 +38,6 @@ public sealed class VariablesTable
     /// </summary>
     public void DefineVariable(string name, Value value)
     {
-        /*
-        if (_variables.ContainsKey(name))
-        {
-            _variables[name] = value;
-            return;
-        }
-
-        _variables.Add(name, value);
-        */
         if (!_variables.TryAdd(name, value))
         {
             throw new InvalidOperationException($"Variable with name {name} already defined");

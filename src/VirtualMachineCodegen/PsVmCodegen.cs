@@ -171,7 +171,7 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(FunctionCallExpression e)
     {
-        foreach (Expression argument in e.Arguments)
+        foreach (Expression argument in e.Function is FunctionDeclaration ? e.Arguments.Reverse() : e.Arguments)
         {
             argument.Accept(this);
         }
@@ -432,7 +432,6 @@ public class PsVmCodegen : IAstVisitor
             throw new InvalidOperationException("No block scope");
         }
 
-        // Уникальное имя переменной с индикатором вложенности, вместо вложенных областей видимости для каждого блока
         mappedName = $"{originalName}__{_uniqueCounter++}";
         _shadowStack.Peek()[originalName] = mappedName;
     }

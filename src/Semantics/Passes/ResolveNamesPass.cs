@@ -29,6 +29,8 @@ public sealed class ResolveNamesPass : AbstractPass
         d.ResultType = declaredType.ResultType;
         d.DeclaredType = declaredType;
 
+        _symbols.PushScope(false);
+
         foreach (AbstractParameterDeclaration param in d.Parameters)
         {
             ParameterDeclaration paramDecl = (ParameterDeclaration)param;
@@ -37,6 +39,8 @@ public sealed class ResolveNamesPass : AbstractPass
 
         _symbols.DeclareFunction(d);
         base.Visit(d);
+
+        _symbols.PopScope();
     }
 
     public override void Visit(FunctionCallExpression e)
@@ -47,7 +51,7 @@ public sealed class ResolveNamesPass : AbstractPass
 
     public override void Visit(BlockStatement s)
     {
-        _symbols.PushScope();
+        _symbols.PushScope(true);
 
         foreach (AstNode nested in s.Statements)
         {

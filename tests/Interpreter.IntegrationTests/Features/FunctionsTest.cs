@@ -22,6 +22,212 @@ public class FunctionsTest
         {
             {
                 @"
+                fn double(x: int): int {
+                    x = x * 2; // изменение локальной копии
+                    return x;
+                }
+
+                fn inc(x: int): int {
+                    x = x + 1;
+                    return x;
+                }
+
+                fn compute(a: int, b: int): int {
+                    let da = double(a);
+                    let ib = inc(b);
+                    return da + ib;
+                }
+
+                fn main(): int {
+                    let x = 10;
+                    let y = 20;
+                    let result = compute(x, y);
+                    // double(10)=20, inc(20)=21, сумма = 41
+                    printi(result);
+                    // Проверим, что x и y не изменились (передача по значению)
+                    printi(x);
+                    printi(y);
+                    return 0;
+                }
+                ", [], "411020"
+            },
+            /*
+            {
+                @"
+                fn countdown(n: int): unit {
+
+                    if (n == 0) {
+                        print(""Go!"");
+                        return;
+                    }
+
+                    printi(n);
+                    countdown(n - 1);
+                }
+                fn main(): int {
+                    countdown(3);
+                    return 0;
+                }
+                ", [], "321Go!"
+            }, */
+            {
+                @"
+                fn multiple_ifs(a: int, b: int): int {
+                    if (a > b) {
+                        if ((a - b) > 10) {
+                            return 1;
+                        } else {
+                            return 2;
+                        }
+                    } else {
+                        if ((b - a) > 10) {
+                            return 3;
+                        } else {
+                            return 4;
+                        }
+                    }
+                }
+                fn main(): int {
+                    printi(multiple_ifs(20, 5));  // 20 - 5 = 15 > 10 -> 1
+                    printi(multiple_ifs(12, 5));  // 7 не > 10 -> 2
+                    printi(multiple_ifs(5, 20));  // 15 > 10 -> 3
+                    printi(multiple_ifs(5, 12));  // 7 не > 10 -> 4
+                    return 0;
+                }
+                ", [], "1234"
+            },
+            {
+                @"
+                fn nested_blocks(x: int): int {
+                    let y = 10;
+                    if (x > 0) {
+                        let z = 20;
+                        return x + y + z;
+                    }
+                    return x;
+                }
+                fn main(): int {
+                    printi(nested_blocks(5));
+                    printi(nested_blocks(-2));
+                    return 0;
+                }
+                ", [], "35-2"
+            },
+            {
+                @"
+                fn sum_to_n(n: int): int {
+                    if (n <= 0) { return 0; }
+                    return n + sum_to_n(n - 1);
+                }
+                fn main(): int {
+                    printi(sum_to_n(30));
+                    return 0;
+                }
+                ", [], "465"
+            },
+            {
+                @"
+                fn is_positive(x: int): bool {
+                    return x > 0;
+                }
+                fn main(): int {
+                    printb(is_positive(5));
+                    printb(is_positive(-3));
+                    return 0;
+                }
+                ", [], "TrueFalse"
+            },
+            {
+                @"
+                fn greet_user(name: str): str {
+                    return sconcat(""Hello, "", ""Alice!"");
+                }
+                fn main(): int {
+                    print(greet_user(""Alice""));
+                    return 0;
+                }
+                ", [], "Hello, Alice!"
+            },
+            {
+                @"
+                fn sign(x: int): int {
+                    if (x > 0) { return 1; }
+                    if (x < 0) { return -1; }
+                    return 0;
+                }
+
+                fn main(): int {
+                    printi(sign(10));
+                    printi(sign(0));
+                    printi(sign(-5));
+                    return 0;
+                }
+                ", [], "10-1"
+            },
+            {
+                @"
+                fn less_than_ten(n: int): bool {
+                    return n < 10;
+                }
+                fn main(): int {
+                    if (less_than_ten(5)) {
+                        printi(100);
+                    } else {
+                        printi(200);
+                    }
+                    return 0;
+                }
+                ", [], "100"
+            },
+            {
+                @"
+                fn test_shadowing(): int {
+                    let x = 1;
+                    if (true) {
+                        let x = 2;
+                        printi(x);
+                    }
+                    printi(x);
+                    return 0;
+                }
+                fn main(): int {
+                    test_shadowing();
+                    return 0;
+                }
+                ", [], "21"
+            },
+            {
+                @"
+                fn inc(x: int): int {
+                    x = x + 1;
+                    return x;
+                }
+                fn main(): int {
+                    let a = 10;
+                    let b = inc(a);
+                    printi(a);   // 10
+                    printi(b);   // 11
+                    return 0;
+                }
+                ", [], "1011"
+            },
+            {
+                @"
+                fn fib(n: int): int {
+                    if (n <= 1) {
+                        return n;
+                    }
+                    return fib(n - 1) + fib(n - 2);
+                }
+
+                fn main(): int {
+                    printi(fib(7));
+                    return 0;
+                }
+                ", [], "13"
+            },
+            {
+                @"
                 fn fact(n: int): int {  
 
                     if (n <= 1) {

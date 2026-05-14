@@ -10,19 +10,17 @@ public sealed class SymbolsTable
 {
     private readonly Dictionary<string, Declaration> _functions;
     private readonly Dictionary<string, Declaration> _types;
-
     private Scope? _scope;
 
     public SymbolsTable()
     {
         _functions = [];
         _types = [];
-        _scope = new();
     }
 
-    public void PushScope()
+    public void PushScope(bool setParent = true)
     {
-        _scope = new(_scope);
+        _scope = new(setParent ? _scope : null);
     }
 
     public void PopScope()

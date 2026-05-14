@@ -1,3 +1,4 @@
+using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
@@ -14,19 +15,26 @@ namespace Semantics.Passes;
 /// </remarks>
 public sealed class CheckContextSensitiveRulesPass : AbstractPass
 {
-    private readonly Stack<ExpressionContext> expressionContextStack;
+    private readonly Stack<Context> contextStack;
 
     public CheckContextSensitiveRulesPass()
     {
-        expressionContextStack = [];
-        expressionContextStack.Push(ExpressionContext.TopLevel);
+        contextStack = [];
+        contextStack.Push(Context.TopLevel);
     }
 
-    private enum ExpressionContext
+    private enum Context
     {
         TopLevel,
         Loop,
         Function,
+    }
+
+    public override void Visit(FunctionDeclaration e)
+    {
+        contextStack.Push(Context.Function);
+        base.Visit(e);
+        contextStack.Pop();
     }
 
     public override void Visit(AssignmentStatement e)
@@ -40,33 +48,33 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
 
     public override void Visit(WhileLoopStatement s)
     {
-        expressionContextStack.Push(ExpressionContext.Loop);
+        contextStack.Push(Context.Loop);
         base.Visit(s);
-        expressionContextStack.Pop();
+        contextStack.Pop();
     }
 
     public override void Visit(ForLoopStatement s)
     {
-        expressionContextStack.Push(ExpressionContext.Loop);
+        contextStack.Push(Context.Loop);
         base.Visit(s);
-        expressionContextStack.Pop();
+        contextStack.Pop();
     }
 
-    public override void Visit(ContinueStatement e)
+    public override void Visit(ContinueStatement s)
     {
-        base.Visit(e);
-        if (expressionContextStack.Peek() != ExpressionContext.Loop)
+        base.Visit(s);
+        if (contextStack.Peek() != Context.Loop)
         {
-            throw new InvalidOperationException("The \"continue\" expression is allowed only inside the loop");
+            throw new InvalidStatementException("\"continue\" statement is allowed only inside of while/for loop body");
         }
     }
 
-    public override void Visit(BreakStatement e)
+    public override void Visit(BreakStatement s)
     {
-        base.Visit(e);
-        if (expressionContextStack.Peek() != ExpressionContext.Loop)
+        base.Visit(s);
+        if (contextStack.Peek() != Context.Loop)
         {
-            throw new InvalidOperationException("The \"break\" expression is allowed only inside the loop");
+            throw new InvalidStatementException("\"break\" statement is allowed only inside of while/for loop body");
         }
     }
 

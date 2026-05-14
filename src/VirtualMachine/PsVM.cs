@@ -33,7 +33,7 @@ public class PsVm
     /// <summary>
     /// Таблицы переменных
     /// </summary>
-    private VariablesTable? _variables;
+    private VariablesTable? _variables = new();
 
     /// <summary>
     /// Словарь для хранения локальных переменных по имени.

@@ -237,7 +237,7 @@ public class PsVmCodegen : IAstVisitor
         _functions[d.Name] = functionBlock;
 
         PushScope();
-        _builder.Append(new Instruction(InstructionCode.PushVars));
+        // _builder.Append(new Instruction(InstructionCode.PushVars));
 
         foreach (AbstractParameterDeclaration paramDecl in d.Parameters)
         {
@@ -251,11 +251,13 @@ public class PsVmCodegen : IAstVisitor
         if (!_hasReturn && !isEntryPoint)
         {
             _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
-            _builder.Append(new Instruction(InstructionCode.PopVars));
+            // _builder.Append(new Instruction(InstructionCode.PopVars));
             _builder.Append(new Instruction(InstructionCode.Return));
         }
 
-        PopScope(); // PopVars выполняется в ReturnStatement
+        PopScope();
+        // _builder.Append(new Instruction(InstructionCode.PopVars));
+
         _builder.InsertPoint = previousBlock;
     }
 
@@ -272,7 +274,7 @@ public class PsVmCodegen : IAstVisitor
             _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
         }
 
-        _builder.Append(new Instruction(InstructionCode.PopVars));
+        // _builder.Append(new Instruction(InstructionCode.PopVars));
 
         if (_currentFunction == "main")
         {

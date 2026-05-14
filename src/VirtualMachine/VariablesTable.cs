@@ -35,6 +35,15 @@ public sealed class VariablesTable
     /// </summary>
     public void DefineVariable(string name, Value value)
     {
+        /*
+        if (_variables.ContainsKey(name))
+        {
+            _variables[name] = value;
+            return;
+        }
+
+        _variables.Add(name, value);
+        */
         if (!_variables.TryAdd(name, value))
         {
             throw new InvalidOperationException($"Variable with name {name} already defined");

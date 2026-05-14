@@ -64,13 +64,18 @@ public class PsVmCodegen : IAstVisitor
             },
         };
 
+    /// <summary>
+    /// Стек со ссылками на блоки после текущих циклов (while и for).
+    /// Используется для генерации прерывания цикла (break).
+    /// </summary>
+    private readonly Stack<BasicBlock> _currentLoopFinalBlockStack = new();
     private readonly Stack<Dictionary<string, string>> _shadowStack = new();
     private readonly Dictionary<string, BasicBlock> _functions = new();
     private readonly InstructionsBuilder _builder = new();
     private int _uniqueCounter;
 
     private string _currentFunction;
-    private bool _hasReturn = false;
+    private bool _hasReturn;
 
     public List<Instruction> GenerateCode(EntryPointNode program)
     {
@@ -329,6 +334,72 @@ public class PsVmCodegen : IAstVisitor
 
             _builder.InsertPoint = finalBlock;
         }
+    }
+
+    public void Visit(WhileLoopStatement s)
+    {
+        BasicBlock loopBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+        _currentLoopFinalBlockStack.Push(finalBlock);
+
+        // Переход в начало цикла.
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+        _builder.InsertPoint = loopBlock;
+
+        // Проверяем условие и завершаем цикл, если оно ложно.
+        s.Condition.Accept(this);
+        _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
+
+        // Генерируем тело цикла и переход к началу цикла.
+        s.LoopBody.Accept(this);
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+
+        _currentLoopFinalBlockStack.Pop();
+        _builder.InsertPoint = finalBlock;
+    }
+
+    public void Visit(ForLoopStatement s)
+    {
+        BasicBlock loopBlock = _builder.CreateBasicBlock();
+        BasicBlock finalBlock = _builder.CreateBasicBlock();
+        _currentLoopFinalBlockStack.Push(finalBlock);
+
+        // Итератор может скрывать переменные окружающей области видимости, поэтому мы добавляем область видимости.
+        PushScope();
+
+        // Инициализация итератора цикла
+        s.Counter.Accept(this);
+        string iteratorName = GetMappedName(s.Iterator);
+
+        // Переход в начало цикла
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+        _builder.InsertPoint = loopBlock;
+
+        // Проверяем значение итератора и завершаем цикл, если итератор больше своего финального значения.
+        _builder.Append(new Instruction(InstructionCode.LoadLocal, iteratorName));
+        s.Condition.Accept(this);
+        _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
+
+        // Генерируем тело цикла, инкремент итератора и переход к началу цикла
+        s.LoopBody.Accept(this);
+        s.Update?.Accept(this);
+
+        _builder.AppendJump(InstructionCode.Jump, loopBlock);
+
+        _currentLoopFinalBlockStack.Pop();
+        _builder.InsertPoint = finalBlock;
+
+        PopScope();
+    }
+
+    public void Visit(BreakStatement s)
+    {
+        BasicBlock loopFinalBlock = _currentLoopFinalBlockStack.Peek();
+        _builder.AppendJump(InstructionCode.Jump, loopFinalBlock);
+    }
+
+    public void Visit(ContinueStatement s)
+    {
     }
 
     private void GenerateLogicalAndCode(BinaryOperationExpression e)

@@ -9,12 +9,6 @@ public abstract class AbstractVariableDeclaration : Declaration
     {
         Name = name;
         DeclaredType = type;
-
-        /*
-        if (type != null)
-        {
-            ResultType = DeclaredType!.ResultType;
-        } */
     }
 
     public string Name { get; }

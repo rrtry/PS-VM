@@ -79,6 +79,20 @@ public abstract class AbstractPass : IAstVisitor
         s.ElseBranch?.Accept(this);
     }
 
+    public virtual void Visit(WhileLoopStatement s)
+    {
+        s.Condition.Accept(this);
+        s.LoopBody.Accept(this);
+    }
+
+    public virtual void Visit(ForLoopStatement s)
+    {
+        s.Counter.Accept(this);
+        s.Condition.Accept(this);
+        s.Update?.Accept(this);
+        s.LoopBody.Accept(this);
+    }
+
     public virtual void Visit(ParameterDeclaration d)
     {
     }
@@ -88,6 +102,14 @@ public abstract class AbstractPass : IAstVisitor
     }
 
     public virtual void Visit(LiteralExpression e)
+    {
+    }
+
+    public virtual void Visit(BreakStatement s)
+    {
+    }
+
+    public virtual void Visit(ContinueStatement s)
     {
     }
 }

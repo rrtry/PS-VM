@@ -1,7 +1,5 @@
 namespace Parser;
 
-using System.Reflection.Metadata;
-
 using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
@@ -254,6 +252,26 @@ public class Parser
                 Match(TokenType.Semicolon);
                 break;
 
+            case TokenType.For:
+                evaluated = ParseForLoopStatement();
+                break;
+
+            case TokenType.While:
+                evaluated = ParseWhileLoopStatement();
+                break;
+
+            case TokenType.Break:
+                _tokens.Advance();
+                evaluated = new BreakStatement();
+                Match(TokenType.Semicolon);
+                break;
+
+            case TokenType.Continue:
+                _tokens.Advance();
+                evaluated = new ContinueStatement();
+                Match(TokenType.Semicolon);
+                break;
+
             default:
                 evaluated = _tokens.Peek(1).Type == TokenType.Assign ? ParseAssignmentStatement() : ParseExpression();
                 Match(TokenType.Semicolon);
@@ -261,6 +279,42 @@ public class Parser
         }
 
         return evaluated;
+    }
+
+    private WhileLoopStatement ParseWhileLoopStatement()
+    {
+        Match(TokenType.While);
+
+        Match(TokenType.LeftParen);
+        Expression condition = ParseExpression();
+        Match(TokenType.RightParen);
+
+        BlockStatement body = ParseBlockStatement();
+        return new WhileLoopStatement(condition, body);
+    }
+
+    private ForLoopStatement ParseForLoopStatement()
+    {
+        Match(TokenType.For);
+        Match(TokenType.LeftParen);
+        AstNode initialization = ParseStatement();
+
+        string name = initialization switch
+        {
+            VariableDeclaration varDecl => varDecl.Name,
+            AssignmentStatement assignStmt => ((IdentifierExpression)assignStmt.Left).Name,
+            _ => throw new InvalidOperationException("Invalid for loop initialization"),
+        };
+
+        Expression condition = ParseExpression();
+        Match(TokenType.Semicolon);
+
+        // Optional
+        AstNode update = ParseStatement();
+        Match(TokenType.RightParen);
+
+        BlockStatement body = ParseBlockStatement();
+        return new ForLoopStatement(name, initialization, condition, update, body);
     }
 
     /// <summary>

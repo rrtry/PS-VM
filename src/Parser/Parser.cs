@@ -309,8 +309,7 @@ public class Parser
         Expression condition = ParseExpression();
         Match(TokenType.Semicolon);
 
-        // Optional
-        AstNode update = ParseStatement();
+        AstNode update = ParseAssignmentStatement();
         Match(TokenType.RightParen);
 
         BlockStatement body = ParseBlockStatement();

@@ -69,6 +69,12 @@ public class PsVmCodegen : IAstVisitor
     /// Используется для генерации прерывания цикла (break).
     /// </summary>
     private readonly Stack<BasicBlock> _currentLoopFinalBlockStack = new();
+
+    /// <summary>
+    /// Стек со ссылками на блоки после текущих циклов (while и for).
+    /// Используется для генерации прерывания цикла (continue).
+    /// </summary>
+    private readonly Stack<BasicBlock> _currentLoopContinueBlockStack = new();
     private readonly Stack<Dictionary<string, string>> _shadowStack = new();
     private readonly Dictionary<string, BasicBlock> _functions = new();
     private readonly InstructionsBuilder _builder = new();
@@ -340,7 +346,9 @@ public class PsVmCodegen : IAstVisitor
     {
         BasicBlock loopBlock = _builder.CreateBasicBlock();
         BasicBlock finalBlock = _builder.CreateBasicBlock();
+
         _currentLoopFinalBlockStack.Push(finalBlock);
+        _currentLoopContinueBlockStack.Push(loopBlock);
 
         // Переход в начало цикла.
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
@@ -355,38 +363,47 @@ public class PsVmCodegen : IAstVisitor
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
 
         _currentLoopFinalBlockStack.Pop();
+        _currentLoopContinueBlockStack.Pop();
+
         _builder.InsertPoint = finalBlock;
     }
 
     public void Visit(ForLoopStatement s)
     {
-        BasicBlock loopBlock = _builder.CreateBasicBlock();
+        BasicBlock loopBlock = _builder.CreateBasicBlock();      // проверка условия
+        BasicBlock continueBlock = _builder.CreateBasicBlock();  // инкремент и переход
         BasicBlock finalBlock = _builder.CreateBasicBlock();
-        _currentLoopFinalBlockStack.Push(finalBlock);
 
-        // Итератор может скрывать переменные окружающей области видимости, поэтому мы добавляем область видимости.
+        _currentLoopFinalBlockStack.Push(finalBlock);
+        _currentLoopContinueBlockStack.Push(continueBlock);
+
         PushScope();
 
-        // Инициализация итератора цикла
+        // Инициализация итератора
         s.Counter.Accept(this);
         string iteratorName = GetMappedName(s.Iterator);
 
-        // Переход в начало цикла
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
         _builder.InsertPoint = loopBlock;
 
-        // Проверяем значение итератора и завершаем цикл, если итератор больше своего финального значения.
+        // Проверка условия
         _builder.Append(new Instruction(InstructionCode.LoadLocal, iteratorName));
         s.Condition.Accept(this);
         _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
 
-        // Генерируем тело цикла, инкремент итератора и переход к началу цикла
+        // Тело цикла
         s.LoopBody.Accept(this);
-        s.Update?.Accept(this);
 
+        // Переход на блок continue (инкремент и повтор)
+        _builder.AppendJump(InstructionCode.Jump, continueBlock);
+
+        // Блок continue: инкремент и переход к проверке условия
+        _builder.InsertPoint = continueBlock;
+        s.Update?.Accept(this);
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
 
         _currentLoopFinalBlockStack.Pop();
+        _currentLoopContinueBlockStack.Pop();
         _builder.InsertPoint = finalBlock;
 
         PopScope();
@@ -400,6 +417,8 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(ContinueStatement s)
     {
+        BasicBlock continueBlock = _currentLoopContinueBlockStack.Peek();
+        _builder.AppendJump(InstructionCode.Jump, continueBlock);
     }
 
     private void GenerateLogicalAndCode(BinaryOperationExpression e)

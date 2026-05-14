@@ -51,7 +51,6 @@ public class FunctionsTest
                 }
                 ", [], "411020"
             },
-            /*
             {
                 @"
                 fn countdown(n: int): unit {
@@ -69,7 +68,7 @@ public class FunctionsTest
                     return 0;
                 }
                 ", [], "321Go!"
-            }, */
+            },
             {
                 @"
                 fn multiple_ifs(a: int, b: int): int {

@@ -76,16 +76,6 @@ public enum InstructionCode
     DefineLocal,
 
     /// <summary>
-    /// Логическиое "ИЛИ"
-    /// </summary>
-    Or,
-
-    /// <summary>
-    /// Логическое "И"
-    /// </summary>
-    And,
-
-    /// <summary>
     /// Операция "МЕНЬШЕ" <
     /// </summary>
     Less,

@@ -244,6 +244,19 @@ public class ControlFlowTest
             {
                 @"
                 fn main(): int {
+                    let x = 0;
+                    if (false && (10 / x == 0)) {
+                        print(""error"");
+                    } else {
+                        print(""ok"");
+                    }
+                    return 0;
+                }
+                ", [], "ok"
+            },
+            {
+                @"
+                fn main(): int {
                     let x = 10;
                     let y = 20;
 

@@ -145,6 +145,34 @@ public class FunctionsTest
         {
             {
                 @"
+                fn side_effect(): bool {
+                    print(""side effect!"");
+                    return true;
+                }
+
+                fn main(): int {
+                    let b = false && side_effect();
+                    print(""done"");
+                    return 0;
+                }
+                ", [], "done"
+            },
+            {
+                @"
+                fn side_effect(): bool {
+                    print(""side effect!"");
+                    return true;
+                }
+
+                fn main(): int {
+                    let b = true || side_effect();
+                    print(""done"");
+                    return 0;
+                }
+                ", [], "done"
+            },
+            {
+                @"
                 fn double(x: int): int {
                     x = x * 2; // изменение локальной копии
                     return x;

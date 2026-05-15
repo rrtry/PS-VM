@@ -75,12 +75,10 @@ public class PsVmCodegen : IAstVisitor
     /// Используется для генерации прерывания цикла (continue).
     /// </summary>
     private readonly Stack<BasicBlock> _currentLoopContinueBlockStack = new();
-    private readonly Stack<Dictionary<string, string>> _shadowStack = new();
     private readonly Dictionary<string, BasicBlock> _functions = new();
     private readonly InstructionsBuilder _builder = new();
-    private int _uniqueCounter;
 
-    private string _currentFunction;
+    private string? _currentFunction;
     private bool _hasReturn;
 
     public List<Instruction> GenerateCode(EntryPointNode program)
@@ -237,25 +235,21 @@ public class PsVmCodegen : IAstVisitor
         _functions[d.Name] = functionBlock;
 
         PushScope();
-        _builder.Append(new Instruction(InstructionCode.PushVars));
-
         foreach (AbstractParameterDeclaration paramDecl in d.Parameters)
         {
             ParameterDeclaration param = (ParameterDeclaration)paramDecl;
-            DefineVariable(param.Name, out string mappedName);
-            _builder.Append(new Instruction(InstructionCode.DefineLocal, mappedName));
+            _builder.Append(new Instruction(InstructionCode.DefineLocal, param.Name));
         }
 
         d.Body.Accept(this);
+        PopScope();
 
         if (!_hasReturn && !isEntryPoint)
         {
             _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
-            _builder.Append(new Instruction(InstructionCode.PopVars));
             _builder.Append(new Instruction(InstructionCode.Return));
         }
 
-        PopScope(); // PopVars выполняется в ReturnStatement
         _builder.InsertPoint = previousBlock;
     }
 
@@ -272,8 +266,6 @@ public class PsVmCodegen : IAstVisitor
             _builder.Append(new Instruction(InstructionCode.Push, Value.Unit));
         }
 
-        _builder.Append(new Instruction(InstructionCode.PopVars));
-
         if (_currentFunction == "main")
         {
             _builder.Append(new Instruction(InstructionCode.Halt));
@@ -286,23 +278,22 @@ public class PsVmCodegen : IAstVisitor
 
     public void Visit(IdentifierExpression e)
     {
-        string mappedName = GetMappedName(e.Name);
-        _builder.Append(new Instruction(InstructionCode.LoadLocal, mappedName));
+        string name = e.Name;
+        _builder.Append(new Instruction(InstructionCode.LoadLocal, name));
     }
 
     public void Visit(VariableDeclaration d)
     {
         d.Initializer.Accept(this);
-        DefineVariable(d.Name, out string mappedName);
-        _builder.Append(new Instruction(InstructionCode.DefineLocal, mappedName));
+        _builder.Append(new Instruction(InstructionCode.DefineLocal, d.Name));
     }
 
     public void Visit(AssignmentStatement s)
     {
         IdentifierExpression lvalue = (IdentifierExpression)s.Left;
-        string mappedName = GetMappedName(lvalue.Name);
+        string name = lvalue.Name;
         s.Right.Accept(this);
-        _builder.Append(new Instruction(InstructionCode.StoreLocal, mappedName));
+        _builder.Append(new Instruction(InstructionCode.StoreLocal, name));
     }
 
     public void Visit(ParameterDeclaration d)
@@ -381,7 +372,7 @@ public class PsVmCodegen : IAstVisitor
 
         // Инициализация итератора
         s.Counter.Accept(this);
-        string iteratorName = GetMappedName(s.Iterator);
+        string iteratorName = s.Iterator;
 
         _builder.AppendJump(InstructionCode.Jump, loopBlock);
         _builder.InsertPoint = loopBlock;
@@ -392,7 +383,9 @@ public class PsVmCodegen : IAstVisitor
         _builder.AppendJump(InstructionCode.JumpIfFalse, finalBlock);
 
         // Тело цикла
+        PushScope();
         s.LoopBody.Accept(this);
+        PopScope();
 
         // Переход на блок continue (инкремент и повтор)
         _builder.AppendJump(InstructionCode.Jump, continueBlock);
@@ -494,36 +487,12 @@ public class PsVmCodegen : IAstVisitor
 
     private void PushScope()
     {
-        _shadowStack.Push(new Dictionary<string, string>());
+        _builder.Append(new Instruction(InstructionCode.PushVars));
     }
 
     private void PopScope()
     {
-        _shadowStack.Pop();
-    }
-
-    private string GetMappedName(string originalName)
-    {
-        foreach (Dictionary<string, string> map in _shadowStack)
-        {
-            if (map.TryGetValue(originalName, out string? mapped))
-            {
-                return mapped;
-            }
-        }
-
-        throw new InvalidOperationException($"Variable '{originalName}' not found");
-    }
-
-    private void DefineVariable(string originalName, out string mappedName)
-    {
-        if (_shadowStack.Count == 0)
-        {
-            throw new InvalidOperationException("No block scope");
-        }
-
-        mappedName = $"{originalName}__{_uniqueCounter++}";
-        _shadowStack.Peek()[originalName] = mappedName;
+        _builder.Append(new Instruction(InstructionCode.PopVars));
     }
 
     private static int GetBuiltinFunctionCode(string name)

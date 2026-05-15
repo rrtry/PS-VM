@@ -1,5 +1,7 @@
 namespace Parser;
 
+using System.Data;
+
 using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
@@ -101,7 +103,6 @@ public class Parser
         Match(TokenType.RightParen);
 
         string typeName = "unit";
-        ValueType typeValue = ValueType.Unit;
         BlockStatement body;
 
         if (_tokens.Peek().Type == TokenType.LeftBrace)
@@ -111,13 +112,16 @@ public class Parser
         }
 
         Match(TokenType.Colon);
-        MatchBuiltinType(out typeName, out typeValue);
+        MatchBuiltinType(out typeName, out _);
 
         _tokens.Advance();
         body = ParseBlockStatement();
         return new FunctionDeclaration(fnName, fnParams, typeName, body);
     }
 
+    /// <summary>
+    /// parameter_list = parameter , { "," , parameter } ;
+    /// </summary>
     private List<ParameterDeclaration> ParseParameterDeclarationList()
     {
         List<ParameterDeclaration> declarations = [];
@@ -135,6 +139,10 @@ public class Parser
         return declarations;
     }
 
+    /// <summary>
+    /// parameter = identifier , ":" , type ;
+    /// type      = "int" | "float" | "str" | "bool" | "unit" ;
+    /// </summary>
     private ParameterDeclaration ParseParameterDeclaration()
     {
         string name = Match(TokenType.Identifier).Value!.ToString();
@@ -160,6 +168,9 @@ public class Parser
         return new ReturnStatement(returnExpression);
     }
 
+    /// <summary>
+    /// variable_declaration = "let" , identifier , [ ":" , type ] , "=" , expression ;
+    /// </summary>
     private VariableDeclaration ParseVariableDeclaration()
     {
         Match(TokenType.Let);
@@ -192,6 +203,9 @@ public class Parser
         );
     }
 
+    /// <summary>
+    /// assign_statement = identifier , "=" , expression ;
+    /// </summary>
     private AssignmentStatement ParseAssignmentStatement()
     {
         Expression left = ParseExpression();
@@ -201,6 +215,9 @@ public class Parser
         return new AssignmentStatement(left, right);
     }
 
+    /// <summary>
+    /// if_statement = "if" , "(" , expression , ")" , block , [ "else" , block ] ;
+    /// </summary>
     private IfElseStatement ParseIfElseStatement()
     {
         Match(TokenType.If);
@@ -281,6 +298,9 @@ public class Parser
         return evaluated;
     }
 
+    /// <summary>
+    /// while_statement = "while" , "(" , expression , ")" , block ;
+    /// </summary>
     private WhileLoopStatement ParseWhileLoopStatement()
     {
         Match(TokenType.While);
@@ -293,6 +313,10 @@ public class Parser
         return new WhileLoopStatement(condition, body);
     }
 
+    /// <summary>
+    /// for_statement = "for" , "(" , ( variable_declaration | assign_statement ) , ";"
+    ///            , expression , ";" , assign_statement , ")" , block ;
+    /// </summary>
     private ForLoopStatement ParseForLoopStatement()
     {
         Match(TokenType.For);
@@ -303,7 +327,7 @@ public class Parser
         {
             VariableDeclaration varDecl => varDecl.Name,
             AssignmentStatement assignStmt => ((IdentifierExpression)assignStmt.Left).Name,
-            _ => throw new InvalidOperationException("Invalid for loop initialization"),
+            _ => throw new SyntaxErrorException("Invalid for loop initialization"),
         };
 
         Expression condition = ParseExpression();
@@ -336,8 +360,7 @@ public class Parser
     }
 
     /// <summary>
-    /// expression = logical_or; // начиная с 4-ей итерации
-    /// expression = additive; // 2-ая итерация
+    /// expression = logical_or;
     /// </summary>
     private Expression ParseExpression() => ParseLogicalOr();
 

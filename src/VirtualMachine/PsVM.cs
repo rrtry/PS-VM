@@ -31,9 +31,14 @@ public class PsVm
     private readonly Stack<int> _callStack;
 
     /// <summary>
-    /// Таблицы переменных
+    /// Таблица переменных.
     /// </summary>
-    private VariablesTable? _variables;
+    private VariablesTable? _variables = new();
+
+    /// <summary>
+    /// Стек фреймов.
+    /// </summary>
+    private readonly Stack<VariablesTable?> _frameStack = new();
 
     /// <summary>
     /// Словарь для хранения локальных переменных по имени.
@@ -75,7 +80,7 @@ public class PsVm
                         _evaluationStack.Push(
                             left.IsDouble() || right.IsDouble()
                                 ? new Value(left.AsDouble() + right.AsDouble())
-                                : new Value(left.AsLong() + right.AsLong())
+                                : new Value(left.AsInt() + right.AsInt())
                         );
                         break;
                     }
@@ -88,7 +93,7 @@ public class PsVm
                         _evaluationStack.Push(
                             left.IsDouble() || right.IsDouble()
                                 ? new Value(left.AsDouble() - right.AsDouble())
-                                : new Value(left.AsLong() - right.AsLong())
+                                : new Value(left.AsInt() - right.AsInt())
                         );
                         break;
                     }
@@ -101,7 +106,7 @@ public class PsVm
                         _evaluationStack.Push(
                             left.IsDouble() || right.IsDouble()
                                 ? new Value(left.AsDouble() * right.AsDouble())
-                                : new Value(left.AsLong() * right.AsLong())
+                                : new Value(left.AsInt() * right.AsInt())
                         );
                         break;
                     }
@@ -114,7 +119,7 @@ public class PsVm
                         _evaluationStack.Push(
                             left.IsDouble() || right.IsDouble()
                                 ? new Value(left.AsDouble() / right.AsDouble())
-                                : new Value(left.AsLong() / right.AsLong())
+                                : new Value(left.AsInt() / right.AsInt())
                         );
                         break;
                     }
@@ -127,7 +132,7 @@ public class PsVm
                         _evaluationStack.Push(
                             left.IsDouble() || right.IsDouble()
                                 ? new Value(left.AsDouble() % right.AsDouble())
-                                : new Value(left.AsLong() % right.AsLong())
+                                : new Value(left.AsInt() % right.AsInt())
                         );
                         break;
                     }
@@ -154,14 +159,14 @@ public class PsVm
                     {
                         Value operand = _evaluationStack.Pop();
                         _evaluationStack.Push(
-                            operand.IsLong() ? new Value(-operand.AsLong()) : new Value(-operand.AsDouble())
+                            operand.IsInt() ? new Value(-operand.AsInt()) : new Value(-operand.AsDouble())
                         );
                     }
 
                     break;
 
                 case InstructionCode.CallBuiltin:
-                    CallBuiltin((BuiltinFunctionCode)instruction.Operand.AsLong());
+                    CallBuiltin((BuiltinFunctionCode)instruction.Operand.AsInt());
                     break;
 
                 case InstructionCode.DefineLocal:
@@ -187,24 +192,6 @@ public class PsVm
                         string varName = instruction.Operand.AsString();
                         Value value = _evaluationStack.Pop();
                         _variables!.AssignVariable(varName, value);
-                    }
-
-                    break;
-
-                case InstructionCode.Or:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.AsBool() || right.AsBool()));
-                    }
-
-                    break;
-
-                case InstructionCode.And:
-                    {
-                        Value right = _evaluationStack.Pop();
-                        Value left = _evaluationStack.Pop();
-                        _evaluationStack.Push(new Value(left.AsBool() && right.AsBool()));
                     }
 
                     break;
@@ -255,7 +242,7 @@ public class PsVm
 
                 case InstructionCode.Jump:
                     {
-                        _instructionPointer = (int)instruction.Operand.AsLong();
+                        _instructionPointer = (int)instruction.Operand.AsInt();
                     }
 
                     break;
@@ -265,7 +252,7 @@ public class PsVm
                         Value condition = _evaluationStack.Pop();
                         if (condition.AsBool())
                         {
-                            _instructionPointer = (int)instruction.Operand.AsLong();
+                            _instructionPointer = (int)instruction.Operand.AsInt();
                         }
                     }
 
@@ -276,7 +263,7 @@ public class PsVm
                         Value condition = _evaluationStack.Pop();
                         if (!condition.AsBool())
                         {
-                            _instructionPointer = (int)instruction.Operand.AsLong();
+                            _instructionPointer = (int)instruction.Operand.AsInt();
                         }
                     }
 
@@ -284,9 +271,10 @@ public class PsVm
 
                 case InstructionCode.Call:
                     {
-                        int target = (int)instruction.Operand.AsLong();
+                        int target = (int)instruction.Operand.AsInt();
                         _callStack.Push(_instructionPointer);
-                        _variables = new VariablesTable(_variables);
+                        _frameStack.Push(_variables);
+                        _variables = null;
                         _instructionPointer = target;
                     }
 
@@ -295,7 +283,7 @@ public class PsVm
                 case InstructionCode.Return:
                     {
                         Value retVal = _evaluationStack.Pop();
-                        _variables = _variables!.Parent;
+                        _variables = _frameStack.Pop();
                         _instructionPointer = _callStack.Pop();
                         _evaluationStack.Push(retVal);
                     }
@@ -311,7 +299,7 @@ public class PsVm
                     break;
 
                 case InstructionCode.Halt:
-                    _exitCode = (int)_evaluationStack.Pop().AsLong();
+                    _exitCode = (int)_evaluationStack.Pop().AsInt();
                     return _exitCode;
 
                 default:

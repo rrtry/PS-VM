@@ -119,7 +119,7 @@ public class Value
     /// <summary>
     /// Определяет, является ли значение целым числом.
     /// </summary>
-    public bool IsLong()
+    public bool IsInt()
     {
         return _value is long;
     }
@@ -127,7 +127,7 @@ public class Value
     /// <summary>
     /// Возвращает значение как целое число либо бросает исключение.
     /// </summary>
-    public long AsLong()
+    public long AsInt()
     {
         return _value switch
         {
@@ -155,7 +155,7 @@ public class Value
     {
         return _value switch
         {
-            long i => i < other.AsLong(),
+            long i => i < other.AsInt(),
             double d => d < other.AsDouble(),
             _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
         };
@@ -168,7 +168,7 @@ public class Value
     {
         return _value switch
         {
-            long i => i <= other.AsLong(),
+            long i => i <= other.AsInt(),
             double d => d <= other.AsDouble(),
             _ => throw new InvalidOperationException($"Cannot compare value {this} with {other}"),
         };
@@ -203,7 +203,7 @@ public class Value
         return _value switch
         {
             string s => other.AsString() == s,
-            long i => other.AsLong() == i,
+            long i => other.AsInt() == i,
             double d => other.AsDouble() == d,
             bool b => other.AsBool() == b,
             UnitValue => true,

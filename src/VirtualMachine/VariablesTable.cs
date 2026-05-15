@@ -6,12 +6,10 @@ public sealed class VariablesTable
 {
     private readonly VariablesTable? _parent;
     private readonly Dictionary<string, Value> _variables;
-    private readonly int _depth;
 
     public VariablesTable(VariablesTable? parent = null)
     {
         _parent = parent;
-        _depth = (parent?._depth ?? 0) + 1;
         _variables = [];
     }
 
@@ -25,6 +23,11 @@ public sealed class VariablesTable
         if (_variables.TryGetValue(name, out Value? value))
         {
             return value;
+        }
+
+        if (_parent != null)
+        {
+            return _parent.GetVariable(name);
         }
 
         throw new InvalidOperationException($"No variable with name {name}");

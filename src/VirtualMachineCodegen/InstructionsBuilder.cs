@@ -53,7 +53,7 @@ public class InstructionsBuilder
             {
                 if (IsJump(instruction.Code))
                 {
-                    int targetBlockId = (int)instruction.Operand.AsLong();
+                    int targetBlockId = (int)instruction.Operand.AsInt();
                     int newAddress = blockAddress[targetBlockId];
                     instructions.Add(new Instruction(instruction.Code, newAddress));
                 }

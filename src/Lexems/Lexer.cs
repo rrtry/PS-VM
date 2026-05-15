@@ -273,10 +273,8 @@ public class Lexer
             }
         }
 
-        string separator = CultureInfo.InvariantCulture.NumberFormat.NumberDecimalSeparator; // '.'
-
         // Читаем дробную часть числа.
-        if (scanner.Peek().ToString() == separator)
+        if (scanner.Peek() == '.')
         {
             if (octal != 10)
             {

@@ -15,12 +15,12 @@ public class BuiltinFunctions
 
     public Value Itos(Value value)
     {
-        return new Value(value.AsLong().ToString(CultureInfo.InvariantCulture));
+        return new Value(value.AsInt().ToString(CultureInfo.InvariantCulture));
     }
 
     public Value Ftos(Value value, Value precision)
     {
-        return new Value(value.AsDouble().ToString($"F{precision.AsLong()}", CultureInfo.InvariantCulture));
+        return new Value(value.AsDouble().ToString($"F{precision.AsInt()}", CultureInfo.InvariantCulture));
     }
 
     public Value Ftoi(Value value)
@@ -31,7 +31,7 @@ public class BuiltinFunctions
 
     public Value Itof(Value value)
     {
-        long l = value.AsLong();
+        long l = value.AsInt();
         return new Value((double)l);
     }
 
@@ -52,7 +52,7 @@ public class BuiltinFunctions
     {
         string str = s.AsString();
         return new Value(str.Substring(
-            (int)from.AsLong(), (int)to.AsLong()
+            (int)from.AsInt(), (int)to.AsInt()
         ));
     }
 
@@ -78,7 +78,7 @@ public class BuiltinFunctions
 
     public Value Printf(Value value, Value precision)
     {
-        environment.Print(value.AsDouble().ToString($"F{precision.AsLong()}", CultureInfo.InvariantCulture));
+        environment.Print(value.AsDouble().ToString($"F{precision.AsInt()}", CultureInfo.InvariantCulture));
         return Value.Unit;
     }
 
@@ -90,7 +90,7 @@ public class BuiltinFunctions
 
     public Value Printi(Value value)
     {
-        environment.Print(value.AsLong().ToString(CultureInfo.InvariantCulture));
+        environment.Print(value.AsInt().ToString(CultureInfo.InvariantCulture));
         return Value.Unit;
     }
 
